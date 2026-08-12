@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "manuscript" / "main.tex"
 OUTPUT_DIR = ROOT / "output" / "pdf"
 TECTONIC_OUTPUT = OUTPUT_DIR / "main.pdf"
-STABLE_OUTPUT = OUTPUT_DIR / "zero_record_quantum_histories.pdf"
+STABLE_OUTPUT = OUTPUT_DIR / "causal_audit_return_memory.pdf"
 
 
 def find_tectonic(explicit: str | None) -> str:

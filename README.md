@@ -1,28 +1,29 @@
-# Zero-Record Quantum Histories
+# Causal Audit--Return Quantum Memory
 
-**Causal and interferometric certification of reversible quantum histories**
+**An exact classical-memory frontier and a coherent one-qubit separation**
 
 This repository studies one operational question:
 
-> Can a quantum process be certified to have executed a nontrivial causal history, retain only a selected predicate about it, and finish without a physically distinguishable transcript of the complete history?
+> Can a streamed quantum device retain a temporal predicate while preserving
+> the ability to return every input coherently, beyond what unlimited adaptive
+> classical memory can achieve?
 
 The project is formulated within standard quantum mechanics. It does not attempt to prove a preferred interpretation, communicate with macroscopic branches, or attribute consciousness to small quantum registers.
 
-[Read the final manuscript (PDF)](output/pdf/zero_record_quantum_histories.pdf)
+[Read the current manuscript (PDF)](output/pdf/causal_audit_return_memory.pdf)
 
-## Version 1 deliverables
+## Version 1.1 deliverables
 
-Version `v1.0` is a reproducible theory-and-simulation research artifact containing:
+Version `v1.1` is a reproducible theory-and-benchmark research artifact containing:
 
-- an operational definition of **zero-record certification**;
-- formal results about phase kickback, no-transcription, and visibility;
-- an explicit separation between a trivially compilable closed circuit and a causal task with restricted temporal access;
-- ideal and noisy simulations of reversible histories;
-- incoherent, retained-memory, absent-predicate, and direct-phase controls;
-- a multistep reversible transducer with post-memory challenge parameters,
-  plus a separate analytic late-challenge task;
-- automated tests, generated data, and publication figures;
-- a LaTeX manuscript and visually verified final PDF.
+- the exact adaptive classical-memory streaming support;
+- a strict collective classical-record comparator;
+- a one-qubit coherent strategy attaining perfect AUDIT and RETURN;
+- a proof of the first-order optimal-strategy transition for `n >= 3`;
+- conservative finite-sample certification and power planning;
+- a hardware-facing protocol and preregistration template;
+- adversarial numerical validation, deterministic data, figures, and tests;
+- a 19-page English LaTeX manuscript and visually verified final PDF.
 
 ## The central limitation
 
@@ -49,7 +50,7 @@ package. At the balanced operating point it is `0.75` for every stream length
 `n >= 2`; a coherent parity-memory qubit attains `1`. The repository now
 includes fixed-sample certification, systematic-error allowances, conservative
 power planning, deterministic frontier/forecast figures, and a preregistration
-template. This is a trusted-interface quantum-memory witness—not a claim about
+template. This is a trusted-interface quantum-memory witness--not a claim about
 Everett or consciousness.
 
 ```bash
@@ -87,7 +88,7 @@ python scripts/build_pdf.py
 
 - `manuscript/`: self-contained LaTeX preprint.
 - `output/pdf/`: visually verified final PDF.
-- `src/`: density-matrix reference simulator.
+- `src/`: exact frontier, statistical planner, and reference simulators.
 - `scripts/`: data, figure, and manuscript reproduction commands.
 - `tests/`: algebraic and numerical checks.
 - `figures/`: reproducible paper figures in vector and raster formats.
@@ -100,7 +101,11 @@ python scripts/build_pdf.py
 
 ## Epistemic firewall
 
-A positive result establishes interference and coherent control under the declared model and restrictions. It does not establish a many-worlds ontology. An anomalously negative result does not establish objective collapse before noise, drift, leakage, preparation, measurement, and imperfect reversal have been excluded.
+A positive result rejects the declared adaptive classical-memory null under the
+trusted source, timing, sequestration, and measurement assumptions. It does
+not identify a unique implementation or establish an interpretation of quantum
+mechanics. A negative result may reflect ordinary noise, leakage, drift, or
+insufficient power.
 
 ## Licence and citation
 

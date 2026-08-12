@@ -1,128 +1,101 @@
-\section{Structural results and no-go statements}
+\section{Exact frontiers and resource separation}
+\label{sec:results}
 
-This section separates exact statements from the open certification problem. The first results are elementary consequences of unitarity, but writing them together prevents a physically correct demonstration from being misreported as evidence for a uniquely realised internal narrative.
-
-\subsection{Phase survival under uncomputation}
-
-\begin{theorem}[Phase survival]
-Let $U_H$ satisfy $U_H\ket b\ket0=\ket b\ket{r_b}$ on a control basis, and let a clean oracle satisfy
-\begin{equation}
-O_p\ket b\ket{r_b}=e^{i\phi_b}\ket b\ket{r_b}.
-\end{equation}
-Then, for every superposition $\sum_b\alpha_b\ket b$,
-\begin{equation}
-U_H^\dagger O_p U_H
-\sum_b\alpha_b\ket b\ket0
-=\sum_b\alpha_b e^{i\phi_b}\ket b\ket0.
-\end{equation}
-All registers included in the inverse return to their reference state while the relative phase remains on the control.
+\begin{theorem}[Streaming parity audit--return frontier]
+For the adaptive classical-memory null in \cref{sec:model}, including arbitrary non-QND local instruments and arbitrary transcript-conditioned joint recovery,
+\begin{align}
+\Cstream
+&=\max_{0\leq t_1,\ldots,t_n\leq1}
+\left[
+\frac{\lambda}{2}\left(1+\prod_{i=1}^n t_i\right)
++(1-\lambda)\prod_{i=1}^n f(t_i)
+\right] \label{eq:productfrontier}\\
+&=\max_{0\leq t\leq1}
+\left[
+\frac{\lambda}{2}(1+t^n)+(1-\lambda)f(t)^n
+\right].
+\label{eq:frontier}
+\end{align}
+The bound is attainable by independent weak diagonal instruments.
 \end{theorem}
 
-The result requires a clean oracle. If the predicate computation leaves states $\ket{g_b}$ outside the inverse, the control coherence is multiplied by their overlaps. Copying the predicate into a classical record and retaining it is therefore not innocuous.
+The complete proof is in \cref{app:proofs}. Its logical sequence is worth stating. For each transcript, a Choi-positivity lemma upper-bounds recoverable EPR fidelity using only computational-basis likelihoods. Equation~\eqref{eq:factor} then makes the likelihood a product. Bayes' rule makes the posterior parity bias a product of $\delta_i$, while the recovery lemma makes EPR return a product of $f(\delta_i)$. An adaptive protocol is an average of realised strength profiles and cannot exceed the largest profile. Finally, the substitution $t_i=2y_i/(1+y_i^2)$ and strict convexity of $\log(1+e^{2z})$ show that equal $y_i$, hence equal $t_i$, optimise every linear support.
 
-\subsection{Endpoint compression}
-
-\begin{theorem}[Endpoint indistinguishability]
-Let two implementations induce the same completely positive trace-preserving map $\Chan$ from every admissible input to every accessible output. No experiment restricted to those endpoints distinguishes the implementations. In particular, if a known closed history circuit resets $R$ exactly and induces $V_B$ on $B$, a direct implementation of $V_B$ is operationally identical at the endpoints.
-\end{theorem}
-
-\begin{proof}
-For every input $\rho$ and output POVM element $E_y$, both implementations yield $\Tr[E_y\Chan(\rho)]$. Exact equality of channels implies zero diamond distance and hence zero discrimination advantage. When $R$ is returned to a fixed pure state by a global unitary, preservation of inner products makes the induced map on the supported subspace of $B$ an isometry, and therefore a unitary when input and output dimensions agree. A direct circuit for that unitary has the same endpoint channel.
-\end{proof}
-
-For the binary predicate circuit, $V_B=\sum_b e^{i\phi_b}\proj b$. This theorem is the reason the direct-phase control must reproduce the ideal endpoint statistics. A discrepancy would diagnose an implementation error, not historical authenticity.
-
-\begin{corollary}[No endpoint-only agent witness]
-The existence, memory size, policy depth, or phenomenological interpretation of an intermediate subsystem cannot be inferred from endpoint data alone when a comparison implementation realises the same channel.
+\begin{corollary}[Balanced null]
+For $n\geq2$ and $\lambda=1/2$,
+\[
+\Cstream=\frac34.
+\]
+The least-disturbing optimum is $t=0$: the null learns no parity beyond chance and returns every EPR pair.
 \end{corollary}
 
-\subsection{No-transcription and visibility}
+\subsection{Closed forms and the strategy transition}
 
-\begin{theorem}[Pure-record complementarity]
-After all intended controlled inverses, suppose two balanced alternatives have the pure global state
+For one slot,
+\[
+C^{\mathrm{stream}}_{1,\lambda}
+=\frac12+\frac12\sqrt{\lambda^2+(1-\lambda)^2}.
+\]
+For two slots,
 \begin{equation}
-\ket\Psi=\frac{\ket0\ket{r_0}+e^{i\phi}\ket1\ket{r_1}}{\sqrt2}.
+C^{\mathrm{stream}}_{2,\lambda}=
+\begin{cases}
+1-\lambda/2,&0\leq\lambda\leq1/2,\\[1mm]
+\lambda/2+\lambda^2/(3\lambda-1),&1/2<\lambda\leq1.
+\end{cases}
+\label{eq:n2}
+\end{equation}
+The optimal strength grows continuously from zero at $\lambda=1/2$.
+
+For $n\geq3$, the transition is first order. Let $z_n$ be the unique solution
+\begin{equation}
+(1-z_n)(1+z_n)^{n-1}=1,qquad
+z_n\in\left(\frac{n-2}{n},1\right).
+\label{eq:zn}
 \end{equation}
 Then
 \begin{equation}
-V=|\braket{r_1}{r_0}|,
-\qquad
-D=\frac12\|\proj{r_0}-\proj{r_1}\|_1=\sqrt{1-V^2}.
+\lambda_c(n)=
+\frac{1}{1+2^{n-2}z_n^{(n-2)/2}(1-z_n)}.
+\label{eq:lambdac}
 \end{equation}
-Thus an orthogonal transcript gives $V=0$, while $V=1$ implies that the two record states differ at most by a global phase and are not distinguishable.
-\end{theorem}
+Below $\lambda_c$, the optimum is $t=0$. At $\lambda_c$, it ties a finite-strength branch, so the optimal strength jumps discontinuously. Numerically,
+\[
+(\lambda_c,t_c)=
+(0.6247789,0.9717365),
+(0.6495455,0.9961752),
+(0.6588955,0.9992936)
+\]
+for $n=3,4,5$. Moreover $\lambda_c(n)\to2/3$ from below. The optimal null thus changes from recording nothing to recording each slot almost projectively rather than moving through a broad weak-measurement phase.
 
-\begin{proof}
-Tracing out the record leaves off-diagonal control element $e^{-i\phi}\braket{r_1}{r_0}/2$, giving the visibility. The trace distance of two pure states has the stated closed form.
-\end{proof}
+\subsection{Collective classical-record comparator}
 
-For mixed records $\sigma_0,\sigma_1$, define root fidelity
+Now remove streaming sequestration and allow one joint instrument on all carriers, while requiring that only a classical outcome survives the commit point.
+
+\begin{proposition}[Collective classical record]
+For every $n$,
 \begin{equation}
-\mathsf F(\sigma_0,\sigma_1)=\|\sqrt{\sigma_0}\sqrt{\sigma_1}\|_1.
+\Ccoll=\frac12+\frac12\sqrt{\lambda^2+(1-\lambda)^2}.
+\label{eq:collective}
 \end{equation}
-Uhlmann's theorem and the Fuchs--van de Graaf inequalities \cite{uhlmann1976transition,fuchs1999cryptographic} imply
-\begin{equation}
-V\leq \mathsf F(\sigma_0,\sigma_1),
-\qquad
-D(\sigma_0,\sigma_1)^2+V^2\leq1
-\end{equation}
-for the corresponding two-path experiment. The first inequality may be strict because uncontrolled phases or additional correlations can reduce actual coherence below the maximum compatible with the reduced records.
-
-\begin{proposition}[Reset is not recoherence]
-Perfect reset of the declared controlled register does not imply nonzero visibility.
+For $n\geq2$ and $0<\lambda<1$, this is strictly larger than $\Cstream$.
 \end{proposition}
 
-\begin{proof}
-Consider
-\begin{equation}
-\ket\Psi=\frac{\ket0_B\ket0_R\ket{e_0}_E+\ket1_B\ket0_R\ket{e_1}_E}{\sqrt2}
-\end{equation}
-with $\braket{e_1}{e_0}=0$. The controlled register has $\Freset=1$, but tracing out $E$ gives a fully dephased $B$ and $V=0$.
-\end{proof}
+A weak measurement of the two parity subspaces attains \eqref{eq:collective}. Optimality follows by grouping every outcome's likelihoods into even and odd sectors and applying the classical fidelity--total-variation circle; see \cref{app:proofs}. This comparator is not a coherent device: it retains only a classical outcome. It quantifies exactly what becomes possible if timing ceases to enforce causality.
 
-This counterexample requires reporting reset and leakage separately. A high local reset fidelity can coexist with a complete transcript elsewhere.
+\subsection{One coherent qubit closes the gap}
 
-\subsection{Exact meaning of zero record}
+Initialise a memory qubit $M=\ket0$. In slot $i$, apply $\mathrm{CNOT}_{A_i\rightarrow M}$ and return $A_i$. After the final slot, commit $M$.
+\begin{itemize}
+  \item In AUDIT, measuring $M$ in $Z$ gives the parity of the later $Z$ measurements on the references.
+  \item In RETURN, applying $\mathrm{CNOT}_{B_i\rightarrow M}$ for every sequestered carrier uncomputes $M$ to $\ket0$ and exactly restores all EPR pairs.
+\end{itemize}
+Thus $(\PA,\FR)=(1,1)$. The operational resource is a coherent temporal accumulator, not an observer or an interpretation of quantum mechanics.
 
-\begin{proposition}[Within-predicate decoupling]
-For the cq state in the definition of $\ZRleak$,
-\begin{equation}
-\ZRleak=\sum_p q_p\,\chi\!\left(\{q(h|p),\rho_T^h\}_{h:p(h)=p}\right).
-\end{equation}
-It vanishes if and only if all residual states with nonzero weight inside each predicate fibre are identical.
-\end{proposition}
-
-\begin{proof}
-Conditioning on the classical value $P=p$ gives a cq mutual information equal to the Holevo information of that fibre. Holevo information is a weighted sum of relative entropies to the average state and is zero exactly when every supported conditional state equals that average.
-\end{proof}
-
-Exact common-state decoupling is sufficient but not necessary: a residual may depend on the allowed predicate while carrying no extra within-class transcript. Such predicate dependence can nevertheless suppress interference between predicate classes, which is why zero-record leakage and visibility are separate requirements. For the clean interferometric construction used here, the stronger target is $\rho_R^h=\proj0$ for every $h$ together with a history-independent state of every unresolved transcript system.
-
-\subsection{A late-challenge memory bound}
-
-The following classical bound supplies a transparent causal comparison for the trusted reference protocol. It is not a device-independent quantum-memory theorem.
-
-\begin{proposition}[Two-bit late-challenge game]
-Let $H=(H_0,H_1)$ be uniform. Before an independent uniform challenge $X\in\{0,1\}$ is chosen, an encoder maps $H$ to a classical memory $M$ with at most $d$ distinguishable states. After $H$ becomes inaccessible, a response module sees only $(M,X)$ and returns $Y$. Shared or private randomness is allowed. Then
-\begin{align}
-d=1 &: \quad \Pr[Y=H_X]\leq\tfrac12,\\
-d=2 &: \quad \Pr[Y=H_X]\leq\tfrac34,\\
-d=4 &: \quad \Pr[Y=H_X]=1 \quad\text{is achievable}.
-\end{align}
-\end{proposition}
-
-\begin{proof}
-The success probability is affine in the encoding and decoding strategies, so shared or private randomisation cannot outperform a deterministic extreme point. With one memory state, $Y$ is independent of both unbiased target bits. With two memory states the encoder transmits one classical bit. For each message, the optimal decoder returns the majority value of each requested coordinate among strings mapped to that message. Enumerating the partitions of four two-bit strings, or applying the standard $2\!\to\!1$ random-access-code bound, gives at most six correct cases among the eight equally likely $(H,X)$ pairs. Storing both bits in four states achieves all eight.
-\end{proof}
-
-A qubit memory can exceed the one-classical-bit value using a quantum random access code \cite{ambainis2002dense}, so the comparison class must say whether memory dimension is classical or quantum. A classical two-bit memory reaches unit success in this readout game. The coherent phase construction in the next section uses the same response function $h\mapsto h_X$ but implements it as a phase oracle over all $h$; its endpoint measurement is not a sampled value of $H_X$. Consequently, the random-access-code probabilities above are not by themselves a soundness bound for the coherent phase task. The current density-matrix simulator also does not implement an independent random challenge register or estimate this game score. Turning the proposition into a certification test remains open and requires the stated access assumption that the response module cannot read $B$ directly.
-
-\subsection{What is and is not proved}
-
-The exact results imply that predicate survival and transcript erasure are compatible in unitary quantum mechanics. They also prove that endpoint evidence cannot establish the advertised intermediate implementation. The late-challenge game supplies a model-relative memory test, but the present work does not derive a single-shot joint inequality whose violation simultaneously certifies quantum memory, zero-record decoupling, and recoherence. We state the desired separation only as a conjecture.
-
-\begin{conjecture}[Resource-bounded historical separation]
-There exists a family of black-box multitime tasks for which coherent access with reversible internal memory achieves zero-record predicate readout using polynomial resources, whereas every protocol in a declared incoherent or bounded-memory comparison class requires superpolynomial resources or has a nonzero soundness gap.
-\end{conjecture}
-
-Establishing or refuting this conjecture is the main theoretical criterion for continuing the programme beyond its benchmark phase.
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{audit_return_frontier.pdf}
+\caption{Exact streaming supports and exposed local strengths. At $n\geq3$, the optimal classical strategy jumps from no record to an almost projective record as the audit weight crosses $\lambda_c(n)$. The dotted curve is the collective classical-record comparator, not an unrestricted coherent strategy.}
+\label{fig:frontier}
+\end{figure}
+\FloatBarrier

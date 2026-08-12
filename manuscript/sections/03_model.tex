@@ -1,86 +1,80 @@
-\section{Model and operational quantities}
+\section{Operational model}
+\label{sec:model}
 
-\subsection{Registers and histories}
+Fix $n\geq1$. At slot $i$, a trusted verifier prepares
+\[
+\ket{\Phi}_{R_iA_i}=\frac{\ket{00}+\ket{11}}{\sqrt2},
+\]
+sends $A_i$ to the device, receives $B_i$, and sequesters $B_i$ before releasing $A_{i+1}$. After the last output, the device commits a terminal memory port $M$ to the verifier. A hidden coin then selects one branch.
 
-Let
+\paragraph{AUDIT.}
+The verifier measures every $R_i$ in $Z$, obtaining independent uniform bits $X_i$, and decodes from $M$ a guess for
+\[
+Z=X_1\oplus\cdots\oplus X_n.
+\]
+The sequestered $B_i$ are unavailable. Let $\PA$ be the success probability.
+
+\paragraph{RETURN.}
+The verifier applies a fixed joint decoder to $M B_1\cdots B_n$ and accepts with
+\[
+\Pi_{\mathrm R}=\proj{0}_M\otimes
+\bigotimes_{i=1}^n\proj{\Phi}_{R_iB_i}.
+\]
+Let $\FR$ be the acceptance probability. The visible reset $M=0$ does not imply deletion of any inaccessible purification of a classical record.
+
+For $0\leq\lambda\leq1$, define the support score
+\[
+\Sscore=\lambda\PA+(1-\lambda)\FR.
+\]
+The balanced benchmark uses $\lambda=1/2$.
+
+\subsection{Adaptive classical-memory streaming null}
+
+The null may use arbitrary finite classical memory and shared randomness. In slot $i$, conditional on the earlier classical history $h=k_{<i}$, it applies an arbitrary instrument
+\[
+\{\mathcal N^{(i,h)}_{k_i}:A_i\rightarrow B_i\}_{k_i}.
+\]
+It may create and discard arbitrary within-slot quantum ancillas. It may not retain a coherent system across the slot boundary, begin with entanglement shared between slot ancillas, revisit a committed $B_i$, or receive a $B_i$ in AUDIT. In RETURN, the full classical transcript may control an arbitrary joint recovery on all sequestered outputs.
+
+After refining all classical random seeds and outcomes, every leaf transcript $k=(k_1,\ldots,k_n)$ has a conditional channel that factorises over slots. For computational-basis inputs $x=(x_1,\ldots,x_n)$, its likelihood is
 \begin{equation}
-\Hil=\Hil_B\otimes\Hil_W\otimes\Hil_M\otimes\Hil_G
-\otimes\Hil_A\otimes\Hil_E .
+p(k|x)=\prod_{i=1}^n p_i(k_i|x_i,k_{<i}).
+\label{eq:factor}
 \end{equation}
-The label register $B$ coherently indexes alternatives; $W$ is a controlled world; $M$ is internal memory; $G$ contains reversible work registers; $A$ is the phase-readout ancilla; and $E$ comprises degrees of freedom that are not inverted. We abbreviate the intended-reset history registers as $R=W M G$. Register $A$ is tracked separately because it is prepared and returned in $\ket{-}$ rather than $\ket0$.
+This factorisation is the mathematical null. The experiment must support it through timing and isolation evidence; the score alone cannot enforce a laboratory boundary.
 
-A $T$-step history of label $b$ is a sequence
+\subsection{Local audit strength and return curve}
+
+At a realised prefix $h$, define
+\[
+r_i(k_i|h)=\frac{p_i(k_i|0,h)+p_i(k_i|1,h)}{2}
+\]
+and, when $r_i>0$, define a signed posterior bias by
 \begin{equation}
-\mathbf U_b=(U_{b,T},\ldots,U_{b,1})
+s_i\delta_i=
+\frac{p_i(k_i|0,h)-p_i(k_i|1,h)}
+{p_i(k_i|0,h)+p_i(k_i|1,h)},
+\qquad 0\leq\delta_i\leq1.
+\label{eq:bias}
 \end{equation}
-with declared intervention slots between steps. In a closed implementation the controlled history unitary is
+The one-slot return curve is
 \begin{equation}
-U_H=\sum_b \proj{b}_B\otimes U_b,
-\qquad U_b=U_{b,T}\cdots U_{b,1}.
+f(t)=\frac{1+\sqrt{1-t^2}}{2}.
+\label{eq:fcurve}
 \end{equation}
-The word history denotes this model-relative temporal structure. It is not assumed to be a preferred-basis ontological primitive.
+Here $t=0$ extracts no computational-basis information and preserves an EPR pair perfectly; $t=1$ permits a perfect bit record and leaves entanglement fidelity $1/2$.
 
-The initial state is
-\begin{equation}
-\ket{\Psi_0}=\sum_b\alpha_b\ket b_B\ket{0}_R\ket{-}_A\ket{e_0}_E,
-\qquad \sum_b|\alpha_b|^2=1.
-\end{equation}
-An ideal history stage yields
-\begin{equation}
-\ket{\Psi_H}=\sum_b\alpha_b\ket b_B\ket{r_b}_R\ket{-}_A\ket{e_b}_E.
-\end{equation}
-The environment states need not be orthogonal. Their distinguishability quantifies uncontrolled which-history information.
+\subsection{A saturating null family}
 
-\subsection{Predicate readout}
-
-Let $p$ be a function on the modelled internal history. A clean predicate oracle acts on the populated history subspace as
-\begin{equation}
-O_p\ket b\ket{r_b}=e^{i\phi(p_b)}\ket b\ket{r_b},
-\end{equation}
-with the binary choice $\phi(p)=\pi p$ used in the reference protocols. This action can be constructed by reversibly computing $p$ into a work bit, applying phase kickback from a $\ket{-}$ ancilla, and uncomputing the work bit. Calling an arbitrary phase gate a predicate oracle would hide the very implementation that the project seeks to analyse, so the simulator audits all work registers.
-
-\subsection{Visibility and distinguishability}
-
-For two balanced alternatives, the reduced control state can be written
-\begin{equation}
-\rho_B=\frac12\begin{pmatrix}1&c\\c^*&1\end{pmatrix}.
-\end{equation}
-We define visibility $V=2|\rho_{B,01}|=|c|$. If all controlled systems are reset and only pure environmental records remain, $c=e^{i\Delta\phi}\braket{e_1}{e_0}$. The optimal pure-state record distinguishability is
-\begin{equation}
-D=\frac12\left\|\proj{e_0}-\proj{e_1}\right\|_1
-=\sqrt{1-V^2}.
-\end{equation}
-
-The simulator also reports $l_1$ coherence for more than two histories, final control purity, and the probability of the expected interferometric outcome. Visibility is not inferred from reset fidelity.
-
-\subsection{Reset and leakage}
-
-For a target controlled state $\ket{0}_R$,
-\begin{equation}
-\Freset=\bra0\rho_R^f\ket0.
-\end{equation}
-This quantity checks the declared controlled registers only. A history-dependent $E$ can coexist with $\Freset=1$ and $V=0$.
-
-To define transcript leakage, introduce a classical reference $H$ for fine-grained history labels and an allowed predicate $P=p(H)$. Let $T$ collect all accessible residual transcript systems, including $R$ and any modelled accessible part of $E$. For conditional residual states $\rho_T^h$ and a declared distribution $q_h$, form the cq state
-\begin{equation}
-\omega_{HPT}=\sum_h q_h\proj h_H\otimes\proj{p(h)}_P\otimes\rho_T^h.
-\end{equation}
-We define
-\begin{equation}
-\ZRleak=I(H:T\mid P)_\omega.
-\end{equation}
-Equivalently, it is the average within-predicate Holevo information for this cq construction. It asks whether the residual distinguishes microhistories that the permitted output deliberately coarse-grains. Because it is distribution-weighted, a small value is not a worst-case guarantee unless every fibre is bounded separately. Moreover, $\ZRleak$ does not constrain records of $P$ itself; the separate visibility clause is needed to rule out a predicate record that destroys coherence between predicate classes.
-
-\begin{remark}[Non-injective predicates]
-If $p$ is injective on the support of $H$, then $H$ is already determined by $P$ and $I(H:R\mid P)=0$ for every residual record. The condition is vacuous. A meaningful zero-record benchmark therefore needs at least two histories in one predicate fibre, as in the four-history reference instance.
-\end{remark}
-
-\subsection{Causal access model}
-
-A multitime process is represented by a process tensor $\Proc_{T:0}$ whose slots accept instruments or coherent controls. Let $\mathfrak C_{d,L}$ denote an explicitly declared comparison class, for example processes with memory dimension at most $d$, causal depth at most $L$, no access from the response module to $B$, or no adaptive dependence on a late challenge. A causal witness is meaningful only relative to such a class.
-
-\begin{definition}[Zero-record causal certification]
-Fix a declared history distribution whose predicate is non-injective on its support. A protocol family has parameters $(c,s,\varepsilon,\eta,v;\mathfrak A,\mathfrak C)$ if valid processes in $\mathfrak A$ are accepted with probability at least $c$, comparison processes in $\mathfrak C$ are accepted with probability at most $s<c$, $\ZRleak\leq\varepsilon$, $\Freset\geq1-\eta$, and $V\geq v$.
-\end{definition}
-
-The definition is a target specification. The reference implementation establishes reset, visibility, and selected marginal leakage diagnostics for trusted circuit families. Except in cases where a common final state or the full joint record is known analytically, separate marginal leakage values do not certify joint transcript decoupling. The implementation does not establish a general device-independent completeness--soundness gap.
+For any $t_i\in[0,1]$, the binary diagonal instrument
+\[
+K^{(i)}_0=
+\begin{pmatrix}
+\sqrt{(1+t_i)/2}&0\\0&\sqrt{(1-t_i)/2}
+\end{pmatrix},\quad
+K^{(i)}_1=
+\begin{pmatrix}
+\sqrt{(1-t_i)/2}&0\\0&\sqrt{(1+t_i)/2}
+\end{pmatrix}
+\]
+produces local audit bias $t_i$ and return fidelity $f(t_i)$. The transcript parity is the optimal AUDIT guess and identity recovery saturates the RETURN expression derived below.

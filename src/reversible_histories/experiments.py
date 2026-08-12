@@ -464,8 +464,9 @@ def audit_return_suite(
         linewidth=2.0,
         label="Noise forecast",
     )
-    axes[0].axhline(
-        classical_memory_bound(2, 0.5),
+    axes[0].plot(
+        n_values,
+        [float(row["classical_memory_bound"]) for row in forecast_rows],
         color=PLOT_COLORS["classical_bound"],
         linestyle="--",
         label="Streaming classical bound",
@@ -476,8 +477,14 @@ def audit_return_suite(
         linestyle=":",
         label="Collective classical record",
     )
-    axes[0].axhline(
-        classical_memory_bound(2, 0.5) + null_slack + systematic_per_branch,
+    axes[0].plot(
+        n_values,
+        [
+            float(row["classical_memory_bound"])
+            + null_slack
+            + systematic_per_branch
+            for row in forecast_rows
+        ],
         color=PLOT_COLORS["transcript"],
         linestyle="-.",
         linewidth=1.1,

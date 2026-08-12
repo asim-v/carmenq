@@ -1,21 +1,35 @@
 \section{Introduction}
 
-Quantum theory permits a controlled system to correlate distinguishable alternatives with internal records and later erase those records by reversing the responsible dynamics. If a Boolean function of an internal record is transferred to a relative phase before reversal, the auxiliary systems can return to their reference states while the phase remains observable. This combination of coherent control, phase kickback, uncomputation, and interference is standard quantum information processing \cite{bennett1973logical,cleve1998quantum}. It is nevertheless a useful starting point for a sharper question: how much \emph{causal history} can occur inside such an evolution, and what evidence for that history can survive if its transcript is physically removed?
+A memory is operationally quantum only when coherence carried across time changes what a process can do. Merely observing a reversible circuit, a final interference fringe, or an auxiliary register returned to zero is not enough: a known closed circuit can be compiled into an endpoint-equivalent channel that never instantiates the advertised intermediate record. The scientific question therefore needs an access model and a comparison class, not interpretive vocabulary.
 
-The question contains an immediate identifiability problem. Suppose a known laboratory circuit creates a record, calculates a predicate, and exactly reverses the record. The induced input--output channel can be compiled into a direct unitary that never instantiates the advertised memory. No measurement confined to the endpoints distinguishes two implementations of the same channel. Describing intermediate components as histories, observers, or branches cannot alter this fact. Any claim of a genuine internal history therefore needs additional structure: intermediate intervention ports, delayed inputs, locality constraints, black-box access, a memory-dimension witness, or a resource separation.
+We study a streamed task with two incompatible late uses of one committed process. The verifier supplies fresh entangled carriers one at a time and permanently removes each returned carrier from the device. Only after the final slot does a hidden choice ask the committed memory either to reveal a temporal predicate or to help reverse the disturbance created while learning it. The predicate is the parity of $n$ later reference outcomes. The reversal target is global entanglement fidelity of all $n$ returned carriers. These endpoints force the same prefix to be useful as a record and reversible as a coherent process.
 
-This paper develops a conservative baseline around that limitation. We use the term \emph{reversible quantum history} for a sequence of explicitly modelled transformations and correlations, not for an ontologically unique world. A \emph{zero-record} protocol retains an allowed predicate while removing residual information that distinguishes histories sharing that predicate. The condition is stronger than resetting one named memory register, because uncontrolled environments and computational garbage can preserve a transcript. It is weaker and conceptually different from cryptographic zero knowledge: without a simulator-based adversarial definition, zero-record is a physical decoupling criterion, not a cryptographic security claim.
+The ingredients are familiar. Information acquisition competes with disturbance \cite{banaszek2001fidelity}; read-versus-return tasks appear in quantum sealing \cite{kimmel2019seals}; late path-versus-phase games quantify operational duality \cite{bagan2018duality}; and parity discrimination has a long history in quantum cryptography \cite{bennett1996parity}. Multitime process formalisms distinguish quantum, classical, and memoryless transmission across slots \cite{chiribella2009networks,pollock2018processes,taranto2024hierarchy}. Sequential random-access tasks and bounded-memory channel discrimination already witness quantum memory under other scores and assumptions \cite{roy2024semidevice,ohst2026memory}. Our claimed contribution is not any of these ingredients alone.
 
-Our contributions are fourfold. First, we provide a formal separation between a closed-circuit demonstration and a causal-certification task. Second, we collect exact consequences of unitary quantum mechanics that constrain any proposal: phase survival under uncomputation, endpoint compression, the record--visibility relation, and the impossibility of retaining a perfectly distinguishing transcript while recovering perfect interference. Third, we define a family of benchmark instances, including a simulated reversible finite-state transducer and a separate analytic late-challenge game. Fourth, we supply an independently reproducible density-matrix simulator, controls, noise sweeps, tests, data, and figures.
+For a precisely declared classical-memory comb, we derive the complete audit--return support function. The proof first removes arbitrary non-QND output dynamics through a flagged entanglement-fidelity bound. Causal factorisation then turns both the posterior parity bias and the maximum return fidelity into products along every refined classical path. Adaptation becomes an average of deterministic strength profiles, and a convexity argument shows that equal local strengths attain the optimum. This supplies an exact causal tensorisation rather than a symmetric ansatz.
 
-The intended outcome is not a spectacular interpretation-dependent claim. It is an audit-friendly research object that makes clear which results are known, which are derived here, which are numerical, and which remain conjectural. In particular, this version does not prove that the joint primitive is novel in the priority sense, does not produce a device-independent witness of an internal agent, and does not show a coherent-over-incoherent complexity separation. Those are the next decisive units of progress.
+Three consequences make the result experimentally legible. First, at the balanced point the unlimited adaptive classical-memory score is $3/4$ for every stream length $n\geq2$. Second, allowing the carriers to be processed collectively before producing a classical record raises the score to $(1+1/\sqrt2)/2$, so sequestration is a physical resource restriction rather than cosmetic timing. Third, one coherent accumulator qubit reaches unit score and visibly resets in RETURN. The benchmark therefore compares three resource classes on the same task:
+\[
+\text{streaming classical memory}
+\;<\;
+\text{collective classical record}
+\;<\;
+\text{one coherent temporal qubit}
+\]
+for every nontrivial support direction, with the final inequality understood at the algebraic point.
 
-\subsection{Operational question}
+We accompany the theorem with a fixed-sample statistical rule, a preregistration template, mandatory shortcut controls, deterministic frontier data, and a replaceable phenomenological error model. The goal is a benchmark that can be falsified. A positive result rejects the declared classical-memory interface. It does not identify a unique microscopic implementation, certify an unrestricted hidden device, prove deletion of inaccessible environmental records, or support claims about observers or alternate worlds.
 
-The target question is:
+\subsection{Contributions}
 
-\begin{quote}
-Can a verifier certify, relative to explicit access and resource assumptions, that a quantum process used internal causal memory, learn only a selected coarse-grained predicate of the resulting history, and finish with both negligible within-predicate transcript leakage and recoverable interference?
-\end{quote}
+The paper provides:
+\begin{enumerate}
+  \item an operational AUDIT/RETURN task with immediate output sequestration and a terminal-memory commitment;
+  \item an exact theorem for arbitrary adaptive, non-QND, classical-memory streaming instruments;
+  \item closed forms, a first-order strategy transition for $n\geq3$, and a strict collective-classical comparator;
+  \item an explicit one-qubit coherent strategy attaining perfect audit and return;
+  \item a conservative finite-statistics certificate with systematic-error and null-model slack;
+  \item reproducible analytic and numerical validation, planning data, controls, and implementation guidance.
+\end{enumerate}
 
-The clauses are deliberately conjunctive. Interference without causal certification is ordinary coherent control. A causal-memory witness without reversal is a temporal-correlation experiment. Uncomputation without a nontrivial access model is a compiler transformation. Predicate privacy without a non-injective coarse-graining can be vacuous. The proposed research programme begins only at their intersection.
+All novelty language is qualified by the dated literature audit. The safe claim is the exact streamed parity-audit versus global-entanglement-return frontier and its resource separation, to our knowledge---not weak measurement, parity processing, delayed choice, reversible computation, or quantum-memory witnessing in general.

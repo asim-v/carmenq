@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.1.0 - 2026-08-12
 
 - Added the exact streaming parity AUDIT--RETURN support for adaptive
   classical-memory devices and the collective classical-record comparator.

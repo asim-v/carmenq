@@ -1,4 +1,4 @@
-"""Reference simulations for reversible quantum-history interferometry."""
+"""Reference tools for causal audit--return quantum-memory benchmarks."""
 
 from .audit_return import (
     BenchmarkCounts,
@@ -48,4 +48,4 @@ __all__ = [
     "weighted_hoeffding_radius",
 ]
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
