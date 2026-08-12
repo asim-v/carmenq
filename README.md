@@ -34,6 +34,32 @@ prepare -> U_history -> predicate phase -> U_history^dagger -> interfere
 
 is an established instance of reversible computation and phase kickback. Viewed only at its endpoints, it is equivalent to a directly compiled effective unitary. A candidate contribution begins only when the protocol declares testable access, locality, time, or resource restrictions and requires multitime evidence of causal memory. This is a kill criterion, not a footnote.
 
+## Current development: causal audit--return benchmark
+
+The originality audit led to a narrower and experimentally useful task. Fresh
+entangled carriers pass through a sequential device and are immediately
+sequestered. Only after the stream is committed, the verifier asks the device
+either to predict a temporal parity from its committed terminal memory
+(**AUDIT**) or to restore every entangled pair and visibly reset that memory
+(**RETURN**).
+
+For an adaptive device with unlimited classical memory but no quantum state
+persisting between slots, the exact weighted null is implemented in the
+package. At the balanced operating point it is `0.75` for every stream length
+`n >= 2`; a coherent parity-memory qubit attains `1`. The repository now
+includes fixed-sample certification, systematic-error allowances, conservative
+power planning, deterministic frontier/forecast figures, and a preregistration
+template. This is a trusted-interface quantum-memory witness—not a claim about
+Everett or consciousness.
+
+```bash
+audit-return-benchmark bound --steps 8
+audit-return-benchmark plan --steps 8 --forecast-model
+```
+
+See the [benchmark specification](docs/audit-return-benchmark-v0.1.md) and the
+[example preregistration](docs/audit-return-preregistration.example.json).
+
 ## Reproduce the results
 
 Python 3.10 or later is required.

@@ -38,6 +38,7 @@ Repository = "https://github.com/asim-v/zero-record-quantum-histories"
 
 [project.scripts]
 rebuild-simulations = "reversible_histories.cli:main"
+audit-return-benchmark = "reversible_histories.audit_return_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
