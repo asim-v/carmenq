@@ -1,18 +1,22 @@
 # Claim ledger
 
-This ledger separates established results, project derivations, numerical findings, conjectures, and open objectives. No row marked `CONJECTURE`, `NOVELTY HYPOTHESIS`, or `OPEN OBJECTIVE` may be presented as an established fact.
+This ledger separates established ingredients, project theorems, numerical
+findings, novelty assessments, and open objectives. No novelty assessment is
+proof of priority.
 
-| ID | Claim | Status | Support | Refutation or limitation |
+| ID | Claim | Status | Support | Boundary |
 |---|---|---|---|---|
-| K1 | Phase kickback can retain a predicate as phase after its auxiliary records are uncomputed. | ESTABLISHED | Reversible computation and phase algorithms; manuscript derivation. | Fails for a nonunitary implementation or correlated garbage left behind. |
-| K2 | A remaining orthogonal transcript eliminates perfect interference between the alternatives it identifies. | ESTABLISHED | Complementarity and information--disturbance results. | Reversing the record by including it in the controlled system is not a counterexample. |
-| D1 | For two balanced alternatives and pure environmental records, the simulator obeys \(V=|\langle e_1|e_0\rangle|\). | DERIVED | Reduced-state calculation and numerical test. | Mixed records, imbalance, or another visibility definition require a generalisation. |
-| D2 | A known closed protocol is endpoint-indistinguishable from the effective diagonal unitary it implements. | DERIVED | Operator equality and direct-phase numerical control. | Intermediate ports or resource restrictions define a different task. |
-| D3 | Perfect reset of named controlled registers does not imply recoherence when an uncontrolled environment retains the history. | DERIVED | Explicit counterexample in the manuscript and simulator. | Recoherence follows only when every relevant record is included or decoupled. |
-| N1 | The reference agent can observe, update memory, act, phase-mark a predicate, and reset unitarily. | NUMERICAL | Permutation tests and ZR-2/ZR-3 simulations. | A reversibility failure or nonzero final residue would invalidate it. |
-| N2 | In the implemented noise models, visibility and reset fidelity follow the reported curves. | NUMERICAL | Seeded data and reproducible scripts. | Other channel parameterisations and real hardware are not covered. |
-| N3 | The four-history instance has zero ideal within-predicate leakage and positive leakage when records remain. | NUMERICAL | ZR-4 conditional-information calculation. | An injective predicate would make the metric vacuous. |
-| C1 | The conjunction of causal-memory certification, predicate-only disclosure, final-record decoupling, recoherence, and an explicit anti-shortcut access model appears underexplored. | NOVELTY HYPOTHESIS | Bounded scoping review only; not proof of absence or priority. | An equivalent prior protocol or full reduction to an established primitive. |
-| C2 | A complexity separation can exist between coherent history access and incoherent sampling. | CONJECTURE | Motivated by QUALMs; not proved in version 1. | An efficient incoherent simulation for the entire proposed family. |
-| O1 | Construct an inequality that certifies causal memory and excludes direct phase under minimal assumptions. | OPEN OBJECTIVE | Future programme. | An identifiability no-go or unavoidable stronger trust assumptions. |
-| O2 | Extend zero record to a simulator-based cryptographic definition with completeness and soundness. | OPEN OBJECTIVE | Connection to quantum zero knowledge. | Failure to obtain a composable security definition for the physical model. |
+| K1 | A one-slot classical information--return tradeoff is established. | ESTABLISHED | Information--disturbance literature cited in the manuscript. | It does not supply the streamed parity tensorisation. |
+| K2 | Multitime processes with classical and quantum memory are established resource classes. | ESTABLISHED | Process-comb, process-tensor, and temporal-memory literature. | The terms are inequivalent without an explicit factorisation. |
+| T1 | The exact adaptive classical-memory support is (\max_t[\lambda(1+t^n)/2+(1-\lambda)f(t)^n]). | PROVED HERE | Theorem and proof in the manuscript; independent validator. | Requires fresh inputs, immediate sequestration, and the classical-path null. |
+| T2 | At equal weight the streaming classical-memory bound is (3/4) for every (n\ge2). | PROVED HERE | Corollary of T1 and numerical regression tests. | RETURN is the global all-carrier fidelity. |
+| T3 | For (n\ge3), the exposed optimal classical strategy has a first-order jump. | PROVED HERE | Closed-form stationarity and coexistence equations. | A decision transition, not a material phase transition. |
+| T4 | A collective instrument retaining only a classical record obeys ((1+\sqrt{\lambda^2+(1-\lambda)^2})/2). | PROVED HERE | Sector reduction and fidelity--variation bound. | An unrestricted coherent collective device can score one. |
+| T5 | One persistent coherent parity qubit attains ((P_A,F_R)=(1,1)). | EXACT CIRCUIT | CNOT accumulate/uncompute construction. | Ideal logical circuit and trusted terminal-memory transfer. |
+| S1 | The fixed-sample certificate has false-positive probability at most (\alpha). | PROVED HERE | Weighted one-sided Hoeffding inequality. | Independent Bernoulli trials and preregistered fixed sample. |
+| N1 | Adaptive/asymmetric searches found no theorem violation. | NUMERICAL | Maximum excesses (6.52\times10^{-14}) and (3.53\times10^{-14}). | Numerical evidence is not a proof. |
+| N2 | The example error law is robustly planifiable through (n=143). | NUMERICAL FORECAST | Committed deterministic CSV and figure. | Illustrative parameters, not hardware calibration. |
+| P1 | No exact prior theorem was found for the full access model and score. | NOVELTY ASSESSMENT | Dated adversarial primary-literature audit through 2026-08-12. | Specialist review or a direct antecedent can overturn this. |
+| O1 | Extend the exact frontier to bounded coherent memory dimension. | OPEN OBJECTIVE | Natural interpolation between T1 and T5. | No theorem claimed. |
+| O2 | Replace the sharp null with a robust bound for calibrated coherent leakage. | OPEN OBJECTIVE | Needed for hardware attribution. | No theorem claimed. |
+| X1 | The task proves global erasure, consciousness, alternate worlds, or a preferred interpretation. | NOT CLAIMED | Explicitly excluded. | None of these follows from the probabilities. |
