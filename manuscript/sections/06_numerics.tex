@@ -1,139 +1,44 @@
-\section{Reference simulations}
+\section{Numerical validation and forecast}
 \label{sec:numerics}
 
-\subsection{Implementation}
+The theorem is analytic. Computation is used to attack the derivation, expose transitions, and convert a declared noise law into a shot budget; it is not used as a substitute for the proof.
 
-The simulator evolves an explicit \(256\times256\) density matrix on
-\begin{equation}
-\Hil_B(4)\otimes\Hil_W(4)\otimes\Hil_M(4)
-\otimes\Hil_G(2)\otimes\Hil_A(2).
-\end{equation}
-No quantum-software development kit or circuit optimiser is used. Reversible basis transformations are compiled as permutations; local channels are applied by Kraus contraction; reduced states are obtained by explicit partial traces. The four history labels encode two logical bits, and the allowed predicate is parity,
-\begin{equation}
-p=(0,1,1,0).
-\end{equation}
-Thus each predicate fibre contains two histories and can hide one bit.
+\subsection{Adversarial theorem checks}
 
-The default history first adds \(B\) into \(W\) modulo four and copies \(W\) into \(M\). In round \(r\), after memory formation in the gate sequence, a configured challenge parameter \(c_r\) is applied. The simulator does not model an independent challenge source, conceal \(c_r\) from earlier gates, or score the ZR-3 random-access game. The transducer computes
-\begin{equation}
-d_r=m_{r\bmod2}\oplus c_r
-\end{equation}
-into \(G\), conditionally flips a world bit, and uncomputes \(G\). The predicate oracle reads the final internal state:
-\begin{equation}
-p_{\mathrm{int}}
-=\operatorname{parity}(W)\oplus\bigoplus_r d_r
-=\operatorname{parity}(B)
-\end{equation}
-on the intended path. It never reads \(B\) directly. The phase ancilla starts in \(\ket-\), so a controlled bit flip writes \((-1)^{p_{\mathrm{int}}}\). The history is then inverted and \(H\otimes H\) maps the parity phase pattern to \(\ket{11}_B\).
+Independent scripts checked:
+\begin{itemize}
+  \item the one- and two-slot closed forms and transition equations through $n=12$;
+  \item random product likelihoods against the flagged recovery inequality;
+  \item random collective likelihood tables against \eqref{eq:collective};
+  \item the exact coherent-accumulator circuit;
+  \item asymmetric local strengths and fully adaptive outcome trees for $n=2,\ldots,5$.
+\end{itemize}
+The maximum numerical excess over the streaming theorem was $6.52\times10^{-14}$ for adaptive trees and $3.53\times10^{-14}$ for asymmetric products, consistent with numerical precision. The smallest tested collective-classical gap was positive. These checks do not prove the theorem or priority; they are regression tests against algebraic and implementation errors.
 
-The metrics are normalised multipath \(l_1\) coherence
-\begin{equation}
-V_{l_1}=\frac1{K-1}\sum_{b\neq b'}|(\rho_B)_{bb'}|,
-\qquad K=4,
-\end{equation}
-reset population
-\begin{equation}
-\Freset=\Pr[W=0,M=0,G=0],
-\end{equation}
-predicate fidelity \(F_p=\Pr[B=3]\) after readout, and conditional Holevo information \(\chi(H:WMG|P)\). The first quantity is a normalised multipath coherence measure; it is not interchangeable with every two-path fringe convention.
+The release suite contains 25 automated tests. It verifies exact supports, transition behaviour, conservative systematic handling, fixed-sample planning, strict JSON output, deterministic simulation, and byte-stable same-environment figures and data.
 
-\subsection{Ideal cases and mandatory controls}
+\subsection{Transparent forecast model}
 
-\begin{table}[ht]
+For planning only, we use the replaceable phenomenological law
+\begin{equation}
+\PA(n)=\frac{1+c_0c^n}{2},\qquad
+\FR(n)=f_0 f^n.
+\label{eq:forecast}
+\end{equation}
+The committed defaults are $c_0=f_0=0.995$, $c=0.998$, and $f=0.997$. They are illustrative logical-operation factors, not hardware calibration.
+
+With $\lambda=1/2$, $\alpha=0.01$, target power $0.9$, $0.005$ systematic allowance in each branch, and $0.005$ null slack, the model's robust plan remains feasible through $n=143$ and becomes infeasible at $n=144$. The unadjusted expected score first crosses the $3/4$ asymptotic streaming null at $n=151$. Near the robust boundary the conservative Hoeffding shot count diverges rapidly, making uncertainty accounting more important than small circuit optimisations.
+
+At $n=8$, a declared alternative $(\PA,\FR)=(0.97,0.95)$ under the same allowances needs 84 trials per branch for the Hoeffding guarantee ($\alpha=0.01$, power at least $0.9$). If 9700 of 10000 AUDIT trials and 9500 of 10000 RETURN trials succeed, the adjusted one-sided lower score is approximately $0.9443$, exceeding the enlarged $0.755$ null by approximately $0.1893$.
+
+\begin{figure}[ht]
 \centering
-\caption{Exact density-matrix results. Numerical residues below \(10^{-14}\) are printed as zero. The last column is the sum of separately evaluated controlled-record and environmental Holevo quantities. It is a bookkeeping sum of marginals, not a bound on a correlated joint record.}
-\label{tab:benchmarks}
-\begin{tabular}{@{}lrrrr@{}}
-\toprule
-Case & \(V_{l_1}\) & \(\Freset\) & \(F_p\) & marginal sum (bits) \\
-\midrule
-Ideal coherent & 1.000 & 1.000 & 1.000 & 0.000 \\
-Classical mixture & 0.000 & 1.000 & 0.250 & 0.000 \\
-Memory retained & 0.000 & 0.250 & 0.250 & 1.000 \\
-Direct phase & 1.000 & 1.000 & 1.000 & 0.000 \\
-Action bypassed & 1.000 & 1.000 & 0.000 & 0.000 \\
-Environment overlap \(0.5\) & 0.500 & 1.000 & 0.625 & 0.811 \\
-Inverse failure \(0.03\) & 0.826 & 0.874 & 0.869 & 0.114 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Figure~\ref{fig:controls} confirms the control logic. The classical mixture resets but carries no phase-sensitive coherence. Retaining memory leaves one bit within each parity fibre and removes interference. The directly compiled phase matches the full ideal endpoint exactly, numerically illustrating the endpoint theorem. Bypassing the internal action preserves coherence and reset but sends the phase to the wrong parity output; this is a white-box check that the trusted oracle depends on the declared trajectory, not a device-independent witness.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\textwidth]{protocol_controls.pdf}
-\caption{Exact metrics for the four-history protocol and controls. The direct-phase implementation deliberately equals the full trusted history at the endpoints. The action-bypassed circuit keeps the same internal predicate oracle but removes its causal action, causing the intended readout to fail.}
-\label{fig:controls}
+\includegraphics[width=\textwidth]{audit_return_benchmark.pdf}
+\caption{Illustrative forecast from \eqref{eq:forecast}. Left: balanced score against the streaming, collective-classical, and robust planning thresholds. The one-slot streaming point is higher than the $n\geq2$ plateau. Right: conservative total trial count from \eqref{eq:hoeffding}; infeasible lengths are omitted. These curves are not hardware predictions.}
+\label{fig:forecast}
 \end{figure}
-
-\subsection{Environmental records}
-
-The environment model assigns pure records with constant pairwise overlap \(\eta\). Tracing out the environment multiplies every off-diagonal branch block by \(\eta\). The simulation reproduces the analytic laws to floating-point precision:
-\begin{equation}
-V_{l_1}=\eta,
-\qquad
-F_p=\frac14+\frac34\eta,
-\qquad
-\chi(H:E|P)=h_2\!\left(\frac{1+\eta}{2}\right).
-\end{equation}
-At \(\eta=0.5\), the corresponding values are \(0.5\), \(0.625\), and \(0.811278\) bits. Reset remains exactly one throughout the sweep, directly demonstrating that local reset is not recoherence.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.72\textwidth]{environment_tradeoff.pdf}
-\caption{Exact constant-overlap environmental model. Increasing record overlap removes distinguishability inside each parity fibre and restores control coherence. The curve is a controlled analytic example, not a universal law for structured environments.}
-\label{fig:environment}
-\end{figure}
-
-\subsection{Comparative Markovian channels}
-
-After each addressed logical operation, the simulator can apply qudit dephasing, full qudit depolarisation, or relaxation of every excited level toward zero. These are explicit comparative channels, not calibrations for a physical processor. In particular, four-level relaxation is not identical to independent amplitude damping on two hardware qubits.
-
-Figure~\ref{fig:noise} shows that the metrics respond differently. Computational-basis dephasing leaves reset populations unchanged while reducing coherence and predicate fidelity. Depolarisation reduces all three. Relaxation can favour the zero reset subspace while still degrading the logical phase. This is why a single scalar fidelity cannot characterise the protocol.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\textwidth]{noise_sensitivity.pdf}
-\caption{Sensitivity to three local Markovian channels applied after each addressed logical operation. Channel definitions are given in Appendix~\ref{app:simulation}; the horizontal parameter is not a reported hardware error rate.}
-\label{fig:noise}
-\end{figure}
-
-\subsection{Inverse reliability and depth}
-
-Imperfect inversion is modelled as a stochastic skipped inverse:
-\begin{equation}
-\Chan_{\mathrm{inv}}(\rho)
-=(1-\epsilon)U^\dagger\rho U+\epsilon\rho.
-\end{equation}
-At \(\epsilon=0.03\) per inverse operation, visibility is \(0.825798\), reset fidelity \(0.874200\), predicate fidelity \(0.869349\), and the controlled records retain \(0.113596\) bits within parity classes. The model is intentionally simple and must not be confused with coherent over-rotation or leakage outside the logical Hilbert space.
-
-The depth sweep increases challenge-responsive rounds from one to eight, corresponding to 11 through 53 logical operations, with per-addressed-operation dephasing \(0.003\) and depolarisation \(0.001\). Every ideal circuit remains exact. At 53 operations the noisy simulation gives
-\begin{equation}
-V_{l_1}=0.892778,\qquad
-\Freset=0.969516,\qquad
-F_p=0.919584.
-\end{equation}
-The numerical curve quantifies this model only; it is not a universal observer-complexity law.
-
-\begin{figure}[t]
-\centering
-\begin{subfigure}[t]{0.49\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{inversion_sensitivity.pdf}
-  \caption{Stochastic skipped inverse.}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.49\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{depth_scaling.pdf}
-  \caption{Fixed local noise and increasing rounds.}
-\end{subfigure}
-\caption{Practical recovery sensitivity. Every point is an exact density-matrix result for the channel model; finite-shot samples are stored separately in the generated data.}
-\label{fig:scaling}
-\end{figure}
-
-\subsection{Numerical claims and their boundary}
-
-Fourteen automated tests check permutation bijectivity, density-matrix invariants, trace preservation, Kraus completeness, exact ideal reset, classical-mixture loss, retained-record leakage, direct-phase equivalence, action dependence, the analytic overlap law, monotonic selected noise sweeps, and byte-for-byte reproducibility of generated tables under a fixed seed. These tests validate the implemented artifact. They do not test an independent late-challenge source, establish that a black-box device executed an irreducible history, certify joint leakage from correlated marginal records, or provide a quantum computational advantage.
-
 \FloatBarrier
+
+\subsection{Functional coherent-memory length}
+
+We define the \emph{certifiable functional coherent-memory length} as the largest preregistered $n$ for which \eqref{eq:certificate} is satisfied under a declared familywise testing rule. Unlike a bare $T_2$, it asks a memory to retain a temporal predicate and later participate in coherent global return. It remains benchmark-specific: changing the predicate, branch scores, or sequestration interface changes the resource being measured.

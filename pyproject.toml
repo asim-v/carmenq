@@ -3,15 +3,13 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "zero-record-quantum-histories"
-version = "1.0.0"
-description = "Theory and reproducible simulations for zero-record certification of reversible quantum histories"
+name = "causal-audit-return-memory"
+version = "1.1.0"
+description = "Exact audit-return frontiers and reproducible benchmarks for causal quantum memory"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {file = "LICENSE"}
-authors = [
-  {name = "Zero-Record Quantum Histories project contributors"},
-]
+authors = [{name = "Causal Audit--Return Memory project contributors"}]
 keywords = [
   "quantum information",
   "reversible computation",
@@ -34,10 +32,11 @@ reproducibility = [
 ]
 
 [project.urls]
-Repository = "https://github.com/asim-v/zero-record-quantum-histories"
+Repository = "https://github.com/asim-v/causal-audit-return-memory"
 
 [project.scripts]
 rebuild-simulations = "reversible_histories.cli:main"
+audit-return-benchmark = "reversible_histories.audit_return_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

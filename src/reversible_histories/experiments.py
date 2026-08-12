@@ -16,6 +16,14 @@ import numpy as np
 import scipy
 
 from . import __version__
+from .audit_return import (
+    PhenomenologicalNoise,
+    classical_memory_bound,
+    classical_memory_frontier,
+    collective_classical_record_bound,
+    plan_experiment,
+    score,
+)
 from .protocol import (
     NoiseModel,
     ProtocolConfig,
@@ -30,6 +38,9 @@ PLOT_COLORS = {
     "reset_fidelity": "#D55E00",
     "predicate_fidelity": "#009E73",
     "transcript": "#CC79A7",
+    "classical_bound": "#555555",
+    "collective_bound": "#E69F00",
+    "forecast": "#56B4E9",
 }
 
 
@@ -371,6 +382,184 @@ def depth_suite(
     return rows
 
 
+def audit_return_suite(
+    data_dir: Path,
+    figures_dir: Path,
+    *,
+    alpha: float = 0.01,
+    beta: float = 0.1,
+    systematic_per_branch: float = 0.005,
+    null_slack: float = 0.005,
+) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    """Generate the causal-memory frontier and a transparent noise forecast."""
+    frontier_rows: list[dict[str, object]] = []
+    weights = np.linspace(0.0, 1.0, 101)
+    for n_steps in (1, 2, 3, 4, 8, 16):
+        for weight in weights:
+            point = classical_memory_frontier(n_steps, float(weight))
+            frontier_rows.append(
+                {
+                    "n_steps": n_steps,
+                    "audit_weight": float(weight),
+                    "streaming_classical_memory_bound": point.score,
+                    "exposed_audit_probability": point.audit_probability,
+                    "exposed_return_fidelity": point.return_fidelity,
+                    "optimal_local_strength": point.local_strength,
+                    "optimal_strategy": point.strategy,
+                    "collective_classical_record_bound": (
+                        collective_classical_record_bound(float(weight))
+                    ),
+                    "coherent_memory_algebraic_score": 1.0,
+                }
+            )
+    _write_csv(data_dir / "audit_return_frontier.csv", frontier_rows)
+
+    model = PhenomenologicalNoise()
+    forecast_rows: list[dict[str, object]] = []
+    for n_steps in range(1, 201):
+        audit_probability, return_fidelity = model.point(n_steps)
+        expected_score = score(audit_probability, return_fidelity, 0.5)
+        classical_bound = classical_memory_bound(n_steps, 0.5)
+        plan = plan_experiment(
+            n_steps=n_steps,
+            audit_probability=audit_probability,
+            return_fidelity=return_fidelity,
+            audit_weight=0.5,
+            alpha=alpha,
+            beta=beta,
+            audit_systematic=systematic_per_branch,
+            return_systematic=systematic_per_branch,
+            null_slack=null_slack,
+        )
+        forecast_rows.append(
+            {
+                "n_steps": n_steps,
+                "audit_probability": audit_probability,
+                "return_fidelity": return_fidelity,
+                "expected_score": expected_score,
+                "classical_memory_bound": classical_bound,
+                "collective_classical_record_bound": (
+                    collective_classical_record_bound(0.5)
+                ),
+                "raw_margin_above_classical": expected_score - classical_bound,
+                "systematic_per_branch": systematic_per_branch,
+                "null_slack": null_slack,
+                "adjusted_margin": plan.adjusted_gap,
+                "alpha": alpha,
+                "beta": beta,
+                "planned_audit_trials": plan.audit_trials,
+                "planned_return_trials": plan.return_trials,
+                "planned_total_trials": plan.total_trials,
+                "planning_feasible": plan.feasible,
+            }
+        )
+    _write_csv(data_dir / "audit_return_forecast.csv", forecast_rows)
+
+    figure, axes = plt.subplots(1, 2, figsize=(8.1, 3.15))
+    n_values = [int(row["n_steps"]) for row in forecast_rows]
+    axes[0].plot(
+        n_values,
+        [float(row["expected_score"]) for row in forecast_rows],
+        color=PLOT_COLORS["forecast"],
+        linewidth=2.0,
+        label="Noise forecast",
+    )
+    axes[0].plot(
+        n_values,
+        [float(row["classical_memory_bound"]) for row in forecast_rows],
+        color=PLOT_COLORS["classical_bound"],
+        linestyle="--",
+        label="Streaming classical bound",
+    )
+    axes[0].axhline(
+        collective_classical_record_bound(0.5),
+        color=PLOT_COLORS["collective_bound"],
+        linestyle=":",
+        label="Collective classical record",
+    )
+    axes[0].plot(
+        n_values,
+        [
+            float(row["classical_memory_bound"])
+            + null_slack
+            + systematic_per_branch
+            for row in forecast_rows
+        ],
+        color=PLOT_COLORS["transcript"],
+        linestyle="-.",
+        linewidth=1.1,
+        label="Robust planning threshold",
+    )
+    axes[0].set_xlabel("Stream length $n$")
+    axes[0].set_ylabel(r"Balanced score $(P_A+F_R)/2$")
+    axes[0].set_xlim(1, 200)
+    axes[0].set_ylim(0.45, 1.01)
+    axes[0].grid(alpha=0.2)
+    axes[0].legend(frameon=False, fontsize=7.2)
+    axes[0].set_title("Functional coherent-memory length")
+
+    feasible = [
+        row
+        for row in forecast_rows
+        if bool(row["planning_feasible"])
+        and int(row["planned_total_trials"]) > 0
+    ]
+    axes[1].semilogy(
+        [int(row["n_steps"]) for row in feasible],
+        [int(row["planned_total_trials"]) for row in feasible],
+        color=PLOT_COLORS["predicate_fidelity"],
+        linewidth=2.0,
+    )
+    axes[1].set_xlabel("Stream length $n$")
+    axes[1].set_ylabel("Planned total trials")
+    axes[1].grid(alpha=0.2, which="both")
+    axes[1].set_title(r"$\alpha=0.01$, power $\geq0.9$")
+    figure.suptitle("Audit--return benchmark forecast", y=1.02)
+    _save_figure(figure, figures_dir / "audit_return_benchmark")
+
+    frontier_figure, frontier_axes = plt.subplots(1, 2, figsize=(8.1, 3.15))
+    for n_steps in (1, 2, 3, 4, 8):
+        selected = [row for row in frontier_rows if int(row["n_steps"]) == n_steps]
+        frontier_axes[0].plot(
+            [float(row["audit_weight"]) for row in selected],
+            [float(row["streaming_classical_memory_bound"]) for row in selected],
+            linewidth=1.6,
+            label=f"$n={n_steps}$",
+        )
+    frontier_axes[0].plot(
+        weights,
+        [collective_classical_record_bound(float(value)) for value in weights],
+        color=PLOT_COLORS["collective_bound"],
+        linestyle=":",
+        linewidth=1.8,
+        label="Collective classical record",
+    )
+    frontier_axes[0].set_xlabel(r"AUDIT weight $\lambda$")
+    frontier_axes[0].set_ylabel(r"Null support $C_{n,\lambda}$")
+    frontier_axes[0].set_ylim(0.49, 1.01)
+    frontier_axes[0].grid(alpha=0.2)
+    frontier_axes[0].legend(frameon=False, fontsize=7.0, ncol=2)
+    frontier_axes[0].set_title("Exact classical-memory supports")
+
+    for n_steps in (2, 3, 4, 8):
+        selected = [row for row in frontier_rows if int(row["n_steps"]) == n_steps]
+        frontier_axes[1].plot(
+            [float(row["audit_weight"]) for row in selected],
+            [float(row["optimal_local_strength"]) for row in selected],
+            linewidth=1.6,
+            label=f"$n={n_steps}$",
+        )
+    frontier_axes[1].set_xlabel(r"AUDIT weight $\lambda$")
+    frontier_axes[1].set_ylabel(r"Optimal local strength $t$")
+    frontier_axes[1].set_ylim(-0.03, 1.03)
+    frontier_axes[1].grid(alpha=0.2)
+    frontier_axes[1].legend(frameon=False, fontsize=7.2)
+    frontier_axes[1].set_title("Weak-to-projective strategy transition")
+    frontier_figure.suptitle("Streaming audit--return frontier", y=1.02)
+    _save_figure(frontier_figure, figures_dir / "audit_return_frontier")
+    return frontier_rows, forecast_rows
+
+
 def generate_all(
     root: Path, seed: int = 20260812, shots: int = 8192
 ) -> dict[str, object]:
@@ -387,6 +576,9 @@ def generate_all(
     environment_rows = environment_suite(data_dir, figures_dir)
     inversion_rows = inversion_suite(data_dir, figures_dir)
     depth_rows = depth_suite(data_dir, figures_dir, seed)
+    audit_return_frontier_rows, audit_return_forecast_rows = audit_return_suite(
+        data_dir, figures_dir
+    )
 
     metadata: dict[str, object] = {
         "schema_version": 1,
@@ -408,6 +600,8 @@ def generate_all(
             "environment_sweep.csv": len(environment_rows),
             "inversion_sweep.csv": len(inversion_rows),
             "depth_sweep.csv": len(depth_rows),
+            "audit_return_frontier.csv": len(audit_return_frontier_rows),
+            "audit_return_forecast.csv": len(audit_return_forecast_rows),
         },
         "default_noise_model": asdict(NoiseModel()),
     }
