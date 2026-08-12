@@ -1,7 +1,7 @@
 \section{Operational model}
 \label{sec:model}
 
-Fix $n\geq1$. At slot $i$, a trusted verifier prepares
+This section turns the story in \cref{fig:protocol} into a score. Fix $n\geq1$. At slot $i$, a trusted verifier prepares
 \[
 \ket{\Phi}_{R_iA_i}=\frac{\ket{00}+\ket{11}}{\sqrt2},
 \]
@@ -30,6 +30,8 @@ The balanced benchmark uses $\lambda=1/2$.
 
 \subsection{Adaptive classical-memory streaming null}
 
+The comparison class is intentionally powerful: it may learn, randomise, and adapt without bound. The single excluded resource is a coherent state that survives from one slot to the next.
+
 The null may use arbitrary finite classical memory and shared randomness. In slot $i$, conditional on the earlier classical history $h=k_{<i}$, it applies an arbitrary instrument
 \[
 \{\mathcal N^{(i,h)}_{k_i}:A_i\rightarrow B_i\}_{k_i}.
@@ -41,9 +43,11 @@ After refining all classical random seeds and outcomes, every leaf transcript $k
 p(k|x)=\prod_{i=1}^n p_i(k_i|x_i,k_{<i}).
 \label{eq:factor}
 \end{equation}
-This factorisation is the mathematical null. The experiment must support it through timing and isolation evidence; the score alone cannot enforce a laboratory boundary.
+This factorisation is the mathematical null. Timing and isolation evidence must justify it; the score alone cannot enforce a laboratory boundary.
 
 \subsection{Local audit strength and return curve}
+
+Every local observation can now be summarised by one number: how strongly its outcome favours input $0$ over input $1$. This makes the information--disturbance tradeoff visible without committing to a particular measurement implementation.
 
 At a realised prefix $h$, define
 \[
@@ -66,15 +70,13 @@ Here $t=0$ extracts no computational-basis information and preserves an EPR pair
 
 \subsection{A saturating null family}
 
+The following weak measurement reaches the bound. It interpolates continuously between doing nothing ($t_i=0$) and making a projective record ($t_i=1$).
+
 For any $t_i\in[0,1]$, the binary diagonal instrument
-\[
-K^{(i)}_0=
-\begin{pmatrix}
-\sqrt{(1+t_i)/2}&0\\0&\sqrt{(1-t_i)/2}
-\end{pmatrix},\quad
-K^{(i)}_1=
-\begin{pmatrix}
-\sqrt{(1-t_i)/2}&0\\0&\sqrt{(1+t_i)/2}
-\end{pmatrix}
-\]
+\begin{align*}
+K^{(i)}_0&=\operatorname{diag}\!\left(
+\sqrt{\frac{1+t_i}{2}},\sqrt{\frac{1-t_i}{2}}\right),\\
+K^{(i)}_1&=\operatorname{diag}\!\left(
+\sqrt{\frac{1-t_i}{2}},\sqrt{\frac{1+t_i}{2}}\right).
+\end{align*}
 produces local audit bias $t_i$ and return fidelity $f(t_i)$. The transcript parity is the optimal AUDIT guess and identity recovery saturates the RETURN expression derived below.

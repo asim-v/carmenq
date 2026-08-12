@@ -7,7 +7,7 @@ import json
 import numpy as np
 import pytest
 
-from reversible_histories.audit_return import (
+from carmenq.audit_return import (
     BenchmarkCounts,
     PhenomenologicalNoise,
     certify_classical_memory,
@@ -18,7 +18,7 @@ from reversible_histories.audit_return import (
     return_curve,
     simulate_counts,
 )
-from reversible_histories.audit_return_cli import main as cli_main
+from carmenq.audit_return_cli import main as cli_main
 
 
 def test_balanced_classical_bound_and_collective_comparator() -> None:

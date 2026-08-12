@@ -1,12 +1,11 @@
 \begin{abstract}
-We introduce a two-branch benchmark for coherent memory in a sequential quantum process. A trusted verifier sends one half of each of $n$ independent EPR pairs through a device, requires every output to be committed before the next input is released, and sequesters those outputs. After the stream and the device's terminal-memory commitment, a hidden choice requests either (AUDIT) the parity of later computational-basis measurements on the references or (RETURN) joint recovery of all EPR pairs and visible reset of the terminal memory. For the explicit null class of arbitrary adaptive local instruments with unlimited classical memory and disposable within-slot ancillas, but no coherent state or entanglement persisting between slots, we prove the exact support
-\[
-\Cstream=max_{0\leq t\leq1}\left[
-\frac{\lambda}{2}(1+t^n)+(1-\lambda)
-\left(\frac{1+\sqrt{1-t^2}}2\right)^n\right].
-\]
-The reduction covers non-QND instruments and arbitrary transcript-conditioned joint recovery. At equal branch weight, the null is $3/4$ for every $n\geq2$, whereas one persistent coherent qubit attains $(\PA,\FR)=(1,1)$. A collective instrument retaining only a classical outcome has the strictly larger support
-$\Ccoll=\tfrac12+\tfrac12\sqrt{\lambda^2+(1-\lambda)^2}$, isolating the causal cost of streaming. For $n\geq3$, the optimal classical strategy exhibits a first-order transition from recording nothing to an almost projective per-slot measurement. We supply a fixed-sample statistical certificate with explicit systematic allowances, conservative power planning, adversarial numerical checks, deterministic data and figures, and a hardware-facing protocol. The result is a trusted-interface temporal quantum-memory witness, not a device-independent claim, a proof of global erasure, or evidence for a preferred interpretation of quantum mechanics.
+Can a device remember a property of a quantum stream and still return the stream coherently? We turn this question into a two-branch benchmark. A trusted verifier sends one half of each of $n$ independent EPR pairs through a device and sequesters every output before releasing the next input. Only after the stream is committed does a hidden choice request either the parity of later reference measurements (AUDIT) or recovery of every EPR pair together with visible memory reset (RETURN). For arbitrary adaptive local instruments with unlimited classical memory, but no coherent state persisting between slots, we prove the exact support
+\begin{align*}
+f(t)&=\frac{1+\sqrt{1-t^2}}2,\\[-1mm]
+\Cstream&=\max_{0\leq t\leq1}
+\left\{\frac{\lambda}{2}(1+t^n)+(1-\lambda)f(t)^n\right\}.
+\end{align*}
+At equal branch weight, this classical-memory ceiling is $3/4$ for every $n\geq2$, while one persistent coherent qubit reaches $(\PA,\FR)=(1,1)$. Removing the streaming restriction raises the classical ceiling, which isolates the operational cost of causality. We also derive a first-order change in the optimal classical strategy for $n\geq3$, a fixed-sample certificate, and a hardware-facing protocol. The result is a trusted-interface temporal-memory witness, not a device-independent claim or a proof of global erasure.
 \end{abstract}
 
 \noindent\textbf{Keywords:} quantum memory; multitime quantum processes; information--disturbance; entanglement fidelity; reversible computation; causal benchmarks.

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-labelledby="title desc">
+  <title id="title">CARMEN-Q mark</title>
+  <desc id="desc">A quantum-memory loop splitting into audit and return paths.</desc>
+  <defs>
+    <marker id="audit-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#F2A93B"/>
+    </marker>
+    <marker id="return-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#18A999"/>
+    </marker>
+  </defs>
+  <circle cx="84" cy="84" r="60" fill="none" stroke="#102A43" stroke-width="15"/>
+  <path d="M126 126 L157 157" fill="none" stroke="#102A43" stroke-width="15" stroke-linecap="square"/>
+  <path d="M34 84 C51 53 69 53 86 84 C104 84 119 51 144 49" fill="none" stroke="#F2A93B" stroke-width="10" stroke-linecap="round" marker-end="url(#audit-arrow)"/>
+  <path d="M34 84 C51 115 69 115 86 84 C104 84 119 117 144 119" fill="none" stroke="#18A999" stroke-width="10" stroke-linecap="round" marker-end="url(#return-arrow)"/>
+  <circle cx="86" cy="84" r="13" fill="#102A43"/>
+  <circle cx="82" cy="80" r="3" fill="#FFFFFF"/>
+</svg>

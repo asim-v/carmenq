@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from reversible_histories.linalg import (
+from carmenq.linalg import (
     amplitude_damping_to_ground_kraus,
     apply_local_kraus,
     conditional_holevo_information,

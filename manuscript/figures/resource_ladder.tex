@@ -1,0 +1,26 @@
+\begin{tikzpicture}[x=\columnwidth,y=1cm,font=\sffamily]
+  \def\xzero{0.10}
+  \def\xspan{0.82}
+  \draw[gray!55,thick] (\xzero,0) -- ({\xzero+\xspan},0);
+  \foreach \v/\lab in {0.5/{.50},0.75/{.75},1/{1.00}} {
+    \pgfmathsetmacro{\xx}{\xzero+\xspan*(\v-0.5)/0.5}
+    \draw[gray!55] (\xx,-0.08) -- (\xx,0.08);
+    \node[font=\scriptsize,text=gray!75] at (\xx,-0.24) {\lab};
+  }
+  \pgfmathsetmacro{\xa}{\xzero+\xspan*0.5}
+  \pgfmathsetmacro{\xb}{\xzero+\xspan*(0.853553-0.5)/0.5}
+  \pgfmathsetmacro{\xc}{\xzero+\xspan}
+  \draw[linkblue,very thick] (\xzero,0.85) -- (\xa,0.85);
+  \fill[linkblue] (\xa,0.85) circle (2.2pt);
+  \node[anchor=west,font=\scriptsize] at (\xzero,1.13) {streaming classical};
+  \node[anchor=west,font=\scriptsize,text=linkblue] at (\xa+0.012,0.85) {$0.750$};
+  \draw[orange!80!black,very thick] (\xzero,1.72) -- (\xb,1.72);
+  \fill[orange!80!black] (\xb,1.72) circle (2.2pt);
+  \node[anchor=west,font=\scriptsize] at (\xzero,2.00) {collective classical record};
+  \node[anchor=west,font=\scriptsize,text=orange!80!black] at (\xb+0.012,1.72) {$0.854$};
+  \draw[darkgreen,very thick] (\xzero,2.59) -- (\xc,2.59);
+  \fill[darkgreen] (\xc,2.59) circle (2.2pt);
+  \node[anchor=west,font=\scriptsize] at (\xzero,2.87) {one coherent qubit};
+  \node[anchor=east,font=\scriptsize,text=darkgreen] at (\xc-0.012,2.36) {$1.000$};
+  \node[font=\scriptsize,text=gray!75] at (0.51,-0.53) {balanced score $(P_{\mathrm A}+F_{\mathrm R})/2$};
+\end{tikzpicture}

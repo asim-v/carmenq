@@ -1,4 +1,8 @@
-"""Reference tools for causal audit--return quantum-memory benchmarks."""
+"""CARMEN-Q: causal audit-return quantum-memory benchmarks.
+
+The top-level API exposes concise names for routine use while retaining the
+long-form scientific function names used in the accompanying manuscript.
+"""
 
 from .audit_return import (
     BenchmarkCounts,
@@ -25,6 +29,12 @@ from .protocol import (
     run_protocol,
 )
 
+# Concise public aliases. The descriptive originals remain part of the API.
+streaming_bound = classical_memory_bound
+collective_bound = collective_classical_record_bound
+certify = certify_classical_memory
+plan = plan_experiment
+
 __all__ = [
     "BenchmarkCounts",
     "CertificationResult",
@@ -34,18 +44,22 @@ __all__ = [
     "PowerPlan",
     "ProtocolConfig",
     "ProtocolResult",
+    "certify",
     "certify_classical_memory",
     "classical_memory_bound",
     "classical_memory_frontier",
+    "collective_bound",
     "collective_classical_record_bound",
     "conditional_record_information",
     "environment_conditional_information",
+    "plan",
     "plan_experiment",
     "return_curve",
     "run_protocol",
     "score",
     "simulate_counts",
+    "streaming_bound",
     "weighted_hoeffding_radius",
 ]
 
-__version__ = "1.1.0"
+__version__ = "2.0.0"

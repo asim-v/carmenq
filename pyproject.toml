@@ -3,23 +3,36 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "causal-audit-return-memory"
-version = "1.1.0"
-description = "Exact audit-return frontiers and reproducible benchmarks for causal quantum memory"
+name = "carmenq"
+version = "2.0.0"
+description = "Causal audit-return memory evaluation and numerics for quantum processes"
 readme = "README.md"
 requires-python = ">=3.10"
-license = {file = "LICENSE"}
-authors = [{name = "Causal Audit--Return Memory project contributors"}]
+license = "MIT"
+license-files = ["LICENSE", "LICENSE-CONTENT.md"]
+authors = [{name = "Javier Emilio Bazán Sánchez", email = "bazan@ciencias.unam.mx"}]
 keywords = [
   "quantum information",
-  "reversible computation",
-  "causal inference",
-  "interferometry",
+  "quantum memory",
+  "causal benchmarks",
+  "entanglement fidelity",
+  "reproducible research",
 ]
 dependencies = [
   "numpy>=1.26",
   "scipy>=1.11",
   "matplotlib>=3.8",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering :: Physics",
 ]
 
 [project.optional-dependencies]
@@ -32,11 +45,14 @@ reproducibility = [
 ]
 
 [project.urls]
-Repository = "https://github.com/asim-v/causal-audit-return-memory"
+Homepage = "https://github.com/asim-v/carmenq"
+Repository = "https://github.com/asim-v/carmenq"
+Documentation = "https://github.com/asim-v/carmenq/tree/main/docs"
+Issues = "https://github.com/asim-v/carmenq/issues"
 
 [project.scripts]
-rebuild-simulations = "reversible_histories.cli:main"
-audit-return-benchmark = "reversible_histories.audit_return_cli:main"
+carmenq = "carmenq.audit_return_cli:main"
+carmenq-reproduce = "carmenq.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

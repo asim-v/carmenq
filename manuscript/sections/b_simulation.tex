@@ -2,23 +2,19 @@
 \label{app:reproducibility}
 
 The release artifact uses Python 3.10.5, NumPy 2.2.6, SciPy 1.15.3, Matplotlib 3.10.9, and pytest 9.1.1. From the repository root:
+\begin{small}
 \begin{verbatim}
 python -m pip install -e ".[dev,reproducibility]"
 python -m pytest -q
-python scripts/regenerate.py --seed 20260812 --shots 8192
-python scratch/originality_gate/validate_streaming_parity.py
+python scripts/regenerate.py \
+  --seed 20260812 --shots 8192
+python scratch/originality_gate/\
+  validate_streaming_parity.py
 python scripts/build_pdf.py
 \end{verbatim}
+\end{small}
 
-The committed audit--return outputs are:
-\begin{itemize}
-  \item \texttt{data/audit\_return\_frontier.csv}: 606 exact support rows for six stream lengths and 101 weights;
-  \item \texttt{data/audit\_return\_forecast.csv}: 200 planning rows under the declared example law;
-  \item \texttt{figures/audit\_return\_frontier.pdf}: exact support and strategy-transition figure;
-  \item \texttt{figures/audit\_return\_benchmark.pdf}: functional-length and power forecast;
-  \item \texttt{scratch/originality\_gate/streaming\_parity.json}: stored expensive adversarial searches;
-  \item \texttt{streaming\_parity\_validation.json}: independent fast validation summary.
-\end{itemize}
+The committed outputs include \texttt{data/audit\_return\_frontier.csv}, with 606 exact support rows spanning six stream lengths and 101 weights, and \texttt{data/audit\_return\_forecast.csv}, with 200 planning rows under the declared example law. The corresponding vector figures are \texttt{audit\_return\_frontier.pdf} and \texttt{audit\_return\_benchmark.pdf}. Stored adversarial searches appear in \texttt{streaming\_parity.json}, while \texttt{streaming\_parity\_validation.json} records the fast independent validation summary.
 
 PDF timestamps are suppressed for deterministic same-environment generation. Raster and vector rendering can differ across operating systems because of font and rendering-library versions; numerical CSV drift is the stronger cross-platform invariant.
 

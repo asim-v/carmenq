@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.0 - 2026-08-12
+
+- Introduced the CARMEN-Q identity, public `carmenq` Python package, concise API aliases, module entry point, and unified `carmenq` command.
+- Added a polished vector logo, streamlined README, Python API guide, and executable quick-start example.
+- Revised the manuscript into a two-column, visually guided article with substantially fewer list-heavy passages.
+- Updated authorship, citation metadata, packaging, and repository links for Javier Emilio Bazán Sánchez at Facultad de Ciencias, UNAM.
+
 ## 1.1.0 - 2026-08-12
 
 - Added the exact streaming parity AUDIT--RETURN support for adaptive

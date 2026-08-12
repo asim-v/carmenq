@@ -1,10 +1,11 @@
-"""Command-line interface for the causal audit--return benchmark."""
+"""Command-line interface for CARMEN-Q."""
 
 from __future__ import annotations
 
 import argparse
 import json
 
+from . import __version__
 from .audit_return import (
     BenchmarkCounts,
     PhenomenologicalNoise,
@@ -41,8 +42,10 @@ def _common_options(parser: argparse.ArgumentParser) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Plan or analyse the causal audit--return quantum-memory benchmark."
+        prog="carmenq",
+        description="Evaluate causal audit--return quantum-memory benchmarks."
     )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     bound = subparsers.add_parser("bound", help="Print the exact null support point.")
@@ -60,7 +63,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     plan.add_argument("--beta", type=float, default=0.1, help="False-negative target.")
 
-    analyse = subparsers.add_parser("analyse", help="Analyse fixed observed counts.")
+    analyse = subparsers.add_parser(
+        "analyse", aliases=["analyze"], help="Analyse fixed observed counts."
+    )
     _common_options(analyse)
     analyse.add_argument("--audit-successes", type=int, required=True)
     analyse.add_argument("--audit-trials", type=int, required=True)
