@@ -1,0 +1,81 @@
+\section{Simulation and reproduction details}
+\label{app:simulation}
+
+\subsection{Basis and gate construction}
+
+The subsystem order is \(B,W,M,G,A\) with dimensions \(4,4,4,2,2\). A basis index is mapped to a tuple by row-major tensor indexing. Every reversible classical transformation is evaluated on all 256 tuples and accepted only if the output indices form a permutation. Application to a density matrix uses
+\begin{equation}
+\rho'_{\pi(i),\pi(j)}=e^{i(\theta_i-\theta_j)}\rho_{ij}.
+\end{equation}
+The inverse is another explicit permutation. Unit tests apply each forward--inverse pair on the whole basis, not just on the default initial state.
+
+The initial coherent state is
+\begin{equation}
+\ket{\Psi_0}
+=\frac12\sum_{b=0}^3\ket b_B\ket0_W\ket0_M\ket0_G\ket-_A.
+\end{equation}
+The incoherent control replaces the branch state by \(\sum_b\proj b/4\). The direct-phase control applies parity to the phase-kickback ancilla without instantiating \(W,M,G\).
+
+\subsection{Kraus channels}
+
+The dephasing implementation uses
+\begin{equation}
+K_0=\sqrt{1-p}\,\id_d,\qquad
+K_j=\sqrt p\,\proj j,\quad j=0,\ldots,d-1.
+\end{equation}
+It multiplies local off-diagonal matrix elements by \(1-p\) and preserves populations. The depolarising channel is
+\begin{equation}
+\Chan_{\mathrm{dep}}(\rho)
+=(1-p)\rho+\frac{p}{d}\id_d\otimes\Tr_{\mathrm{target}}\rho.
+\end{equation}
+Its Kraus set contains \(\sqrt{1-p}\id_d\) and \(\sqrt{p/d}\ket i\!\bra j\) for all \(i,j\).
+
+The qudit relaxation channel uses
+\begin{align}
+K_0&=\ket0\!\bra0+\sqrt{1-p}\sum_{j=1}^{d-1}\ket j\!\bra j,\\
+K_j&=\sqrt p\,\ket0\!\bra j,\quad j=1,\ldots,d-1.
+\end{align}
+All three sets satisfy \(\sum_jK_j^\dagger K_j=\id\), checked numerically.
+
+\subsection{Environmental Schur channel}
+
+Pure environmental records with Gram matrix
+\begin{equation}
+\Gamma_{bb'}=
+\begin{cases}
+1,&b=b',\\
+\eta,&b\neq b'
+\end{cases}
+\end{equation}
+induce the Schur channel
+\begin{equation}
+\rho_{bb'}\longmapsto\Gamma_{bb'}\rho_{bb'}
+\end{equation}
+on the branch blocks. For \(0\leq\eta\leq1\), the Gram matrix is positive semidefinite and the channel is completely positive. The complementary conditional information is computed by constructing a square root of \(\Gamma\), treating its rows as a valid set of record-state vectors, and evaluating the within-parity Holevo information.
+
+\subsection{Generated artifacts}
+
+The command
+\begin{equation*}
+\texttt{python scripts/run\_all.py}
+\end{equation*}
+runs the tests and then regenerates:
+
+\begin{itemize}
+  \item \texttt{data/benchmark\_summary.csv};
+  \item \texttt{data/noise\_sweep.csv};
+  \item \texttt{data/environment\_sweep.csv};
+  \item \texttt{data/inversion\_sweep.csv};
+  \item \texttt{data/depth\_sweep.csv};
+  \item \texttt{data/reference\_branch\_states.npz};
+  \item \texttt{data/metadata.json};
+  \item every PDF and PNG figure used in the manuscript.
+\end{itemize}
+
+Exact density-matrix quantities are deterministic. Seed 20260812 controls only the illustrative 8192-shot multinomial samples; seed 20260813 controls generated challenge strings in the depth sweep. Metadata record Python and library versions, Hilbert-space dimensions, row counts, command line, seed, and noise defaults.
+
+\subsection{Numerical precision and omissions}
+
+Density matrices are symmetrised after the main protocol to remove floating-point anti-Hermitian residue. Probabilities are clipped only at the final scalar level within roundoff. Tests require unit trace and positive semidefiniteness to tolerance. No sampling uncertainty is attached to exact curves. The CSV benchmark includes finite-shot counts so that downstream inference code can be tested without confusing those counts with experimental evidence.
+
+The simulator omits coherent calibration drift, correlated and non-Markovian noise, leakage out of the declared Hilbert space, readout error, pulse compilation, crosstalk, error mitigation, logical error correction, and thermodynamic work. Adding one of these effects requires a stated channel or Hamiltonian and a new claim-ledger row; it must not be hidden inside an empirical fitting parameter.

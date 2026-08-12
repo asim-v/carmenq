@@ -1,0 +1,88 @@
+\section{Claim audit, failure modes, and reproducibility contract}
+\label{app:claims}
+
+\subsection{Claim classes}
+
+\small
+\begin{longtable}{@{}
+>{\raggedright\arraybackslash}p{0.08\textwidth}
+>{\raggedright\arraybackslash}p{0.28\textwidth}
+>{\raggedright\arraybackslash}p{0.24\textwidth}
+>{\raggedright\arraybackslash}p{0.30\textwidth}@{}}
+\caption{Status of the main claims in this artifact.}\label{tab:claims}\\
+\toprule
+ID & Statement & Status & Evidence and boundary \\
+\midrule
+\endfirsthead
+\toprule
+ID & Statement & Status & Evidence and boundary \\
+\midrule
+\endhead
+K1 & A clean predicate phase survives exact uncomputation. & Established & Standard reversible computation; exact algebra and unit tests. \\
+K2 & A perfect external transcript is incompatible with nonzero two-path visibility. & Established & Complementarity and pure-record theorem. \\
+D1 & A named-register reset does not imply recoherence. & Derived & Explicit orthogonal-environment counterexample. \\
+D2 & A known closed protocol is endpoint-equivalent to its effective unitary. & Derived & Equality of channels; direct-phase control. \\
+D3 & Conditional leakage is nonvacuous only when an allowed predicate has a multi-history fibre. & Derived & Conditional mutual information identity. \\
+N1 & The reference circuits realise the analytic ideal and control predictions. & Numerical & Deterministic exact simulation and automated tests. \\
+N2 & The reported noisy curves follow the declared channel models. & Numerical & Generated CSV files, metadata, and tests. \\
+H1 & The conjunction of causal-memory certification, predicate-only disclosure, final-record decoupling, recoherence, and an explicit anti-shortcut access model appears underexplored. & Novelty hypothesis & A bounded scoping search found separate clauses but cannot prove absence or priority. \\
+C1 & A coherent-over-incoherent complexity separation exists for a zero-record task. & Conjecture & Motivated by QUALM results; not proved here. \\
+O1 & A joint device-independent causal-memory and recoherence witness can be built. & Open objective & No such witness is supplied in this version. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Failure and falsification matrix}
+
+\begin{table}[ht]
+\centering
+\caption{Observations that invalidate a protocol claim before any foundational interpretation is considered.}
+\small
+\begin{tabularx}{\textwidth}{@{}Y Y@{}}
+\toprule
+Observation & Consequence \\
+\midrule
+The coherent preparation and classical mixture give the same phase-sensitive statistics. & No coherence-dependent effect has been established. \\
+The direct-phase control differs from the trusted ideal closed circuit. & The implementation or analysis is inconsistent; it does not establish history authenticity. \\
+Removing the memory-update or action gate leaves the advertised predicate unchanged. & The named agent component is not causally necessary for that predicate. \\
+Work ancillas or an environment retain distinguishable within-predicate states. & The zero-record claim fails even if the visible memory reads zero. \\
+Only postselected subensembles display fringes, but the report treats them as unconditional. & The recovery mechanism has been misidentified. \\
+An injective predicate is used to report \(I(H:R|P)=0\). & The privacy metric is vacuous. \\
+The null class can access the label and insert the phase directly. & The causal soundness gap collapses. \\
+The ideal simulator cannot invert the declared circuit. & The protocol definition is internally inconsistent. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Interpretive neutrality}
+
+The density operator, channels, process tensor, and Born probabilities in this manuscript can be described using several interpretations of quantum mechanics. Calling coherent components branches is compatible with a relative-state description but adds no exclusive prediction. A successful experiment would establish the operational clauses in its access model. It would not demonstrate communication with a naturally decohered macroscopic world, and it would not single out an ontology.
+
+\subsection{Reproducibility contract}
+
+The public artifact includes:
+
+\begin{enumerate}
+  \item source code implementing every simulated channel and metric;
+  \item tests of unitary validity, trace preservation, positivity, analytic limiting cases, and mandatory controls;
+  \item a single command that regenerates data and figures;
+  \item deterministic seeds recorded in machine-readable metadata;
+  \item CSV outputs containing the plotted values rather than only raster figures;
+  \item dependency bounds and a clean-environment installation path;
+  \item this claim ledger and a dated novelty audit;
+  \item the LaTeX source, BibTeX library, compiled PDF, and visual-render checks.
+\end{enumerate}
+
+Numerical agreement does not prove hardware feasibility beyond the specified noise channels. Likewise, the absence of a source in the scoping review does not prove priority. Both limitations are preserved in the repository rather than removed from the final narrative.
+
+\subsection{Successor map}
+
+The next minimum scientifically decisive result is one of:
+
+\begin{enumerate}
+  \item derive a multitime inequality with an explicit bounded-memory or no-memory null class, implement it, and combine it with a matched recoherence run;
+  \item construct a black-box task and prove a coherent-access query separation that still obeys the zero-record condition;
+  \item prove an impossibility result showing that causal certification and final physical transcript decoupling cannot be combined under a stated access model;
+  \item reduce the proposed primitive completely to an existing process-witness, zero-knowledge, or channel-recovery theorem and abandon the distinct framing.
+\end{enumerate}
+
+Any of these outcomes would be more informative than increasing circuit size without improving identifiability.

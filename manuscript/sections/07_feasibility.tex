@@ -1,0 +1,38 @@
+\section{Experimental feasibility and scaling}
+
+\subsection{What can be implemented now}
+
+ZR-0 and ZR-1 require only a path/control qubit, a memory qubit, a phase operation, and optionally one environmental marker. They are ordinary small coherent circuits and can be implemented with superconducting qubits, trapped ions, neutral-atom registers, or photonic path--polarisation degrees of freedom. Their scientific value is calibration: they test phase conventions, record accounting, and the difference between reset and recoherence.
+
+ZR-2 and ZR-3 require coherent memory across several intervention times, conditional reversible gates, and an inverse whose error is low enough to expose the final phase. They remain small logical experiments, but the appropriate platform depends on the question. Trapped ions offer long-lived internal states and flexible connectivity at comparatively slow gate rates. Superconducting processors offer fast gates and mature calibration but require careful routing and suffer shorter coherence. Photonic implementations naturally expose path information and erasure but persistent multistep memory and deterministic interactions are harder. The present artifact is hardware-independent and makes no hardware execution claim.
+
+\subsection{Resource accounting}
+
+Let $D_H$ be the forward-history depth and $D_p$ the clean predicate depth. A literal inverse implementation has depth
+\begin{equation}
+D_{\mathrm{total}}\geq 2D_H+D_p+D_{\mathrm{interfere}},
+\end{equation}
+before routing, error correction, or verification overhead. If an exposed coherence is multiplied by $\lambda_j$ at interval $j$, then
+\begin{equation}
+V\leq V_0\prod_{j=1}^{N}\lambda_j.
+\end{equation}
+For identical intervals, $V\leq V_0\lambda^N\simeq V_0e^{-N(1-\lambda)}$ near $\lambda=1$. The forward--inverse structure therefore turns modest per-step losses into an exponential practical scaling, even though no special fundamental ``observer complexity'' term appears in unitary mechanics.
+
+The simulation reports qubits, channels, depth proxy, and all noise parameters. It does not convert those counts into a universal energy cost. Ideal uncomputation is logically reversible and cannot be assigned $k_BT\ln2$ per cleaned bit as though it were blind irreversible erasure \cite{landauer1961irreversibility,bennett1973logical}. Finite-time control, refrigerator overhead, active reset, syndrome extraction, and discarded records can dissipate work, but their costs depend on the physical implementation. Recent complexity-constrained thermodynamics makes this distinction especially important \cite{munson2025complexity,latune2025measurement}.
+
+\subsection{A staged experimental route}
+
+\begin{enumerate}
+  \item \textbf{Calibration:} implement ZR-0, direct-phase equality, no-predicate, and retained-memory controls.
+  \item \textbf{Record overlap:} implement a tunable marker and compare measured visibility with independently tomographed marker fidelity.
+  \item \textbf{Trusted causal agent:} implement the multistep reversible transducer and ablate observation, memory update, and action gates one at a time.
+  \item \textbf{Late challenge:} randomise the challenge only after memory formation; enforce physical isolation between the response module and the history label during the response window.
+  \item \textbf{Targeted process witness:} reconstruct only the temporal correlators needed to exclude the chosen bounded-memory class rather than performing full process-tensor tomography.
+  \item \textbf{Logical scaling:} compare visibility and reset with error-detected or error-corrected implementations at matched logical depth.
+\end{enumerate}
+
+Steps 1--3 are feasible small-circuit demonstrations. Step 4 is feasible under trusted timing and connectivity assumptions. Step 5 is the first point at which the project could make a genuinely causal certification claim, and its witness has not yet been derived. Scaling to macroscopic natural records is not on this route: those records have already proliferated into uncontrolled environments outside the inverse.
+
+\subsection{Interpreting anomalous loss}
+
+Reduced dynamics are routinely nonunitary because of an unmodelled environment. A visibility deficit must first be tested against preparation and measurement error, coherent miscalibration, leakage levels, crosstalk, drift, relaxation, dephasing, loss, imperfect inversion, and an incomplete environmental model. Only a residual with preregistered controls, platform replication, and quantitatively excluded conventional channels could constrain a fundamental nonunitary model. Even then it would constrain a parameterised model; it would not by itself select an interpretation of quantum mechanics.

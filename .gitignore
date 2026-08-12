@@ -1,0 +1,45 @@
+# Operating-system files
+.DS_Store
+Thumbs.db
+
+# Editors and IDEs
+.idea/
+.vscode/
+*.swp
+
+# Local variables and secrets
+.env
+.env.*
+!.env.example
+
+# Temporary outputs
+tmp/
+temp/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+.venv/
+
+# LaTeX: keep only the versioned final PDF
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.out
+*.synctex.gz
+*.toc
+*.xdv
+output/pdf/*.pdf
+!output/pdf/zero_record_quantum_histories.pdf
+
+# Visual QA renders
+tmp/pdfs/

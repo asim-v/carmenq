@@ -1,0 +1,90 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,margin=27mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+\usepackage{booktabs,tabularx,longtable,array,multirow}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{siunitx}
+\usepackage{url}
+\usepackage{placeins}
+\usepackage{hyperref}
+\usepackage[nameinlink,capitalise]{cleveref}
+
+\definecolor{linkblue}{HTML}{174A7E}
+\definecolor{darkgreen}{HTML}{246B45}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=linkblue,
+  citecolor=darkgreen,
+  urlcolor=linkblue,
+  pdftitle={Zero-Record Certification of Reversible Quantum Histories},
+  pdfauthor={Zero-Record Quantum Histories Project}
+}
+
+\graphicspath{{../figures/}}
+\setlist{nosep,leftmargin=*}
+\setlength{\emergencystretch}{2em}
+
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}[definition]{Theorem}
+\newtheorem{proposition}[definition]{Proposition}
+\newtheorem{lemma}[definition]{Lemma}
+\newtheorem{corollary}[definition]{Corollary}
+\newtheorem{conjecture}[definition]{Conjecture}
+\theoremstyle{remark}
+\newtheorem{remark}[definition]{Remark}
+\newtheorem{limitation}[definition]{Limitation}
+
+\newcommand{\Hil}{\mathcal{H}}
+\newcommand{\Chan}{\mathcal{E}}
+\newcommand{\Proc}{\Upsilon}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\id}{\mathbb{I}}
+\newcommand{\ket}[1]{\lvert #1\rangle}
+\newcommand{\bra}[1]{\langle #1\rvert}
+\newcommand{\braket}[2]{\langle #1\vert #2\rangle}
+\newcommand{\proj}[1]{\lvert #1\rangle\!\langle #1\rvert}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\ZR}{\mathrm{ZR}}
+\newcommand{\Freset}{F_{\mathrm{reset}}}
+\newcommand{\ZRleak}{L_{\mathrm{ZR}}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\title{\textbf{Zero-Record Certification of Reversible Quantum Histories}\\
+\large Causal memory, predicate readout, recoherence, and the limits of endpoint evidence}
+\author{Zero-Record Quantum Histories Project\\
+\small Open research artifact, version 1.0}
+\date{12 August 2026}
+
+\begin{document}
+\maketitle
+
+\input{sections/00_abstract}
+\tableofcontents
+\clearpage
+
+\input{sections/01_introduction}
+\input{sections/02_scope_related}
+\input{sections/03_model}
+\input{sections/04_results}
+\input{sections/05_protocols}
+\input{sections/06_numerics}
+\input{sections/07_feasibility}
+\input{sections/08_discussion}
+
+\appendix
+\input{sections/a_proofs}
+\input{sections/b_simulation}
+\input{sections/c_claims}
+
+\clearpage
+\bibliographystyle{unsrt}
+\bibliography{../references/library}
+
+\end{document}

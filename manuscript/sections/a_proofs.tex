@@ -1,0 +1,184 @@
+\section{Additional formal details and proofs}
+\label{app:proofs}
+
+\subsection{Process-tensor representation}
+
+Endpoint channels suppress temporal information by construction. A process tensor retains it. For intervention times \(t_0,\ldots,t_{T-1}\), let \(\mathcal A_{x_t}^{(t)}\) be the completely positive map chosen at time \(t\), with classical or coherently controlled setting \(x_t\). The joint outcome probability has the generalised Born-rule form
+\begin{equation}
+p(\mathbf a\mid\mathbf x)
+=\Tr\!\left[
+\Proc_{T:0}
+\left(
+A_{a_{T-1}|x_{T-1}}^{(T-1)}\otimes\cdots\otimes
+A_{a_0|x_0}^{(0)}
+\right)^{\mathsf T}
+\right],
+\end{equation}
+where the \(A\)'s are Choi operators and the transpose convention depends on the chosen link product. The positive operator \(\Proc_{T:0}\) obeys linear causality constraints ensuring that later choices do not signal to earlier outcomes \cite{pollock2018processes,chiribella2009networks}.
+
+A closed circuit corresponds to inserting fixed operations into every slot. The contraction then produces one channel \(\Chan_{T:0}\). Many process tensors and many Stinespring realisations have the same contraction. Consequently, claims about internal memory require a family of interventions rich enough to exclude the selected null class.
+
+One operational memory measure is the minimum dimension of a system passed between adjacent slots in a realisation compatible with the observed process. This dimension is interface-relative: moving a degree of freedom across the declared system--environment boundary changes the count. Dimension witnesses based on temporal correlations avoid full reconstruction but certify only relative to their assumptions.
+
+\subsection{Endpoint theorem for interactive strategies}
+
+The endpoint theorem extends to a verifier that exchanges messages at several times if the dishonest class may reproduce the entire honest comb.
+
+\begin{theorem}[No unrestricted realisation soundness]
+Let an honest implementation, including every conditional response to verifier messages, define an admissible quantum comb \(\mathfrak H\). If the dishonest comparison class contains any physical realisation of the same comb and is not constrained to use the designated internal registers or causal decomposition, then no verifier interacting only through the declared ports has a positive completeness--soundness gap for the statement that the designated internal realisation occurred.
+\end{theorem}
+
+\begin{proof}
+The probability of every verifier transcript is obtained by linking the verifier strategy to the Choi operator of \(\mathfrak H\). A second Stinespring realisation of the same comb has the same Choi operator at all ports, hence the same transcript distribution and acceptance probability. If the honest implementation is accepted with probability \(c\), this alternative is accepted with probability \(c\), forcing the soundness parameter \(s\geq c\).
+\end{proof}
+
+Nontrivial soundness therefore requires the comparison class to exclude the effective comb by a physical or computational restriction. Examples include spacelike or shielded interfaces, maximum communication dimension, bounded causal memory, delayed unpredictable inputs, query access to an unknown process, or a cryptographic assumption. Merely naming an internal wire does not restrict the class.
+
+\subsection{Visibility under independent records}
+
+For \(K\) alternatives,
+\begin{equation}
+\ket\Psi=\sum_{b=0}^{K-1}\alpha_b e^{i\phi_b}\ket b\ket{r_b}
+\end{equation}
+gives
+\begin{equation}
+(\rho_B)_{bb'}=
+\alpha_b\alpha_{b'}^*e^{i(\phi_b-\phi_{b'})}
+\braket{r_{b'}}{r_b}.
+\end{equation}
+Every pairwise coherence is weighted by the corresponding record overlap. If step \(j\) writes into an independent environmental factor,
+\begin{equation}
+\ket{r_b}=\bigotimes_{j=1}^T\ket{e_{b,j}},
+\end{equation}
+then
+\begin{equation}
+\braket{r_{b'}}{r_b}
+=\prod_{j=1}^T\braket{e_{b',j}}{e_{b,j}}.
+\end{equation}
+For two alternatives with per-step overlap magnitude \(\gamma_j\),
+\begin{equation}
+V_T=V_0\prod_{j=1}^T\gamma_j.
+\end{equation}
+If \(\gamma_j=1-\ell_j\) and \(\ell_j\ll1\), then
+\begin{equation}
+-\log(V_T/V_0)
+=-\sum_j\log(1-\ell_j)
+=\sum_j\ell_j+O\!\left(\sum_j\ell_j^2\right).
+\end{equation}
+The product law is not universal: correlations between environmental factors or later reinteraction can produce revivals. Those effects require an explicit process-tensor model.
+
+\subsection{Mixed records and a joint recovery criterion}
+
+Let \(f(\rho,\sigma)=\|\sqrt\rho\sqrt\sigma\|_1\) denote root fidelity and \(D(\rho,\sigma)=\|\rho-\sigma\|_1/2\). The Fuchs--van de Graaf inequalities \cite{fuchs1999cryptographic} give
+\begin{equation}
+1-f(\rho,\sigma)\leq D(\rho,\sigma)
+\leq\sqrt{1-f(\rho,\sigma)^2}.
+\end{equation}
+By Uhlmann's theorem \cite{uhlmann1976transition}, the maximum two-path coherence compatible with mixed residual records \(\rho_R^0,\rho_R^1\) is their root fidelity. An actual experiment can have lower visibility because its chosen purifications need not maximise their overlap. Therefore,
+\begin{equation}
+V\leq f(\rho_R^0,\rho_R^1),
+\qquad
+D(\rho_R^0,\rho_R^1)^2+V^2\leq1.
+\end{equation}
+These are established information--disturbance consequences, not a project-specific observer law.
+
+The correct sufficient recovery condition is joint. Suppose
+\begin{equation}
+F\!\left(
+\rho_{BR},
+\proj{\psi_\phi}_B\otimes\sigma_R
+\right)\geq1-\varepsilon,
+\quad
+\ket{\psi_\phi}=\frac{\ket0+e^{i\phi}\ket1}{\sqrt2},
+\end{equation}
+where \(F\) is squared fidelity and \(R\) includes every relevant record. Fuchs--van de Graaf bounds the trace distance by \(\sqrt\varepsilon\). For
+\begin{equation}
+X_\phi=e^{-i\phi}\ket0\!\bra1+e^{i\phi}\ket1\!\bra0,
+\end{equation}
+whose operator norm is one,
+\begin{equation}
+\Tr[(X_\phi\otimes\id)\rho_{BR}]
+\geq1-2\sqrt\varepsilon.
+\end{equation}
+A marginal statement about one memory register does not meet the premise.
+
+\subsection{Conditional leakage calculation}
+
+For a predicate value \(p\), define
+\begin{equation}
+\bar\rho_R^p=\sum_{h:p(h)=p}q(h|p)\rho_R^h.
+\end{equation}
+The within-fibre Holevo information is
+\begin{equation}
+\chi_p=S(\bar\rho_R^p)
+-\sum_{h:p(h)=p}q(h|p)S(\rho_R^h),
+\end{equation}
+and
+\begin{equation}
+I(H:R|P)=\sum_p q_p\chi_p.
+\end{equation}
+For pure residual states, \(\chi_p=S(\bar\rho_R^p)\). In the ZR-4 parity example with a perfect retained two-bit transcript, \(H(H|P)=1\) bit and the transcript determines \(H\), so \(\ZRleak=1\) bit. Exact common-state reset gives zero. If the two states in each fibre have pure-state overlap \(\gamma\) and equal probability, the eigenvalues of their mean are \((1\pm|\gamma|)/2\), giving
+\begin{equation}
+\ZRleak=h_2\!\left(\frac{1+|\gamma|}{2}\right),
+\end{equation}
+where \(h_2\) is binary entropy. This function falls continuously from one bit at \(\gamma=0\) to zero at \(\gamma=1\).
+
+\subsection{Late-challenge enumeration}
+
+For completeness, consider all deterministic one-bit encodings \(m=f(h_0,h_1)\). Randomisation cannot improve a linear average-success objective beyond a deterministic extreme point. Each encoding partitions the four history strings into at most two cells. Given one cell and challenge \(x\), the optimal decoder returns the majority value of coordinate \(x\) in that cell.
+
+Up to relabelling, the nonconstant partitions have cell-size patterns \(1+3\) or \(2+2\). For a \(1+3\) partition, the singleton contributes two correct challenge cases and the three-element cell contributes four, for six correct cases out of eight. For a \(2+2\) partition:
+
+\begin{itemize}
+  \item storing \(h_0\), \(h_1\), or their complements gives perfect response for one challenge and chance response for the other, again \(6/8\);
+  \item storing parity makes both coordinates balanced inside each cell and gives \(4/8\).
+\end{itemize}
+
+Thus the optimal one-classical-bit value is \(3/4\). A zero-bit response gives \(1/2\), and a two-bit memory stores the full pair and gives one. If a qubit is allowed, encoding states around a great circle gives the \(2\)-to-\(1\) quantum random-access-code value \((1+1/\sqrt2)/2\) \cite{ambainis2002dense}, so the memory type is part of the null-class definition.
+
+\subsection{Elementary noise laws}
+
+The phase-flip channel
+\begin{equation}
+\mathcal D_\lambda(\rho)=(1-\lambda)\rho+\lambda Z\rho Z
+\end{equation}
+multiplies an off-diagonal element by \(1-2\lambda\). After \(n\) independent applications,
+\begin{equation}
+V_n=V_0|1-2\lambda|^n.
+\end{equation}
+The convention matters: another common dephasing parameterisation multiplies coherence directly by \(1-\lambda\). The code documents which convention each curve uses.
+
+Let the implemented inverse have coherent error
+\begin{equation}
+\widetilde U_H^\dagger=U_H^\dagger e^{-i\epsilon K}.
+\end{equation}
+For internal history state \(\ket{h_b}\),
+\begin{align}
+A_b
+&=\bra{h_b}e^{-i\epsilon K}\ket{h_b}\\
+&=1-i\epsilon\langle K\rangle_b
+-\frac{\epsilon^2}{2}\langle K^2\rangle_b+O(\epsilon^3),
+\end{align}
+so
+\begin{equation}
+|A_b|^2=1-\epsilon^2\operatorname{Var}_b(K)+O(\epsilon^3).
+\end{equation}
+Coherent error can shift phase at first order while degrading return probability only at second order. Measuring one interferometric quadrature is therefore insufficient to distinguish contrast loss from phase rotation.
+
+\subsection{Proposed resource quantities}
+
+The following are research targets, not established monotones. For an allowed-control class \(\mathfrak U\), define a recoherable causal complexity
+\begin{equation}
+\mathsf{RCC}_{\mathfrak U}(v,\varepsilon)
+=\sup_{\Theta}\left\{
+\log d_{\min}(\Theta):
+V_{\mathrm{excess}}(\Theta)\geq v,\
+\ZRleak(\Theta)\leq\varepsilon
+\right\}.
+\end{equation}
+Without an interface, a dimension cap, or a control restriction, the quantity can be trivial or unbounded. A zero-record proof cost is better kept as a Pareto tuple
+\begin{equation}
+\mathsf C_{\mathrm{ZR}}
+=(N_q,D,N_a,N_{\mathrm{shots}},N_{\mathrm{queries}})
+\end{equation}
+rather than collapsed with arbitrary weights. Finally, a coherent-access advantage should compare calls to the same process instance with coherent temporal control against independent preparations and classical intermediate records. Merely comparing a pure control with a dephased mixture is not a complexity separation.

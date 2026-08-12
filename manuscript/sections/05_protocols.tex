@@ -1,0 +1,122 @@
+\section{Reference protocol family}
+
+The reference family is deliberately small. ZR-0, ZR-1, ZR-2, and ZR-4 motivate components of the exact density-matrix simulator, while ZR-3 is an analytic late-challenge task not scored by the present code. Their purpose is to expose every record and control, not to maximise qubit count. Table~\ref{tab:protocols} summarises the instances.
+
+\begin{table}[ht]
+\centering
+\caption{Reference instances and the question each one tests.}
+\label{tab:protocols}
+\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\toprule
+Instance & Minimum structure & Diagnostic purpose \\
+\midrule
+ZR-0 & $B,M,A$ & Exact phase survival and endpoint direct-phase equivalence \\
+ZR-1 & $B,M,A,E$ & Visibility versus pure environmental-record overlap \\
+ZR-2 & multistep $W,M,G$ & Reversible observation, state update, action, and reset \\
+ZR-3 & two-bit $B,M$, late $X$, response $Y$ & Analytic model-relative causal-memory challenge \\
+ZR-4 & four histories, non-injective $p$ & Nonvacuous within-predicate transcript leakage \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{ZR-0: minimal phase survival}
+
+Prepare
+\begin{equation}
+\ket{+}_B\ket0_M\ket{-}_A.
+\end{equation}
+A CNOT from $B$ to $M$ creates the record
+\begin{equation}
+\frac{\ket0_B\ket0_M+\ket1_B\ket1_M}{\sqrt2}\ket{-}_A.
+\end{equation}
+A CNOT from $M$ to the phase ancilla contributes $(-1)^m$. Reapplying the first CNOT uncomputes the memory and leaves
+\begin{equation}
+\ket{-}_B\ket0_M\ket{-}_A.
+\end{equation}
+A final Hadamard on $B$ returns outcome one with unit probability. Applying $Z_B$ directly produces the same endpoint state. Omitting the predicate produces outcome zero, while retaining the memory makes the reduced control incoherent and its Hadamard-basis outcome uniform.
+
+This three-register circuit tests bookkeeping. It is not a historical-certification claim.
+
+\subsection{ZR-1: tunable environmental record}
+
+After the intended controlled reset, let the two alternatives correlate with
+\begin{equation}
+\ket{e_0}=\ket0,
+\qquad
+\ket{e_1}=\gamma\ket0+\sqrt{1-\gamma^2}\ket1,
+\qquad 0\leq\gamma\leq1.
+\end{equation}
+The reduced control coherence is multiplied by $\gamma$, giving the analytic target
+\begin{equation}
+V=\gamma,qquad D=\sqrt{1-\gamma^2}.
+\end{equation}
+This two-path construction gives the complementarity circle analytically. The four-history simulator instead sweeps a constant pairwise overlap $\eta$, for which its normalised multipath $l_1$ coherence equals $\eta$; it does not identify that multipath quantity with the two-path distinguishability $D$. At zero overlap an orthogonal external record survives even though the named memory has reset perfectly. At unit overlap the environment contains no distinguishable path record.
+
+\subsection{ZR-2: reversible finite-state agent}
+
+An agent is modelled functionally as a reversible transducer rather than as a conscious observer. At each time $t$ it:
+
+\begin{enumerate}
+  \item receives a world symbol $w_t$;
+  \item updates a finite internal state $m_t$;
+  \item writes a reversible action $a_t$;
+  \item preserves enough work information to invert the update.
+\end{enumerate}
+
+The implemented transducer stores the two-bit world symbol in memory. In each round it computes a challenge-dependent decision into a work bit, conditionally flips one world bit, and uncomputes the work bit. The final internal predicate combines world parity with the recomputed decision parity; on the intended path this equals label parity. Deleting an action gate while keeping that oracle fixed changes the eventual predicate. Each update is a permutation of computational basis states, hence a unitary. The inverse applies action, decision, memory, and world gates in reverse order. Unit tests verify the permutation and inverse identities on every basis state, not merely on the chosen input.
+
+The point of ZR-2 is to enforce temporal and causal structure in the implementation. By the endpoint theorem, the trusted closed circuit remains compressible to its effective phase oracle.
+
+\subsection{ZR-3: analytic late-challenge random-access history}
+
+Let the fine-grained history be $h=(h_0,h_1)\in\{0,1\}^2$. Prepare a coherent uniform label and copy both bits into a two-qubit memory during the observation window:
+\begin{equation}
+\frac12\sum_{h_0,h_1}\ket{h_0h_1}_B\ket{h_0h_1}_M.
+\end{equation}
+Only after this correlation exists, choose a classical challenge $x\in\{0,1\}$. A response module that cannot access $B$ computes $y=m_x$ into a response qubit, phase-marks $y$, and uncomputes the response. The inverse observation then returns $M$ to $\ket{00}$. The final control state is
+\begin{equation}
+Z_{B_x}\ket{++}_B,
+\end{equation}
+up to a known convention, so an $X$-basis measurement identifies the selected phase pattern.
+
+In the corresponding \emph{classical readout game}, across random challenges a memoryless response succeeds at most one half of the time, one classical bit at most three quarters, and two bits perfectly. A quantum one-bit comparison has a different bound and must not be grouped with the classical class. The coherent circuit above instead applies the phase function $h\mapsto h_x$ to every history amplitude. Its final $X$-basis measurement diagnoses the phase pattern; it is not a draw of the classical answer $H_X$. Thus the classical success bounds do not directly certify the coherent endpoint channel.
+
+The timing choice blocks a classical response prepared before $x$ from knowing which stored feature will be queried. It does not block a malicious device with unauthorised access to $B$ from applying $Z_{B_x}$ directly. Thus ZR-3 is a proposed causal benchmark under an architectural access assumption, not a device-independent proof. The current simulator's challenge tuple consists of fixed gate parameters applied after memory formation in circuit order; it contains no independent $X$ register and does not report the ZR-3 game score.
+
+\subsection{ZR-4: a nontrivial privacy fibre}
+
+Take the same four histories and the allowed predicate
+\begin{equation}
+p(h)=h_0\oplus h_1.
+\end{equation}
+Each predicate value contains two fine histories. The branch-conditioned residual states define a meaningful conditional Holevo information. In the exact protocol all controlled residual states equal $\ket{0}$, so $\ZRleak=0$. A retained copy of $h$ gives one bit of additional information within each parity class, while partial nonorthogonal records interpolate continuously.
+
+This instance prevents a common definitional error: with only two histories and predicate $p(h)=h$, conditioning on the allowed predicate already reveals the complete history and makes conditional leakage zero regardless of the residual transcript.
+
+\subsection{Control matrix}
+
+\begin{table}[ht]
+\centering
+\caption{Predicted qualitative outcomes for the mandatory controls. ``Reset'' refers only to declared controlled records; $E$ is assessed separately.}
+\label{tab:controls}
+\small
+\begin{tabularx}{\textwidth}{@{}
+>{\raggedright\arraybackslash}p{0.18\textwidth}
+>{\raggedright\arraybackslash}p{0.18\textwidth}
+>{\centering\arraybackslash}p{0.09\textwidth}
+>{\centering\arraybackslash}p{0.12\textwidth}
+Y@{}}
+\toprule
+Condition & Phase response & $V$ & Reset & Interpretation \\
+\midrule
+Ideal coherent & yes & 1 & 1 & Positive implementation control \\
+Direct compiled phase & yes & 1 & 1 & Endpoint-equivalent shortcut \\
+No predicate & no & 1 & 1 & Negative predicate control \\
+Classical label mixture & no relative phase & 0 & not diagnostic & Incoherent baseline \\
+Memory retained & local phase inaccessible & 0 & 0 & Which-history record remains \\
+Orthogonal $E$ record & local phase inaccessible & 0 & 1 & Reset does not imply recoherence \\
+Perturbed inverse & degraded & $<1$ & $<1$ & Ordinary control error \\
+Memoryless late response & bounded & varies & 1 & Causal comparison class \\
+\bottomrule
+\end{tabularx}
+\end{table}

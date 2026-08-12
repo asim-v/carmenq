@@ -1,0 +1,86 @@
+\section{Model and operational quantities}
+
+\subsection{Registers and histories}
+
+Let
+\begin{equation}
+\Hil=\Hil_B\otimes\Hil_W\otimes\Hil_M\otimes\Hil_G
+\otimes\Hil_A\otimes\Hil_E .
+\end{equation}
+The label register $B$ coherently indexes alternatives; $W$ is a controlled world; $M$ is internal memory; $G$ contains reversible work registers; $A$ is the phase-readout ancilla; and $E$ comprises degrees of freedom that are not inverted. We abbreviate the intended-reset history registers as $R=W M G$. Register $A$ is tracked separately because it is prepared and returned in $\ket{-}$ rather than $\ket0$.
+
+A $T$-step history of label $b$ is a sequence
+\begin{equation}
+\mathbf U_b=(U_{b,T},\ldots,U_{b,1})
+\end{equation}
+with declared intervention slots between steps. In a closed implementation the controlled history unitary is
+\begin{equation}
+U_H=\sum_b \proj{b}_B\otimes U_b,
+\qquad U_b=U_{b,T}\cdots U_{b,1}.
+\end{equation}
+The word history denotes this model-relative temporal structure. It is not assumed to be a preferred-basis ontological primitive.
+
+The initial state is
+\begin{equation}
+\ket{\Psi_0}=\sum_b\alpha_b\ket b_B\ket{0}_R\ket{-}_A\ket{e_0}_E,
+\qquad \sum_b|\alpha_b|^2=1.
+\end{equation}
+An ideal history stage yields
+\begin{equation}
+\ket{\Psi_H}=\sum_b\alpha_b\ket b_B\ket{r_b}_R\ket{-}_A\ket{e_b}_E.
+\end{equation}
+The environment states need not be orthogonal. Their distinguishability quantifies uncontrolled which-history information.
+
+\subsection{Predicate readout}
+
+Let $p$ be a function on the modelled internal history. A clean predicate oracle acts on the populated history subspace as
+\begin{equation}
+O_p\ket b\ket{r_b}=e^{i\phi(p_b)}\ket b\ket{r_b},
+\end{equation}
+with the binary choice $\phi(p)=\pi p$ used in the reference protocols. This action can be constructed by reversibly computing $p$ into a work bit, applying phase kickback from a $\ket{-}$ ancilla, and uncomputing the work bit. Calling an arbitrary phase gate a predicate oracle would hide the very implementation that the project seeks to analyse, so the simulator audits all work registers.
+
+\subsection{Visibility and distinguishability}
+
+For two balanced alternatives, the reduced control state can be written
+\begin{equation}
+\rho_B=\frac12\begin{pmatrix}1&c\\c^*&1\end{pmatrix}.
+\end{equation}
+We define visibility $V=2|\rho_{B,01}|=|c|$. If all controlled systems are reset and only pure environmental records remain, $c=e^{i\Delta\phi}\braket{e_1}{e_0}$. The optimal pure-state record distinguishability is
+\begin{equation}
+D=\frac12\left\|\proj{e_0}-\proj{e_1}\right\|_1
+=\sqrt{1-V^2}.
+\end{equation}
+
+The simulator also reports $l_1$ coherence for more than two histories, final control purity, and the probability of the expected interferometric outcome. Visibility is not inferred from reset fidelity.
+
+\subsection{Reset and leakage}
+
+For a target controlled state $\ket{0}_R$,
+\begin{equation}
+\Freset=\bra0\rho_R^f\ket0.
+\end{equation}
+This quantity checks the declared controlled registers only. A history-dependent $E$ can coexist with $\Freset=1$ and $V=0$.
+
+To define transcript leakage, introduce a classical reference $H$ for fine-grained history labels and an allowed predicate $P=p(H)$. Let $T$ collect all accessible residual transcript systems, including $R$ and any modelled accessible part of $E$. For conditional residual states $\rho_T^h$ and a declared distribution $q_h$, form the cq state
+\begin{equation}
+\omega_{HPT}=\sum_h q_h\proj h_H\otimes\proj{p(h)}_P\otimes\rho_T^h.
+\end{equation}
+We define
+\begin{equation}
+\ZRleak=I(H:T\mid P)_\omega.
+\end{equation}
+Equivalently, it is the average within-predicate Holevo information for this cq construction. It asks whether the residual distinguishes microhistories that the permitted output deliberately coarse-grains. Because it is distribution-weighted, a small value is not a worst-case guarantee unless every fibre is bounded separately. Moreover, $\ZRleak$ does not constrain records of $P$ itself; the separate visibility clause is needed to rule out a predicate record that destroys coherence between predicate classes.
+
+\begin{remark}[Non-injective predicates]
+If $p$ is injective on the support of $H$, then $H$ is already determined by $P$ and $I(H:R\mid P)=0$ for every residual record. The condition is vacuous. A meaningful zero-record benchmark therefore needs at least two histories in one predicate fibre, as in the four-history reference instance.
+\end{remark}
+
+\subsection{Causal access model}
+
+A multitime process is represented by a process tensor $\Proc_{T:0}$ whose slots accept instruments or coherent controls. Let $\mathfrak C_{d,L}$ denote an explicitly declared comparison class, for example processes with memory dimension at most $d$, causal depth at most $L$, no access from the response module to $B$, or no adaptive dependence on a late challenge. A causal witness is meaningful only relative to such a class.
+
+\begin{definition}[Zero-record causal certification]
+Fix a declared history distribution whose predicate is non-injective on its support. A protocol family has parameters $(c,s,\varepsilon,\eta,v;\mathfrak A,\mathfrak C)$ if valid processes in $\mathfrak A$ are accepted with probability at least $c$, comparison processes in $\mathfrak C$ are accepted with probability at most $s<c$, $\ZRleak\leq\varepsilon$, $\Freset\geq1-\eta$, and $V\geq v$.
+\end{definition}
+
+The definition is a target specification. The reference implementation establishes reset, visibility, and selected marginal leakage diagnostics for trusted circuit families. Except in cases where a common final state or the full joint record is known analytically, separate marginal leakage values do not certify joint transcript decoupling. The implementation does not establish a general device-independent completeness--soundness gap.

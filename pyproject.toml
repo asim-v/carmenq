@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zero-record-quantum-histories"
+version = "1.0.0"
+description = "Theory and reproducible simulations for zero-record certification of reversible quantum histories"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Zero-Record Quantum Histories project contributors"},
+]
+keywords = [
+  "quantum information",
+  "reversible computation",
+  "causal inference",
+  "interferometry",
+]
+dependencies = [
+  "numpy>=1.26",
+  "scipy>=1.11",
+  "matplotlib>=3.8",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+reproducibility = [
+  "numpy==2.2.6",
+  "scipy==1.15.3",
+  "matplotlib==3.10.9",
+  "pytest==9.1.1",
+]
+
+[project.urls]
+Repository = "https://github.com/asim-v/zero-record-quantum-histories"
+
+[project.scripts]
+rebuild-simulations = "reversible_histories.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-ra"

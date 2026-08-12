@@ -1,0 +1,21 @@
+\section{Introduction}
+
+Quantum theory permits a controlled system to correlate distinguishable alternatives with internal records and later erase those records by reversing the responsible dynamics. If a Boolean function of an internal record is transferred to a relative phase before reversal, the auxiliary systems can return to their reference states while the phase remains observable. This combination of coherent control, phase kickback, uncomputation, and interference is standard quantum information processing \cite{bennett1973logical,cleve1998quantum}. It is nevertheless a useful starting point for a sharper question: how much \emph{causal history} can occur inside such an evolution, and what evidence for that history can survive if its transcript is physically removed?
+
+The question contains an immediate identifiability problem. Suppose a known laboratory circuit creates a record, calculates a predicate, and exactly reverses the record. The induced input--output channel can be compiled into a direct unitary that never instantiates the advertised memory. No measurement confined to the endpoints distinguishes two implementations of the same channel. Describing intermediate components as histories, observers, or branches cannot alter this fact. Any claim of a genuine internal history therefore needs additional structure: intermediate intervention ports, delayed inputs, locality constraints, black-box access, a memory-dimension witness, or a resource separation.
+
+This paper develops a conservative baseline around that limitation. We use the term \emph{reversible quantum history} for a sequence of explicitly modelled transformations and correlations, not for an ontologically unique world. A \emph{zero-record} protocol retains an allowed predicate while removing residual information that distinguishes histories sharing that predicate. The condition is stronger than resetting one named memory register, because uncontrolled environments and computational garbage can preserve a transcript. It is weaker and conceptually different from cryptographic zero knowledge: without a simulator-based adversarial definition, zero-record is a physical decoupling criterion, not a cryptographic security claim.
+
+Our contributions are fourfold. First, we provide a formal separation between a closed-circuit demonstration and a causal-certification task. Second, we collect exact consequences of unitary quantum mechanics that constrain any proposal: phase survival under uncomputation, endpoint compression, the record--visibility relation, and the impossibility of retaining a perfectly distinguishing transcript while recovering perfect interference. Third, we define a family of benchmark instances, including a simulated reversible finite-state transducer and a separate analytic late-challenge game. Fourth, we supply an independently reproducible density-matrix simulator, controls, noise sweeps, tests, data, and figures.
+
+The intended outcome is not a spectacular interpretation-dependent claim. It is an audit-friendly research object that makes clear which results are known, which are derived here, which are numerical, and which remain conjectural. In particular, this version does not prove that the joint primitive is novel in the priority sense, does not produce a device-independent witness of an internal agent, and does not show a coherent-over-incoherent complexity separation. Those are the next decisive units of progress.
+
+\subsection{Operational question}
+
+The target question is:
+
+\begin{quote}
+Can a verifier certify, relative to explicit access and resource assumptions, that a quantum process used internal causal memory, learn only a selected coarse-grained predicate of the resulting history, and finish with both negligible within-predicate transcript leakage and recoverable interference?
+\end{quote}
+
+The clauses are deliberately conjunctive. Interference without causal certification is ordinary coherent control. A causal-memory witness without reversal is a temporal-correlation experiment. Uncomputation without a nontrivial access model is a compiler transformation. Predicate privacy without a non-injective coarse-graining can be vacuous. The proposed research programme begins only at their intersection.
