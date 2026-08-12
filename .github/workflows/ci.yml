@@ -1,0 +1,55 @@
+name: reproducibility
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-and-rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10.5"
+          cache: pip
+
+      - name: Install pinned research environment
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[dev,reproducibility]" build
+
+      - name: Test package and command-line entry points
+        run: |
+          python -m pytest -q
+          carmenq --version
+          carmenq bound --steps 8 --weight 0.5
+          python -m build --wheel
+
+      - name: Regenerate deterministic data and figures
+        run: python scripts/regenerate.py --seed 20260812 --shots 8192
+
+      - name: Require exact data reproducibility
+        run: |
+          git diff --exit-code -- data
+          test -z "$(git status --porcelain -- data)"
+
+      - name: Smoke-check cross-platform figure rendering
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          expected = (
+              "protocol_controls",
+              "noise_sensitivity",
+              "environment_tradeoff",
+              "inversion_sensitivity",
+              "depth_scaling",
+              "audit_return_benchmark",
+              "audit_return_frontier",
+          )
+          for stem in expected:
+              pdf = Path("figures", stem + ".pdf")
+              png = Path("figures", stem + ".png")
+              assert pdf.stat().st_size > 1_000 and pdf.read_bytes()[:5] == b"%PDF-"
+              assert png.stat().st_size > 1_000 and png.read_bytes()[:8] == b"\x89PNG\r\n\x1a\n"
+          PY
