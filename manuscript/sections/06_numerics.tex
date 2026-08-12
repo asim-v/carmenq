@@ -1,21 +1,20 @@
 \section{Numerical validation and forecast}
 \label{sec:numerics}
 
-The theorem is analytic. Computation is used to attack the derivation, expose transitions, and convert a declared noise law into a shot budget; it is not used as a substitute for the proof.
+The theorem is analytic. Computation plays two supporting roles: it searches for counterexamples to the derivation and translates an explicit noise assumption into an experimental scale. It does not substitute for the proof.
 
 \subsection{Adversarial theorem checks}
 
-Independent scripts checked:
-\begin{itemize}
-  \item the one- and two-slot closed forms and transition equations through $n=12$;
-  \item random product likelihoods against the flagged recovery inequality;
-  \item random collective likelihood tables against \eqref{eq:collective};
-  \item the exact coherent-accumulator circuit;
-  \item asymmetric local strengths and fully adaptive outcome trees for $n=2,\ldots,5$.
-\end{itemize}
-The maximum numerical excess over the streaming theorem was $6.52\times10^{-14}$ for adaptive trees and $3.53\times10^{-14}$ for asymmetric products, consistent with numerical precision. The smallest tested collective-classical gap was positive. These checks do not prove the theorem or priority; they are regression tests against algebraic and implementation errors.
+Independent scripts checked the one- and two-slot closed forms and the transition equations through $n=12$. They also tested random product likelihoods against the flagged recovery inequality, random collective likelihood tables against \eqref{eq:collective}, and the exact coherent-accumulator circuit. The most adversarial searches allowed asymmetric local strengths and fully adaptive outcome trees for $n=2,\ldots,5$. The maximum numerical excess over the streaming theorem was $6.52\times10^{-14}$ for adaptive trees and $3.53\times10^{-14}$ for asymmetric products, consistent with numerical precision. The smallest tested collective-classical gap was positive. These checks do not prove the theorem or priority; they are regression tests against algebraic and implementation errors.
 
-The release suite contains 25 automated tests. It verifies exact supports, transition behaviour, conservative systematic handling, fixed-sample planning, strict JSON output, deterministic simulation, and byte-stable same-environment figures and data.
+The release suite contains 25 automated tests covering the exact supports, transition behaviour, systematic allowances, sample planning, deterministic simulation, and reproducible output.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.91\textwidth]{audit_return_frontier.pdf}
+\caption{Exact streaming supports and exposed local strengths. At $n\geq3$, the optimal classical strategy jumps from no record to an almost projective record as the audit weight crosses $\lambda_c(n)$. The dotted curve is the collective classical-record comparator, not an unrestricted coherent strategy.}
+\label{fig:frontier}
+\end{figure*}
 
 \subsection{Transparent forecast model}
 
@@ -27,16 +26,16 @@ For planning only, we use the replaceable phenomenological law
 \end{equation}
 The committed defaults are $c_0=f_0=0.995$, $c=0.998$, and $f=0.997$. They are illustrative logical-operation factors, not hardware calibration.
 
-With $\lambda=1/2$, $\alpha=0.01$, target power $0.9$, $0.005$ systematic allowance in each branch, and $0.005$ null slack, the model's robust plan remains feasible through $n=143$ and becomes infeasible at $n=144$. The unadjusted expected score first crosses the $3/4$ asymptotic streaming null at $n=151$. Near the robust boundary the conservative Hoeffding shot count diverges rapidly, making uncertainty accounting more important than small circuit optimisations.
+With $\lambda=1/2$, $\alpha=0.01$, target power $0.9$, $0.005$ systematic allowance in each branch, and $0.005$ null slack, the model remains certifiable through $n=143$ and fails at $n=144$. Its unadjusted score crosses the $3/4$ null at $n=151$. As the robust margin closes, the conservative shot count grows rapidly.
 
 At $n=8$, a declared alternative $(\PA,\FR)=(0.97,0.95)$ under the same allowances needs 84 trials per branch for the Hoeffding guarantee ($\alpha=0.01$, power at least $0.9$). If 9700 of 10000 AUDIT trials and 9500 of 10000 RETURN trials succeed, the adjusted one-sided lower score is approximately $0.9443$, exceeding the enlarged $0.755$ null by approximately $0.1893$.
 
-\begin{figure}[ht]
+\begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{audit_return_benchmark.pdf}
+\includegraphics[width=0.91\textwidth]{audit_return_benchmark.pdf}
 \caption{Illustrative forecast from \eqref{eq:forecast}. Left: balanced score against the streaming, collective-classical, and robust planning thresholds. The one-slot streaming point is higher than the $n\geq2$ plateau. Right: conservative total trial count from \eqref{eq:hoeffding}; infeasible lengths are omitted. These curves are not hardware predictions.}
 \label{fig:forecast}
-\end{figure}
+\end{figure*}
 \FloatBarrier
 
 \subsection{Functional coherent-memory length}

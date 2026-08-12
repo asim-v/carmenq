@@ -1,7 +1,7 @@
 \section{Statistical certificate and experimental protocol}
 \label{sec:protocol}
 
-The theorem gives a probability bound. An experiment needs a fixed analysis rule that accounts for finite samples and declared model uncertainty.
+The theorem gives a probability bound; an experiment needs a decision rule. The rule below separates three ingredients that are often conflated: sampling uncertainty, measured bias in each branch, and uncertainty in whether the laboratory really implements the theoretical null.
 
 \subsection{Fixed-sample certificate}
 
@@ -21,12 +21,12 @@ r_\alpha=
 \end{equation}
 Before observing outcomes, let $\delta_{\mathrm A}$ and $\delta_{\mathrm R}$ upper-bound possible upward bias in the two estimators, and let $\delta_{\mathrm{null}}$ enlarge the theoretical null for source, isolation, and interface uncertainty. We certify incompatibility with the declared classical-memory null only if
 \begin{equation}
-\widehat S-lambda\delta_{\mathrm A}
+\widehat S-\lambda\delta_{\mathrm A}
 -(1-\lambda)\delta_{\mathrm R}-r_\alpha
 >\Cstream+\delta_{\mathrm{null}}.
 \label{eq:certificate}
 \end{equation}
-Under the stated independent fixed-sample model, the false-positive probability is at most $\alpha$. Choosing $n$ or $\lambda$ after seeing data, optional stopping, or reporting the best of several lengths requires corrections not supplied by \eqref{eq:certificate}.
+Under independent fixed-sample trials, the false-positive probability is at most $\alpha$. Choosing $n$ or $\lambda$ after seeing data, optional stopping, or selecting the best of several lengths requires a different analysis.
 
 For an alternative score $S_{\mathrm{alt}}$, define
 \[
@@ -38,40 +38,24 @@ If $g\leq0$, no amount of data certifies the claim under those allowances. If $g
 
 \subsection{Commitment and branch timing}
 
-A valid trial executes in this order:
-\begin{enumerate}
-  \item prepare and independently characterise $n$ EPR sources;
-  \item release $A_i$ only after $B_{i-1}$ has entered trusted sequestration;
-  \item after $B_n$, require delivery of the terminal memory port $M$;
-  \item generate the hidden AUDIT/RETURN choice;
-  \item apply the preregistered branch decoder and binary acceptance measurement;
-  \item record every loss and exclusion under a predeclared rule.
-\end{enumerate}
-The branch choice may be randomised per trial, but the final branch counts and stopping rule must be fixed or analysed with a sequentially valid method.
+A valid trial follows the left-to-right order of \cref{fig:protocol}. The verifier first prepares and independently characterises the EPR sources. It releases $A_i$ only after $B_{i-1}$ has entered trusted sequestration and, after receiving $B_n$, requires delivery of the terminal memory port $M$. Only then is the hidden AUDIT/RETURN choice generated. The preregistered branch decoder and binary acceptance measurement are applied, and every loss or exclusion is recorded under a predeclared rule. The branch may be randomised per trial, but the final branch counts and stopping rule must be fixed or analysed with a sequentially valid method.
 
 \subsection{Mandatory shortcut controls}
 
-\begin{enumerate}
-  \item \textbf{Dephased memory:} deliberately dephase the persistent carrier between slots.
-  \item \textbf{Strong classical record:} measure every event and retain its transcript; AUDIT should improve while global RETURN falls.
-  \item \textbf{Collective access:} remove sequestration and verify the higher curve \eqref{eq:collective}.
-  \item \textbf{Output revisit:} return an earlier $B_i$ to the device, demonstrating why the causal boundary matters.
-  \item \textbf{Decoder null:} replace the coherent inverse with identity or a mismatched inverse.
-  \item \textbf{Source and measurement calibration:} bound false EPR acceptance and parity bias independently.
-  \item \textbf{Blind branch choice:} test for branch information leaking before commitment.
-  \item \textbf{Side-channel audit:} bound coherent transfer through buses, pulse tails, clocks, resonators, unused levels, and shared ancillas.
-\end{enumerate}
+These controls are part of the scientific claim, not optional diagnostics. Deliberately dephasing the persistent carrier should remove the coherent advantage, whereas making a strong classical record should improve AUDIT while lowering global RETURN. Removing sequestration should recover the collective curve in \eqref{eq:collective}; allowing the device to revisit an earlier $B_i$ should likewise expose why the causal boundary matters. Decoder controls replace the coherent inverse by identity or by a mismatched inverse. Independent source and measurement calibration must bound false EPR acceptance and parity bias, and a blind-choice control must test whether branch information leaks before commitment. Finally, a side-channel audit must bound coherent transfer through buses, pulse tails, clocks, resonators, unused levels, and shared ancillas.
 
 The null does not forbid inaccessible erasure environments. Consequently, visible reset of $M$ is a reproducibility and wiring check, not a certificate that every physical copy of a classical transcript has vanished.
 
 \subsection{Reproducible analysis interface}
 
-The public implementation exposes three strict-JSON commands:
+The public command-line tool evaluates the exact bound, plans trial counts, and applies the fixed-sample rule through three strict-JSON commands:
+\begin{small}
 \begin{verbatim}
-audit-return-benchmark bound --steps 8
-audit-return-benchmark plan --steps 8 --forecast-model
-audit-return-benchmark analyse --steps 8 \
+carmenq bound --steps 8
+carmenq plan --steps 8 --forecast-model
+carmenq analyse --steps 8 \
   --audit-successes 9700 --audit-trials 10000 \
   --return-successes 9500 --return-trials 10000
 \end{verbatim}
+\end{small}
 Systematic allowances, $\alpha$, $\beta$, and null slack are command-line inputs and appear in the output. An example preregistration records the terminal port, source calibration, decoder, exclusions, controls, and stopping rule.

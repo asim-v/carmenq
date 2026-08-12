@@ -1,0 +1,32 @@
+\resizebox{0.96\textwidth}{!}{%
+\begin{tikzpicture}[x=1cm,y=1cm,>=Latex,font=\sffamily]
+  \tikzset{
+    stage/.style={rounded corners=2pt,draw=gray!55,fill=gray!6,minimum height=0.75cm,align=center},
+    device/.style={rounded corners=2pt,draw=linkblue,very thick,fill=blue!5,minimum height=0.85cm,align=center},
+    audit/.style={rounded corners=2pt,draw=orange!75!black,very thick,fill=orange!9,minimum height=0.8cm,align=center},
+    return/.style={rounded corners=2pt,draw=darkgreen,very thick,fill=green!7,minimum height=0.8cm,align=center},
+    wire/.style={gray!75,thick,-{Latex[length=2.2mm]}},
+    qwire/.style={linkblue,very thick,-{Latex[length=2.2mm]}},
+  }
+
+  \node[stage,minimum width=2.3cm] (source) at (0,0) {fresh EPR pair\\$R_iA_i$};
+  \node[device,minimum width=2.5cm] (dev) at (3.25,0) {slot $i$\\device $+M$};
+  \node[stage,minimum width=2.5cm] (vault) at (6.55,0) {trusted storage\\sequester $B_i$};
+  \node[stage,minimum width=2.4cm] (commit) at (9.85,0) {terminal commit\\release $M$};
+  \node[stage,minimum width=1.75cm] (coin) at (12.75,0) {hidden\\choice};
+  \node[audit,minimum width=2.65cm] (audit) at (15.8,0.75) {AUDIT\\read parity};
+  \node[return,minimum width=2.65cm] (return) at (15.8,-0.75) {RETURN\\restore EPRs};
+
+  \draw[qwire] (source) -- node[above,black,font=\footnotesize]{$A_i$} (dev);
+  \draw[qwire] (dev) -- node[above,black,font=\footnotesize]{$B_i$} (vault);
+  \draw[wire] (vault) -- node[above,black,font=\footnotesize]{repeat $n$ slots} (commit);
+  \draw[wire] (commit) -- (coin);
+  \draw[wire] (coin) -- (audit.west);
+  \draw[wire] (coin) -- (return.west);
+
+  \draw[gray!45,densely dashed] (2.0,-1.0) rectangle (7.85,1.0);
+  \node[font=\scriptsize,text=gray!70] at (4.9,-1.2) {each output leaves before the next input arrives};
+  \node[font=\scriptsize,text=orange!75!black,anchor=west] at (17.25,0.75) {$P_{\mathrm A}$};
+  \node[font=\scriptsize,text=darkgreen,anchor=west] at (17.25,-0.75) {$F_{\mathrm R}$};
+\end{tikzpicture}
+}

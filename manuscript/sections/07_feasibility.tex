@@ -1,57 +1,26 @@
 \section{Experimental feasibility}
 \label{sec:feasibility}
 
+The logical circuit is small. The demanding part is proving that information could not travel around the declared memory boundary.
+
 \subsection{Minimal logical circuit}
 
-The honest coherent device needs one persistent qubit and $n$ streamed carrier interactions. In the ideal binary implementation:
-\begin{enumerate}
-  \item the source creates $n$ EPR pairs;
-  \item the device applies one $\mathrm{CNOT}_{A_i\rightarrow M}$ per slot;
-  \item a trusted switch routes every returned $B_i$ to storage inaccessible to the device;
-  \item after the terminal memory is committed, AUDIT measures $M$ and the $R_i$ in $Z$;
-  \item RETURN applies $n$ inverse CNOTs from $B_i$ to $M$, then Bell-tests every $R_iB_i$ and tests $M=0$.
-\end{enumerate}
-The logical depth inside the untrusted device is one two-qubit gate per slot. The recovery station has $n$ further two-qubit gates and $n$ Bell analysers. The global RETURN event is deliberately stringent: every pair and the terminal reset must pass in the same trial.
+The honest coherent device needs one persistent qubit and $n$ streamed carrier interactions. The source first creates $n$ EPR pairs. In each slot the device applies $\mathrm{CNOT}_{A_i\rightarrow M}$, returns the carrier, and a trusted switch routes the resulting $B_i$ to inaccessible storage. Once the terminal memory is committed, AUDIT measures $M$ and the $R_i$ systems in $Z$. RETURN instead applies the $n$ inverse CNOTs from the stored $B_i$ systems to $M$, Bell-tests every $R_iB_i$ pair, and finally tests $M=0$. Thus the untrusted device uses one two-qubit gate per slot, while the recovery station adds $n$ inverse gates and $n$ Bell analysers. The global RETURN event is deliberately stringent: every pair and the terminal reset must pass in the same trial.
 
 \subsection{The hard part is the interface}
 
-Gate counts are modest; causal enforcement is not. An implementation needs all of:
-\begin{itemize}
-  \item a switch or transport geometry that proves $B_i$ left the device before $A_{i+1}$ arrived;
-  \item storage of every $B_i$ with sufficiently low loss and dephasing for the later joint decoder;
-  \item a terminal port that transfers $M$ without revealing the branch choice;
-  \item calibrated suppression of coherent paths that cross slot boundaries outside the charged memory;
-  \item a random branch generator and control electronics whose timing cannot leak into the device.
-\end{itemize}
-A hidden bus mode or coherent pulse tail is not ``noise'' under the theorem: it is precisely a quantum-memory resource that moves the apparatus outside the null. Such a side channel may still produce a valid positive witness of some coherent memory, but it prevents attributing the result to the nominated memory qubit.
+An implementation needs a switch or transport geometry demonstrating that $B_i$ left the device before $A_{i+1}$ arrived, together with sufficiently quiet storage for the later joint decoder. The terminal port must transfer $M$ without revealing the branch choice, while calibration must suppress coherent paths that cross slot boundaries outside the charged memory. The branch generator and its control electronics must likewise be timed so that they cannot signal the future choice to the device. A hidden bus mode or coherent pulse tail is not merely noise under the theorem; it is an uncharged quantum-memory resource. It may still produce a positive witness of \emph{some} coherent memory, but it prevents attribution to the nominated qubit.
 
 \subsection{Candidate platforms}
 
 Superconducting circuits can combine fast controlled gates, a dedicated memory or bus mode, and microwave routing, but resonator and control-line remnants require an explicit side-channel budget. Trapped ions offer long-lived internal memories and high-quality entangling gates, while physical sequestration is naturally expressed through shuttling, zones, or trusted spectator isolation. Neutral-atom arrays offer reconfigurable geometry and parallel entanglement tests, with loss treatment needing preregistration. Photonic time bins coupled to a matter memory naturally realise a stream, but source loss, storage loss, and postselection are central risks.
 
-The protocol does not select a platform by headline fidelity alone. The decisive platform metric is whether the access model can be made credible and independently audited.
+Headline gate fidelity is therefore not enough. The decisive platform property is whether the causal interface can be made credible and independently audited.
 
 \subsection{Staged demonstration}
 
-\begin{enumerate}
-  \item \textbf{$n=2$ logical demonstration:} verify the coherent point and the dephased-memory control.
-  \item \textbf{Classical frontier:} implement weak diagonal instruments and recover the predicted support curve as $\lambda$ varies.
-  \item \textbf{Causal separation:} compare enforced streaming with the collective-access control on the same hardware.
-  \item \textbf{Length scaling:} preregister $n$ values and report simultaneous confidence intervals or corrected tests.
-  \item \textbf{Independent interface audit:} characterise leakage channels without using the primary score data.
-\end{enumerate}
+A staged demonstration should begin at $n=2$, where the coherent point can be compared directly with a dephased-memory control. The next stage implements the weak diagonal instruments and traces the classical frontier as $\lambda$ varies. Enforced streaming can then be compared with collective access on the same hardware, after which preregistered stream lengths establish scaling with simultaneous confidence intervals or corrected tests. An independent interface audit should characterise leakage channels without using the primary score data.
 
 \subsection{Kill criteria}
 
-The flagship claim must be reduced or abandoned if:
-\begin{enumerate}
-  \item the theorem's classical-path factorisation does not match the stated experimental null;
-  \item an adaptive classical strategy exceeds \eqref{eq:frontier};
-  \item the branch choice or sequestered carriers become accessible before commitment;
-  \item postselection or loss rules can condition the score on hidden outcomes;
-  \item source correlations invalidate independence of the $X_i$;
-  \item the reported score uses average pair fidelity instead of the global RETURN event;
-  \item an earlier theorem is found that directly specialises to the full interface and support;
-  \item systematic allowances needed to defend the access model erase the statistical gap.
-\end{enumerate}
-Any of these outcomes would still leave useful calibration or pedagogy, but not the claimed exact resource witness.
+The flagship claim must be reduced or abandoned if the classical-path factorisation fails to match the experimental null, or if an adaptive classical strategy exceeds \eqref{eq:frontier}. The same applies if the branch choice or sequestered carriers become accessible before commitment, if postselection or loss rules condition the score on hidden outcomes, or if source correlations invalidate the assumed independence of the $X_i$. Replacing the global RETURN event with average pair fidelity also changes the theorem. Finally, a direct prior theorem or systematic allowances large enough to erase the gap would remove the claimed novelty or experimental conclusion. Any of these outcomes could still leave useful calibration or pedagogy, but not the exact resource witness stated here.

@@ -1,8 +1,11 @@
 \section{Exact frontiers and resource separation}
 \label{sec:results}
 
+We first state the full frontier, then unpack its consequences. Readers interested mainly in the experimental message can read the highlighted balanced case and the resource comparison; all proof details are in \cref{app:proofs}.
+
 \begin{theorem}[Streaming parity audit--return frontier]
 For the adaptive classical-memory null in \cref{sec:model}, including arbitrary non-QND local instruments and arbitrary transcript-conditioned joint recovery,
+\begin{small}
 \begin{align}
 \Cstream
 &=\max_{0\leq t_1,\ldots,t_n\leq1}
@@ -16,10 +19,11 @@ For the adaptive classical-memory null in \cref{sec:model}, including arbitrary 
 \right].
 \label{eq:frontier}
 \end{align}
+\end{small}
 The bound is attainable by independent weak diagonal instruments.
 \end{theorem}
 
-The complete proof is in \cref{app:proofs}. Its logical sequence is worth stating. For each transcript, a Choi-positivity lemma upper-bounds recoverable EPR fidelity using only computational-basis likelihoods. Equation~\eqref{eq:factor} then makes the likelihood a product. Bayes' rule makes the posterior parity bias a product of $\delta_i$, while the recovery lemma makes EPR return a product of $f(\delta_i)$. An adaptive protocol is an average of realised strength profiles and cannot exceed the largest profile. Finally, the substitution $t_i=2y_i/(1+y_i^2)$ and strict convexity of $\log(1+e^{2z})$ show that equal $y_i$, hence equal $t_i$, optimise every linear support.
+The proof has three moves. First, a Choi-positivity lemma bounds recoverable EPR fidelity using only basis-state likelihoods. Second, causality makes both the posterior parity bias and the return fidelity factorise across slots. Third, convexity shows that an optimal strategy uses the same strength in every slot. This is why the many-instrument optimisation collapses to the single variable $t$ in \eqref{eq:frontier}.
 
 \begin{corollary}[Balanced null]
 For $n\geq2$ and $\lambda=1/2$,
@@ -28,6 +32,10 @@ For $n\geq2$ and $\lambda=1/2$,
 \]
 The least-disturbing optimum is $t=0$: the null learns no parity beyond chance and returns every EPR pair.
 \end{corollary}
+
+\begin{takeaway}
+At $\lambda=1/2$, a classical-memory device cannot improve the score by measuring weakly: for every $n\geq2$, its best choice is to keep no record, guess parity, and return the EPR pairs. The ceiling is therefore $\tfrac12(\tfrac12+1)=\tfrac34$.
+\end{takeaway}
 
 \subsection{Closed forms and the strategy transition}
 
@@ -47,9 +55,9 @@ C^{\mathrm{stream}}_{2,\lambda}=
 \end{equation}
 The optimal strength grows continuously from zero at $\lambda=1/2$.
 
-For $n\geq3$, the transition is first order. Let $z_n$ be the unique solution
+The weighted game reveals additional structure. For $n\geq3$, the optimal classical strategy changes discontinuously as AUDIT becomes more important. Let $z_n$ be the unique solution
 \begin{equation}
-(1-z_n)(1+z_n)^{n-1}=1,qquad
+(1-z_n)(1+z_n)^{n-1}=1,\qquad
 z_n\in\left(\frac{n-2}{n},1\right).
 \label{eq:zn}
 \end{equation}
@@ -59,14 +67,7 @@ Then
 \frac{1}{1+2^{n-2}z_n^{(n-2)/2}(1-z_n)}.
 \label{eq:lambdac}
 \end{equation}
-Below $\lambda_c$, the optimum is $t=0$. At $\lambda_c$, it ties a finite-strength branch, so the optimal strength jumps discontinuously. Numerically,
-\[
-(\lambda_c,t_c)=
-(0.6247789,0.9717365),
-(0.6495455,0.9961752),
-(0.6588955,0.9992936)
-\]
-for $n=3,4,5$. Moreover $\lambda_c(n)\to2/3$ from below. The optimal null thus changes from recording nothing to recording each slot almost projectively rather than moving through a broad weak-measurement phase.
+Below $\lambda_c$, the optimum is $t=0$. At $\lambda_c$, it ties a finite-strength branch, so the optimal strength jumps discontinuously. For $n=3,4,5$, respectively, $(\lambda_c,t_c)$ is approximately $(0.6248,0.9717)$, $(0.6495,0.9962)$, and $(0.6589,0.9993)$. Moreover $\lambda_c(n)\to2/3$ from below. The optimal null thus changes from recording nothing to recording each slot almost projectively rather than moving through a broad weak-measurement phase.
 
 \subsection{Collective classical-record comparator}
 
@@ -81,21 +82,9 @@ For every $n$,
 For $n\geq2$ and $0<\lambda<1$, this is strictly larger than $\Cstream$.
 \end{proposition}
 
-A weak measurement of the two parity subspaces attains \eqref{eq:collective}. Optimality follows by grouping every outcome's likelihoods into even and odd sectors and applying the classical fidelity--total-variation circle; see \cref{app:proofs}. This comparator is not a coherent device: it retains only a classical outcome. It quantifies exactly what becomes possible if timing ceases to enforce causality.
+A weak measurement of the two parity subspaces attains \eqref{eq:collective}. This comparator still retains only a classical outcome; its advantage comes from seeing all carriers together. It therefore measures exactly what is lost when the apparatus must operate as a stream.
 
 \subsection{One coherent qubit closes the gap}
 
 Initialise a memory qubit $M=\ket0$. In slot $i$, apply $\mathrm{CNOT}_{A_i\rightarrow M}$ and return $A_i$. After the final slot, commit $M$.
-\begin{itemize}
-  \item In AUDIT, measuring $M$ in $Z$ gives the parity of the later $Z$ measurements on the references.
-  \item In RETURN, applying $\mathrm{CNOT}_{B_i\rightarrow M}$ for every sequestered carrier uncomputes $M$ to $\ket0$ and exactly restores all EPR pairs.
-\end{itemize}
-Thus $(\PA,\FR)=(1,1)$. The operational resource is a coherent temporal accumulator, not an observer or an interpretation of quantum mechanics.
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\textwidth]{audit_return_frontier.pdf}
-\caption{Exact streaming supports and exposed local strengths. At $n\geq3$, the optimal classical strategy jumps from no record to an almost projective record as the audit weight crosses $\lambda_c(n)$. The dotted curve is the collective classical-record comparator, not an unrestricted coherent strategy.}
-\label{fig:frontier}
-\end{figure}
-\FloatBarrier
+In AUDIT, measuring $M$ in $Z$ gives the parity of the later $Z$ measurements on the references. In RETURN, applying $\mathrm{CNOT}_{B_i\rightarrow M}$ for every sequestered carrier uncomputes $M$ to $\ket0$ and exactly restores all EPR pairs. Thus $(\PA,\FR)=(1,1)$. The operational resource is a coherent temporal accumulator, not an observer or an interpretation of quantum mechanics.

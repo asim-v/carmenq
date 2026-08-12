@@ -1,18 +1,15 @@
-# Contributing
+# Contributing to CARMEN-Q
 
-Contributions that sharpen the access model, prove or disprove a stated
-conjecture, add an independently testable control, or reproduce the numerical
-results are welcome.
+Contributions are welcome when they sharpen the access model, test a stated theorem, add an independently falsifiable control, or improve reproducibility and usability.
 
-Before opening a pull request:
+Before opening a pull request, state whether each scientific claim is known, derived here, conjectural, or interpretive, and cite primary sources for claims about prior work. New behaviour should include a focused test. Run the complete local check with:
 
-1. State whether each new claim is known, locally derived, conjectural, or
-   interpretive.
-2. Add primary-source references for claims about prior work.
-3. Run `python scripts/run_all.py` and include tests for new behavior.
-4. Do not use interpretive language as experimental evidence.
-5. Update `CLAIMS.md` when the evidential status of a central claim changes.
+```bash
+python -m pip install -e ".[dev,reproducibility]"
+python scripts/run_all.py
+python scratch/originality_gate/validate_streaming_parity.py
+```
 
-Reports of endpoint-equivalent shortcuts are especially valuable: the project
-is designed to contract or abandon its framing when the declared anti-shortcut
-conditions fail.
+Update `CLAIMS.md` whenever a central evidential status changes. Reports of endpoint-equivalent shortcuts, classical strategies that exceed the bound, or failures of the causal interface are especially valuable: the project is designed to narrow or abandon claims when their anti-shortcut conditions fail.
+
+Code should target Python 3.10 or later, keep the deterministic seed controls intact, and avoid committing local environments or generated build directories. By contributing code you agree that it is distributed under the MIT License; contributions to the manuscript, figures, and data are distributed under CC BY 4.0 unless explicitly noted.

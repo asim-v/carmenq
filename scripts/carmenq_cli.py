@@ -1,4 +1,4 @@
-"""Source-tree wrapper for the installed ``audit-return-benchmark`` command."""
+"""Source-tree wrapper for the installed ``carmenq`` command."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ SOURCE = ROOT / "src"
 if str(SOURCE) not in sys.path:
     sys.path.insert(0, str(SOURCE))
 
-from reversible_histories.audit_return_cli import main  # noqa: E402
+from carmenq.audit_return_cli import main  # noqa: E402
 
 
 if __name__ == "__main__":

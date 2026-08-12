@@ -23,13 +23,15 @@ D^2F_k=\sum_{x,y}
 \bra{x}\Lambda_k(\ket{x}\!\bra{y})\ket{y}.
 \]
 Positivity of the Choi matrix implies
-\[
+\begin{small}
+\begin{align*}
 \left|\bra{x}\Lambda_k(\ket{x}\!\bra{y})\ket{y}\right|
-\leq\sqrt{
+&\leq\Big[
 \bra{x}\Lambda_k(\proj{x})\ket{x}
-\bra{y}\Lambda_k(\proj{y})\ket{y}}
-\leq\sqrt{p(k|x)p(k|y)}.
-\]
+\bra{y}\Lambda_k(\proj{y})\ket{y}\Big]^{1/2}\\
+&\leq\sqrt{p(k|x)p(k|y)}.
+\end{align*}
+\end{small}
 Summing proves \eqref{eq:reclemma}. For tightness, choose
 $K_k=\sum_x\sqrt{p(k|x)}\proj{x}$ and identity recovery. Completeness of the likelihood table makes $\sum_kK_k^\dagger K_k=\id$.
 \end{proof}
@@ -94,11 +96,11 @@ g_n'(y)=\frac{ny}{(1+y^2)^{n+1}}
 \left[\lambda2^{n-1}y^{n-2}(1-y^2)-2(1-\lambda)\right].
 \]
 The endpoint $y=0$ remains locally maximal. Requiring a nonzero stationary point to tie it eliminates $\lambda$ and yields \eqref{eq:zn}; substituting back gives \eqref{eq:lambdac}. The solution interval in \eqref{eq:zn} contains exactly one root because the left side decreases from a value above one to zero after its maximum at $(n-2)/n$. Since the tying $y$ is nonzero, the exposed optimal strength jumps. Expanding around $z_n=1$ gives
-\[
-1-z_n=2^{1-n}+\frac{n-1}{2}2^{2-2n}+O(n^2 2^{3-3n}),
-\quad
-\lambda_c(n)=\frac23-\frac{2^{1-n}}9+O(n2^{2-2n}).
-\]
+\begin{align*}
+1-z_n&=2^{1-n}+\frac{n-1}{2}2^{2-2n}
+       +O(n^2 2^{3-3n}),\\
+\lambda_c(n)&=\frac23-\frac{2^{1-n}}9+O(n2^{2-2n}).
+\end{align*}
 
 \subsection{Collective classical-record optimum}
 

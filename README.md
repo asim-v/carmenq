@@ -1,114 +1,84 @@
-# Causal Audit--Return Quantum Memory
+<p align="center">
+  <img src="https://raw.githubusercontent.com/asim-v/carmenq/main/assets/carmenq-logo.svg" width="560" alt="CARMEN-Q">
+</p>
 
-**An exact classical-memory frontier and a coherent one-qubit separation**
+<p align="center">
+  <strong>Exact causal audit-return bounds, statistical certificates, and reproducible quantum-memory benchmarks.</strong>
+</p>
 
-This repository studies one operational question:
+<p align="center">
+  <a href="https://github.com/asim-v/carmenq/releases"><img alt="GitHub release" src="https://img.shields.io/github/v/release/asim-v/carmenq?color=102A43"></a>
+  <img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-18A999">
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/code-MIT-F2A93B"></a>
+  <a href="LICENSE-CONTENT.md"><img alt="CC BY 4.0 content" src="https://img.shields.io/badge/content-CC%20BY%204.0-526777"></a>
+</p>
 
-> Can a streamed quantum device retain a temporal predicate while preserving
-> the ability to return every input coherently, beyond what unlimited adaptive
-> classical memory can achieve?
+CARMEN-Q stands for **Causal Audit-Return Memory Evaluation and Numerics for Quantum processes**. It asks a precise operational question: can a streamed device retain a temporal predicate while preserving the ability to return every input coherently, beyond what unlimited adaptive classical memory can achieve?
 
-The project is formulated within standard quantum mechanics. It does not attempt to prove a preferred interpretation, communicate with macroscopic branches, or attribute consciousness to small quantum registers.
+The library implements the exact classical-memory frontier derived in the accompanying manuscript, a collective-access comparator, fixed-sample certification with systematic allowances, power planning, and an explicit density-matrix reference protocol. At balanced branch weight, the streaming classical ceiling is `0.75` for every stream length `n >= 2`; one persistent coherent qubit attains `1.0` in the ideal circuit.
 
-[Read the current manuscript (PDF)](output/pdf/causal_audit_return_memory.pdf)
+## Install
 
-## Version 1.1 deliverables
-
-Version `v1.1` is a reproducible theory-and-benchmark research artifact containing:
-
-- the exact adaptive classical-memory streaming support;
-- a strict collective classical-record comparator;
-- a one-qubit coherent strategy attaining perfect AUDIT and RETURN;
-- a proof of the first-order optimal-strategy transition for `n >= 3`;
-- conservative finite-sample certification and power planning;
-- a hardware-facing protocol and preregistration template;
-- adversarial numerical validation, deterministic data, figures, and tests;
-- a 19-page English LaTeX manuscript and visually verified final PDF.
-
-## The central limitation
-
-The closed circuit
-
-```text
-prepare -> U_history -> predicate phase -> U_history^dagger -> interfere
-```
-
-is an established instance of reversible computation and phase kickback. Viewed only at its endpoints, it is equivalent to a directly compiled effective unitary. A candidate contribution begins only when the protocol declares testable access, locality, time, or resource restrictions and requires multitime evidence of causal memory. This is a kill criterion, not a footnote.
-
-## Current development: causal audit--return benchmark
-
-The originality audit led to a narrower and experimentally useful task. Fresh
-entangled carriers pass through a sequential device and are immediately
-sequestered. Only after the stream is committed, the verifier asks the device
-either to predict a temporal parity from its committed terminal memory
-(**AUDIT**) or to restore every entangled pair and visibly reset that memory
-(**RETURN**).
-
-For an adaptive device with unlimited classical memory but no quantum state
-persisting between slots, the exact weighted null is implemented in the
-package. At the balanced operating point it is `0.75` for every stream length
-`n >= 2`; a coherent parity-memory qubit attains `1`. The repository now
-includes fixed-sample certification, systematic-error allowances, conservative
-power planning, deterministic frontier/forecast figures, and a preregistration
-template. This is a trusted-interface quantum-memory witness--not a claim about
-Everett or consciousness.
+The package is installable directly from the public release:
 
 ```bash
-audit-return-benchmark bound --steps 8
-audit-return-benchmark plan --steps 8 --forecast-model
+python -m pip install "carmenq @ git+https://github.com/asim-v/carmenq.git@v2.0.0"
 ```
 
-See the [benchmark specification](docs/audit-return-benchmark-v0.1.md) and the
-[example preregistration](docs/audit-return-preregistration.example.json).
+PyPI packaging is ready, but this repository does not claim that the `carmenq` name has already been uploaded to PyPI.
 
-## Reproduce the results
+## Use it in Python
 
-Python 3.10 or later is required.
+```python
+from carmenq import BenchmarkCounts, certify, collective_bound, streaming_bound
+
+n = 8
+print(streaming_bound(n, 0.5))  # 0.75
+print(collective_bound(0.5))    # 0.853553...
+
+result = certify(
+    BenchmarkCounts(9700, 10000, 9500, 10000),
+    n_steps=n,
+    audit_weight=0.5,
+    alpha=0.01,
+    audit_systematic=0.005,
+    return_systematic=0.005,
+    null_slack=0.005,
+)
+print(result.certified, result.margin)
+```
+
+The same workflow is available from the terminal:
+
+```bash
+carmenq bound --steps 8
+carmenq plan --steps 8 --forecast-model
+python examples/quickstart.py
+```
+
+The [Python API guide](docs/python-api.md) explains the concise and long-form scientific interfaces. The [benchmark specification](docs/audit-return-benchmark-v0.1.md) states the trusted access model, while the [preregistration example](docs/audit-return-preregistration.example.json) records the experimental assumptions that must be fixed before data are observed.
+
+## Reproduce the paper
+
+Clone the repository and run:
 
 ```bash
 python -m pip install -e ".[dev,reproducibility]"
-python -m pytest
+python -m pytest -q
 python scripts/run_all.py
-```
-
-The `reproducibility` extra pins the numerical and plotting versions used for
-the committed release artifacts. For normal library use, `python -m pip
-install -e .` keeps the broader supported dependency ranges.
-
-Generated data are written to `data/` and figures to `figures/`. Every output records its parameters and deterministic seed.
-
-Compile the paper with Tectonic (available on `PATH`, through the `TECTONIC`
-environment variable, or with `--tectonic PATH`):
-
-```bash
 python scripts/build_pdf.py
 ```
 
-## Repository map
+The pipeline regenerates the numerical tables and publication figures under `data/` and `figures/`. Continuous integration compares cross-platform numerical outputs at declared relative and absolute tolerances of `1e-12`, while same-platform tests retain byte-level determinism. The visually verified manuscript is available as [PDF](output/pdf/causal_audit_return_memory.pdf), with LaTeX sources in `manuscript/` and audited references in `references/`. The package source lives in `src/carmenq/`; `tests/` contains the analytic, statistical, protocol, and reproducibility checks.
 
-- `manuscript/`: self-contained LaTeX preprint.
-- `output/pdf/`: visually verified final PDF.
-- `src/`: exact frontier, statistical planner, and reference simulators.
-- `scripts/`: data, figure, and manuscript reproduction commands.
-- `tests/`: algebraic and numerical checks.
-- `figures/`: reproducible paper figures in vector and raster formats.
-- `data/`: numerical results, reduced states, and metadata.
-- `docs/`: versioned protocol specification.
-- `notes/`: formal theory, simulation design, and the dated novelty audit.
-- `references/`: audited BibTeX library.
-- `CLAIMS.md`: claim ledger with evidence status.
-- `CHANGELOG.md`: versioned release history.
+## Scientific boundary
 
-## Epistemic firewall
+CARMEN-Q is a trusted-interface resource witness. A positive score rejects the declared adaptive classical-memory model under the stated source, timing, sequestration, and measurement assumptions. It does not identify a unique microscopic implementation, prove deletion of inaccessible environmental records, or select an interpretation of quantum mechanics.
 
-A positive result rejects the declared adaptive classical-memory null under the
-trusted source, timing, sequestration, and measurement assumptions. It does
-not identify a unique implementation or establish an interpretation of quantum
-mechanics. A negative result may reflect ordinary noise, leakage, drift, or
-insufficient power.
+The project began as an investigation of reversible quantum histories. Its originality audit showed that compute-phase-uncompute circuits alone are established quantum computing. CARMEN-Q retains the part that survived that audit: an exact same-task separation between streamed classical memory, collective classical recording, and coherent temporal memory.
 
-## Licence and citation
+## Citation and authorship
 
-Code is released under the MIT License. Unless noted otherwise, the manuscript,
-data, and figures are released under CC BY 4.0; see `LICENSE-CONTENT.md`.
-Citation metadata are in `CITATION.cff`.
+The manuscript and software are by **Javier Emilio Bazán Sánchez**, Facultad de Ciencias, Universidad Nacional Autónoma de México, `bazan@ciencias.unam.mx`. Machine-readable citation metadata are in [`CITATION.cff`](CITATION.cff).
+
+Code is distributed under the MIT License. Unless noted otherwise, the manuscript, figures, and data are distributed under CC BY 4.0.

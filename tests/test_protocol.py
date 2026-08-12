@@ -6,15 +6,15 @@ import itertools
 
 import numpy as np
 
-from reversible_histories import (
+from carmenq import (
     NoiseModel,
     ProtocolConfig,
     conditional_record_information,
     environment_conditional_information,
     run_protocol,
 )
-from reversible_histories.linalg import partial_trace
-from reversible_histories.protocol import A, DIMENSIONS
+from carmenq.linalg import partial_trace
+from carmenq.protocol import A, DIMENSIONS
 
 
 def test_ideal_phase_kickback_uncomputation_and_parity_readout() -> None:

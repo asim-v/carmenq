@@ -5,7 +5,7 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
-from reversible_histories.experiments import audit_return_suite, benchmark_suite
+from carmenq.experiments import audit_return_suite, benchmark_suite
 
 
 def test_finite_shot_benchmark_is_seed_reproducible(tmp_path: Path) -> None:
