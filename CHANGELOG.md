@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1 - 2026-08-12
+
+- Finalized the two-column manuscript as the branded `CARMEN-Q-paper.pdf`, with complete document metadata and a cleaner title treatment.
+- Kept the claim ledger with the literature it qualifies, eliminating a float-only page and preventing the table from interrupting the bibliography.
+- Clarified the reproducibility statement so it distinguishes deterministic generated figures from the timestamped manuscript build.
+
 ## 2.0.0 - 2026-08-12
 
 - Introduced the CARMEN-Q identity, public `carmenq` Python package, concise API aliases, module entry point, and unified `carmenq` command.

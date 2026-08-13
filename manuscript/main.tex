@@ -10,7 +10,6 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,calc}
 \usepackage{xcolor}
-\usepackage{enumitem}
 \usepackage{url}
 \usepackage{placeins}
 \usepackage{hyperref}
@@ -25,12 +24,13 @@
   linkcolor=linkblue,
   citecolor=darkgreen,
   urlcolor=linkblue,
-  pdftitle={Causal Audit--Return Duality for Streaming Quantum Memory},
-  pdfauthor={Javier Emilio Bazan Sanchez}
+  pdftitle={CARMEN-Q: Causal Audit-Return Duality for Streaming Quantum Memory},
+  pdfauthor={Javier Emilio Bazan Sanchez},
+  pdfsubject={Exact causal audit-return bounds and reproducible quantum-memory benchmarks},
+  pdfkeywords={quantum memory, causal benchmark, entanglement fidelity, information-disturbance}
 }
 
 \graphicspath{{../figures/}}
-\setlist{nosep,leftmargin=*}
 \setlength{\emergencystretch}{2em}
 \setlength{\parindent}{1em}
 \setlength{\parskip}{0pt}
@@ -69,7 +69,8 @@
    \textbf{At a glance.}\enspace\color{black}}
   {\par\smallskip\color{linkblue}\rule{\columnwidth}{0.5pt}\end{minipage}\par\smallskip}
 
-\title{\textbf{Causal Audit--Return Duality for Streaming Quantum Memory}\\
+\title{{\normalsize\color{linkblue}\bfseries CARMEN-Q}\\[0.25em]
+\textbf{Causal Audit--Return Duality for Streaming Quantum Memory}\\
 \large An exact classical-memory frontier and a coherent one-qubit separation}
 \author[1]{Javier Emilio Baz\'an S\'anchez}
 \affil[1]{Facultad de Ciencias, Universidad Nacional Aut\'onoma de M\'exico, Mexico City, Mexico\\
@@ -95,9 +96,9 @@
 \input{sections/b_simulation}
 \input{sections/c_claims}
 
-\balance
-\clearpage
+\FloatBarrier
 \bibliographystyle{unsrt}
+\balance
 \bibliography{../references/library}
 
 \end{document}
