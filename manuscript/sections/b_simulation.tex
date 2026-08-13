@@ -1,7 +1,7 @@
 \section{Reproducibility specification}
 \label{app:reproducibility}
 
-The release artifact uses Python 3.10.5, NumPy 2.2.6, SciPy 1.15.3, Matplotlib 3.10.9, and pytest 9.1.1. From the repository root:
+The release artifact uses Python 3.10.5, NumPy 2.2.6, SciPy 1.15.3, Matplotlib 3.10.9, pytest 9.1.1, and Tectonic 0.17.0. From the repository root:
 \begin{small}
 \begin{verbatim}
 python -m pip install -e ".[dev,reproducibility]"
@@ -16,6 +16,6 @@ python scripts/build_pdf.py
 
 The committed outputs include \texttt{data/audit\_return\_frontier.csv}, with 606 exact support rows spanning six stream lengths and 101 weights, and \texttt{data/audit\_return\_forecast.csv}, with 200 planning rows under the declared example law. The corresponding vector figures are \texttt{audit\_return\_frontier.pdf} and \texttt{audit\_return\_benchmark.pdf}. Stored adversarial searches appear in \texttt{streaming\_parity.json}, while \texttt{streaming\_parity\_validation.json} records the fast independent validation summary.
 
-Timestamps in generated figure PDFs are suppressed for deterministic same-environment generation. The manuscript PDF records its build time. Raster and vector rendering can differ across operating systems because of font and rendering-library versions; numerical CSV drift is the stronger cross-platform invariant.
+Timestamps in generated figure PDFs are suppressed to make figure generation deterministic within a fixed environment. The manuscript PDF records its build time. Raster and vector rendering can differ across operating systems because of font and rendering-library versions; numerical CSV drift is the stronger cross-platform invariant.
 
 The forecast does not simulate a specific device's density matrix. It evaluates the exact theorem and statistical planner under \eqref{eq:forecast}. Experimental use must replace its probabilities with measured or independently calibrated values.

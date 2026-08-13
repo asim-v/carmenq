@@ -5,9 +5,9 @@ The theorem is analytic. Computation plays two supporting roles: it searches for
 
 \subsection{Adversarial theorem checks}
 
-Independent scripts checked the one- and two-slot closed forms and the transition equations through $n=12$. They also tested random product likelihoods against the flagged recovery inequality, random collective likelihood tables against \eqref{eq:collective}, and the exact coherent-accumulator circuit. The most adversarial searches allowed asymmetric local strengths and fully adaptive outcome trees for $n=2,\ldots,5$. The maximum numerical excess over the streaming theorem was $6.52\times10^{-14}$ for adaptive trees and $3.53\times10^{-14}$ for asymmetric products, consistent with numerical precision. The smallest tested collective-classical gap was positive. These checks do not prove the theorem or priority; they are regression tests against algebraic and implementation errors.
+Independent scripts checked the one- and two-slot closed forms and the transition equations through $n=12$. They also tested random product likelihoods against the flagged entanglement-recovery inequality, random collective likelihood tables against \eqref{eq:collective}, and the exact coherent-accumulator circuit. The most adversarial searches allowed asymmetric local strengths and fully adaptive binary-outcome likelihood trees for $n=2,\ldots,5$. The maximum numerical excess over the streaming theorem was $6.52\times10^{-14}$ for adaptive trees and $3.53\times10^{-14}$ for asymmetric products, consistent with numerical precision. The smallest tested collective-classical gap was positive. These checks do not prove the theorem or priority; they are regression tests against algebraic and implementation errors.
 
-The release suite contains 25 automated tests covering the exact supports, transition behaviour, systematic allowances, sample planning, deterministic simulation, and reproducible output.
+The release suite contains 26 automated tests covering the exact supports, transition behaviour, systematic allowances, sample planning, deterministic simulation, and reproducible output.
 
 \begin{figure*}[t]
 \centering
@@ -18,13 +18,13 @@ The release suite contains 25 automated tests covering the exact supports, trans
 
 \subsection{Transparent forecast model}
 
-For planning only, we use the replaceable phenomenological law
+For planning only, the forecast uses the replaceable phenomenological law
 \begin{equation}
 \PA(n)=\frac{1+c_0c^n}{2},\qquad
 \FR(n)=f_0 f^n.
 \label{eq:forecast}
 \end{equation}
-The committed defaults are $c_0=f_0=0.995$, $c=0.998$, and $f=0.997$. They are illustrative logical-operation factors, not hardware calibration.
+The versioned defaults are $c_0=f_0=0.995$, $c=0.998$, and $f=0.997$. They are illustrative logical-operation factors, not hardware calibration.
 
 With $\lambda=1/2$, $\alpha=0.01$, target power $0.9$, $0.005$ systematic allowance in each branch, and $0.005$ null slack, the model remains certifiable through $n=143$ and fails at $n=144$. Its unadjusted score crosses the $3/4$ null at $n=151$. As the robust margin closes, the conservative shot count grows rapidly.
 
@@ -40,4 +40,4 @@ At $n=8$, a declared alternative $(\PA,\FR)=(0.97,0.95)$ under the same allowanc
 
 \subsection{Functional coherent-memory length}
 
-We define the \emph{certifiable functional coherent-memory length} as the largest preregistered $n$ for which \eqref{eq:certificate} is satisfied under a declared familywise testing rule. Unlike a bare $T_2$, it asks a memory to retain a temporal predicate and later participate in coherent global return. It remains benchmark-specific: changing the predicate, branch scores, or sequestration interface changes the resource being measured.
+The \emph{certifiable functional coherent-memory length} is defined as the largest preregistered $n$ for which \eqref{eq:certificate} is satisfied under a declared familywise testing rule. Unlike a bare $T_2$, it asks a memory to retain a temporal predicate and later participate in coherent global return. It remains benchmark-specific: changing the predicate, branch scores, or sequestration interface changes the resource being measured.

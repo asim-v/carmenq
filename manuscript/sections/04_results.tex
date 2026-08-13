@@ -1,7 +1,7 @@
 \section{Exact frontiers and resource separation}
 \label{sec:results}
 
-We first state the full frontier, then unpack its consequences. Readers interested mainly in the experimental message can read the highlighted balanced case and the resource comparison; all proof details are in \cref{app:proofs}.
+The full frontier is stated first, followed by its consequences. Readers interested mainly in the experimental message can focus on the highlighted balanced case and the resource comparison; all proof details are in \cref{app:proofs}.
 
 \begin{theorem}[Streaming parity audit--return frontier]
 For the adaptive classical-memory null in \cref{sec:model}, including arbitrary non-QND local instruments and arbitrary transcript-conditioned joint recovery,
@@ -67,11 +67,11 @@ Then
 \frac{1}{1+2^{n-2}z_n^{(n-2)/2}(1-z_n)}.
 \label{eq:lambdac}
 \end{equation}
-Below $\lambda_c$, the optimum is $t=0$. At $\lambda_c$, it ties a finite-strength branch, so the optimal strength jumps discontinuously. For $n=3,4,5$, respectively, $(\lambda_c,t_c)$ is approximately $(0.6248,0.9717)$, $(0.6495,0.9962)$, and $(0.6589,0.9993)$. Moreover $\lambda_c(n)\to2/3$ from below. The optimal null thus changes from recording nothing to recording each slot almost projectively rather than moving through a broad weak-measurement phase.
+Below $\lambda_c$, the optimum is $t=0$. At $\lambda_c$, $t=0$ ties a finite-strength branch, so the optimal strength jumps discontinuously. For $n=3,4,5$, respectively, $(\lambda_c,t_c)$ is approximately $(0.6248,0.9717)$, $(0.6495,0.9962)$, and $(0.6589,0.9993)$. Moreover, $\lambda_c(n)\to2/3$ from below. The optimal null thus changes from recording nothing to recording each slot almost projectively rather than moving through a broad weak-measurement phase.
 
 \subsection{Collective classical-record comparator}
 
-Now remove streaming sequestration and allow one joint instrument on all carriers, while requiring that only a classical outcome survives the commit point.
+Now remove streaming sequestration and allow one joint instrument on all carriers, while requiring that the device retain only classical side information after commitment. The quantum output carriers remain in trusted storage and are available to the RETURN decoder.
 
 \begin{proposition}[Collective classical record]
 For every $n$,
@@ -82,7 +82,7 @@ For every $n$,
 For $n\geq2$ and $0<\lambda<1$, this is strictly larger than $\Cstream$.
 \end{proposition}
 
-A weak measurement of the two parity subspaces attains \eqref{eq:collective}. This comparator still retains only a classical outcome; its advantage comes from seeing all carriers together. It therefore measures exactly what is lost when the apparatus must operate as a stream.
+A weak measurement of the two parity subspaces attains \eqref{eq:collective}. The device still retains only a classical outcome; its advantage comes from seeing all carriers together. The comparator therefore isolates the advantage lost when the apparatus must operate as a stream.
 
 \subsection{One coherent qubit closes the gap}
 

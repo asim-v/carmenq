@@ -13,7 +13,7 @@
   <a href="LICENSE-CONTENT.md"><img alt="CC BY 4.0 content" src="https://img.shields.io/badge/content-CC%20BY%204.0-526777"></a>
 </p>
 
-CARMEN-Q stands for **Causal Audit-Return Memory Evaluation and Numerics for Quantum processes**. It asks a precise operational question: can a streamed device retain a temporal predicate while preserving the ability to return every input coherently, beyond what unlimited adaptive classical memory can achieve?
+CARMEN-Q stands for **Causal Audit-Return Memory Evaluation and Numerics for Quantum Processes**. It asks a precise operational question: can a streamed device retain a temporal predicate while preserving the ability to return every input coherently, beyond what unlimited adaptive classical memory can achieve?
 
 The library implements the exact classical-memory frontier derived in the accompanying manuscript, a collective-access comparator, fixed-sample certification with systematic allowances, power planning, and an explicit density-matrix reference protocol. At balanced branch weight, the streaming classical ceiling is `0.75` for every stream length `n >= 2`; one persistent coherent qubit attains `1.0` in the ideal circuit.
 
@@ -22,7 +22,7 @@ The library implements the exact classical-memory frontier derived in the accomp
 The package is installable directly from the public release:
 
 ```bash
-python -m pip install "carmenq @ git+https://github.com/asim-v/carmenq.git@v2.0.1"
+python -m pip install "carmenq @ git+https://github.com/asim-v/carmenq.git@v2.0.2"
 ```
 
 PyPI packaging is ready, but this repository does not claim that the `carmenq` name has already been uploaded to PyPI.
@@ -61,6 +61,8 @@ The [Python API guide](docs/python-api.md) explains the concise and long-form sc
 ## Reproduce the paper
 
 Clone the repository and run:
+
+Building the manuscript requires [Tectonic](https://tectonic-typesetting.github.io/), tested here with version 0.17.0.
 
 ```bash
 python -m pip install -e ".[dev,reproducibility]"

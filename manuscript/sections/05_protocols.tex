@@ -5,7 +5,7 @@ The theorem gives a probability bound; an experiment needs a decision rule. The 
 
 \subsection{Fixed-sample certificate}
 
-Let $(K_{\mathrm A},N_{\mathrm A})$ and $(K_{\mathrm R},N_{\mathrm R})$ be successes and fixed trials in the two branches. Define
+Let $K_{\mathrm A}$ and $K_{\mathrm R}$ denote the numbers of successes, and let $N_{\mathrm A}$ and $N_{\mathrm R}$ denote the prespecified trial counts in the two branches. Define
 \[
 \widehat S=\lambda\frac{K_{\mathrm A}}{N_{\mathrm A}}
 +(1-\lambda)\frac{K_{\mathrm R}}{N_{\mathrm R}}.
@@ -19,7 +19,7 @@ r_\alpha=
 \right)\log\frac1\alpha}.
 \label{eq:hoeffding}
 \end{equation}
-Before observing outcomes, let $\delta_{\mathrm A}$ and $\delta_{\mathrm R}$ upper-bound possible upward bias in the two estimators, and let $\delta_{\mathrm{null}}$ enlarge the theoretical null for source, isolation, and interface uncertainty. We certify incompatibility with the declared classical-memory null only if
+Before observing outcomes, let $\delta_{\mathrm A}$ and $\delta_{\mathrm R}$ upper-bound possible upward bias in the two estimators, and let $\delta_{\mathrm{null}}$ enlarge the theoretical null for source, isolation, and interface uncertainty. Incompatibility with the declared classical-memory null is certified only if
 \begin{equation}
 \widehat S-\lambda\delta_{\mathrm A}
 -(1-\lambda)\delta_{\mathrm R}-r_\alpha
@@ -34,21 +34,21 @@ g=S_{\mathrm{alt}}-\lambda\delta_{\mathrm A}
 -(1-\lambda)\delta_{\mathrm R}
 -\Cstream-\delta_{\mathrm{null}}.
 \]
-If $g\leq0$, no amount of data certifies the claim under those allowances. If $g>0$, fixed sample sizes satisfying $r_\alpha+r_\beta<g$ guarantee power at least $1-\beta$ by a second Hoeffding bound. The implementation allocates trials asymptotically as $N_{\mathrm A}:N_{\mathrm R}=\lambda:(1-\lambda)$.
+If $g\leq0$, no amount of data certifies the claim under those allowances. If $g>0$, fixed sample sizes satisfying $r_\alpha+r_\beta<g$ guarantee power at least $1-\beta$ by a second Hoeffding bound. For a fixed total trial budget, the asymptotically optimal allocation is $N_{\mathrm A}:N_{\mathrm R}=\lambda:(1-\lambda)$.
 
 \subsection{Commitment and branch timing}
 
-A valid trial follows the left-to-right order of \cref{fig:protocol}. The verifier first prepares and independently characterises the EPR sources. It releases $A_i$ only after $B_{i-1}$ has entered trusted sequestration and, after receiving $B_n$, requires delivery of the terminal memory port $M$. Only then is the hidden AUDIT/RETURN choice generated. The preregistered branch decoder and binary acceptance measurement are applied, and every loss or exclusion is recorded under a predeclared rule. The branch may be randomised per trial, but the final branch counts and stopping rule must be fixed or analysed with a sequentially valid method.
+A valid trial follows the left-to-right order of \cref{fig:protocol}. The verifier first prepares and independently characterises the EPR sources. It releases $A_i$ only after $B_{i-1}$ has entered trusted sequestration and, after receiving $B_n$, requires delivery of the terminal memory port $M$. Only then is the hidden AUDIT/RETURN choice generated. The preregistered branch decoder and binary acceptance measurement are applied, and every loss or exclusion is recorded under a predeclared rule. Branch assignments may be randomised across trials, but the branch sample sizes and stopping rule must be prespecified or handled by a sequentially valid analysis.
 
 \subsection{Mandatory shortcut controls}
 
-These controls are part of the scientific claim, not optional diagnostics. Deliberately dephasing the persistent carrier should remove the coherent advantage, whereas making a strong classical record should improve AUDIT while lowering global RETURN. Removing sequestration should recover the collective curve in \eqref{eq:collective}; allowing the device to revisit an earlier $B_i$ should likewise expose why the causal boundary matters. Decoder controls replace the coherent inverse by identity or by a mismatched inverse. Independent source and measurement calibration must bound false EPR acceptance and parity bias, and a blind-choice control must test whether branch information leaks before commitment. Finally, a side-channel audit must bound coherent transfer through buses, pulse tails, clocks, resonators, unused levels, and shared ancillas.
+These controls are part of the scientific claim, not optional diagnostics. Deliberately dephasing the persistent carrier should remove the coherent advantage, whereas making a strong classical record should improve AUDIT while lowering global RETURN. Removing sequestration should recover the collective curve in \eqref{eq:collective}; allowing the device to revisit an earlier $B_i$ should likewise expose why the causal boundary matters. Decoder controls replace the coherent inverse by identity or by a mismatched inverse. Independent source and measurement calibrations must bound false EPR acceptance and parity bias, and a blind-choice control must test whether branch information leaks before commitment. Finally, a side-channel audit must bound coherent transfer through buses, pulse tails, clocks, resonators, unused levels, and shared ancillas.
 
 The null does not forbid inaccessible erasure environments. Consequently, visible reset of $M$ is a reproducibility and wiring check, not a certificate that every physical copy of a classical transcript has vanished.
 
 \subsection{Reproducible analysis interface}
 
-The public command-line tool evaluates the exact bound, plans trial counts, and applies the fixed-sample rule through three strict-JSON commands:
+The public command-line tool evaluates the exact bound, plans trial counts, and applies the fixed-sample rule through three commands with strict JSON output:
 \begin{small}
 \begin{verbatim}
 carmenq bound --steps 8

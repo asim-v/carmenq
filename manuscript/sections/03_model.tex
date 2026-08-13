@@ -8,9 +8,9 @@ This section turns the story in \cref{fig:protocol} into a score. Fix $n\geq1$. 
 sends $A_i$ to the device, receives $B_i$, and sequesters $B_i$ before releasing $A_{i+1}$. After the last output, the device commits a terminal memory port $M$ to the verifier. A hidden coin then selects one branch.
 
 \paragraph{AUDIT.}
-The verifier measures every $R_i$ in $Z$, obtaining independent uniform bits $X_i$, and decodes from $M$ a guess for
+The verifier measures every $R_i$ in the $Z$ basis, obtaining independent uniform bits $X_i$, and uses $M$ to decode a guess for
 \[
-Z=X_1\oplus\cdots\oplus X_n.
+Y=X_1\oplus\cdots\oplus X_n.
 \]
 The sequestered $B_i$ are unavailable. Let $\PA$ be the success probability.
 
@@ -36,9 +36,9 @@ The null may use arbitrary finite classical memory and shared randomness. In slo
 \[
 \{\mathcal N^{(i,h)}_{k_i}:A_i\rightarrow B_i\}_{k_i}.
 \]
-It may create and discard arbitrary within-slot quantum ancillas. It may not retain a coherent system across the slot boundary, begin with entanglement shared between slot ancillas, revisit a committed $B_i$, or receive a $B_i$ in AUDIT. In RETURN, the full classical transcript may control an arbitrary joint recovery on all sequestered outputs.
+It may create and discard arbitrary within-slot quantum ancillas. It may not retain a coherent system across the slot boundary, begin with entanglement shared among ancillas assigned to different slots, revisit a committed $B_i$, or receive a $B_i$ in AUDIT. In RETURN, the full classical transcript may control an arbitrary joint recovery on all sequestered outputs.
 
-After refining all classical random seeds and outcomes, every leaf transcript $k=(k_1,\ldots,k_n)$ has a conditional channel that factorises over slots. For computational-basis inputs $x=(x_1,\ldots,x_n)$, its likelihood is
+After refining all classical random seeds and outcomes, every leaf transcript $k=(k_1,\ldots,k_n)$ induces a trace-nonincreasing CP map that factorises over slots. For computational-basis inputs $x=(x_1,\ldots,x_n)$, its likelihood is
 \begin{equation}
 p(k|x)=\prod_{i=1}^n p_i(k_i|x_i,k_{<i}).
 \label{eq:factor}
@@ -47,13 +47,13 @@ This factorisation is the mathematical null. Timing and isolation evidence must 
 
 \subsection{Local audit strength and return curve}
 
-Every local observation can now be summarised by one number: how strongly its outcome favours input $0$ over input $1$. This makes the information--disturbance tradeoff visible without committing to a particular measurement implementation.
+Every local outcome can now be summarised by one number: how strongly it favours input $0$ over input $1$. This makes the information--disturbance tradeoff visible without committing to a particular measurement implementation.
 
 At a realised prefix $h$, define
 \[
 r_i(k_i|h)=\frac{p_i(k_i|0,h)+p_i(k_i|1,h)}{2}
 \]
-and, when $r_i>0$, define a signed posterior bias by
+and, when $r_i>0$, define $\delta_i\in[0,1]$ and $s_i\in\{-1,1\}$ by
 \begin{equation}
 s_i\delta_i=
 \frac{p_i(k_i|0,h)-p_i(k_i|1,h)}
@@ -61,6 +61,7 @@ s_i\delta_i=
 \qquad 0\leq\delta_i\leq1.
 \label{eq:bias}
 \end{equation}
+Either sign may be chosen when $\delta_i=0$.
 The one-slot return curve is
 \begin{equation}
 f(t)=\frac{1+\sqrt{1-t^2}}{2}.
@@ -70,13 +71,13 @@ Here $t=0$ extracts no computational-basis information and preserves an EPR pair
 
 \subsection{A saturating null family}
 
-The following weak measurement reaches the bound. It interpolates continuously between doing nothing ($t_i=0$) and making a projective record ($t_i=1$).
+The following weak measurement saturates the one-slot return curve. It interpolates continuously between doing nothing ($t_i=0$) and making a projective record ($t_i=1$).
 
-For any $t_i\in[0,1]$, the binary diagonal instrument
+For any $t_i\in[0,1]$, consider the binary diagonal instrument
 \begin{align*}
 K^{(i)}_0&=\operatorname{diag}\!\left(
 \sqrt{\frac{1+t_i}{2}},\sqrt{\frac{1-t_i}{2}}\right),\\
 K^{(i)}_1&=\operatorname{diag}\!\left(
 \sqrt{\frac{1-t_i}{2}},\sqrt{\frac{1+t_i}{2}}\right).
 \end{align*}
-produces local audit bias $t_i$ and return fidelity $f(t_i)$. The transcript parity is the optimal AUDIT guess and identity recovery saturates the RETURN expression derived below.
+It produces local audit bias $t_i$ and return fidelity $f(t_i)$. The transcript parity is the optimal AUDIT guess and identity recovery saturates the RETURN expression derived below.
