@@ -145,15 +145,15 @@ which guarantees power at least `1-beta` by Hoeffding. Allocation approaches
 Examples:
 
 ```bash
-python scripts/audit_return_benchmark.py bound --steps 8
+python scripts/carmenq_cli.py bound --steps 8
 
-python scripts/audit_return_benchmark.py plan \
+python scripts/carmenq_cli.py plan \
   --steps 8 --audit-probability 0.97 --return-fidelity 0.95 \
   --alpha 0.01 --beta 0.1 \
   --audit-systematic 0.005 --return-systematic 0.005 \
   --null-slack 0.005
 
-python scripts/audit_return_benchmark.py analyse \
+python scripts/carmenq_cli.py analyse \
   --steps 8 --audit-successes 9700 --audit-trials 10000 \
   --return-successes 9500 --return-trials 10000 \
   --alpha 0.01 --audit-systematic 0.005 \

@@ -8,7 +8,7 @@ Let $\mathcal N_k:A\rightarrow B$ be a trace-nonincreasing CP map, $\dim A=D$, a
 \[
 p(k|x)=\Tr\mathcal N_k(\proj{x})
 \]
-in a fixed orthonormal basis. For any recovery channel $\mathcal R_k:B\rightarrow A$, its unnormalised contribution to maximally entangled fidelity satisfies
+in a fixed orthonormal basis. For any recovery channel $\mathcal R_k:B\rightarrow A$, its unnormalised contribution to the maximally entangled-state fidelity satisfies
 \begin{equation}
 F_k\leq\frac1{D^2}\left(\sum_x\sqrt{p(k|x)}\right)^2.
 \label{eq:reclemma}
@@ -17,7 +17,7 @@ The bound is attainable for every valid likelihood table by a positive diagonal 
 \end{lemma}
 
 \begin{proof}
-Put $\Lambda_k=\mathcal R_k\circ\mathcal N_k$. Expanding against $\ket{\Phi_D}=D^{-1/2}\sum_x\ket{x}_R\ket{x}_A$ gives
+Put $\Lambda_k=\mathcal R_k\circ\mathcal N_k$. Expanding the entanglement fidelity with $\ket{\Phi_D}=D^{-1/2}\sum_x\ket{x}_R\ket{x}_A$ gives
 \[
 D^2F_k=\sum_{x,y}
 \bra{x}\Lambda_k(\ket{x}\!\bra{y})\ket{y}.
@@ -33,7 +33,7 @@ Positivity of the Choi matrix implies
 \end{align*}
 \end{small}
 Summing proves \eqref{eq:reclemma}. For tightness, choose
-$K_k=\sum_x\sqrt{p(k|x)}\proj{x}$ and identity recovery. Completeness of the likelihood table makes $\sum_kK_k^\dagger K_k=\id$.
+$K_k=\sum_x\sqrt{p(k|x)}\proj{x}$ and identity recovery. Completeness of the likelihood table ensures $\sum_kK_k^\dagger K_k=\id$.
 \end{proof}
 
 \subsection{Causal tensorisation}
@@ -49,7 +49,7 @@ Averaging the optimal parity guess gives
 \label{eq:PAprod}
 \end{equation}
 
-Apply \eqref{eq:reclemma} with $D=2^n$, use \eqref{eq:factor}, and sum the input strings independently at every slot:
+Condition on the refined classical transcript. Dropping the terminal reset projector can only increase RETURN acceptance, leaving a transcript-controlled recovery channel on the carrier block. Applying \eqref{eq:reclemma} with $D=2^n$, using \eqref{eq:factor}, and summing independently over the input strings at each slot gives
 \begin{align}
 \FR
 &\leq4^{-n}\sum_k\left(\sum_x\sqrt{p(k|x)}\right)^2\\
@@ -66,7 +66,7 @@ Thus
 \frac\lambda2\prod_i\delta_i+(1-\lambda)\prod_i f(\delta_i)
 \right].
 \]
-An expectation cannot exceed the largest realised bracket, proving the upper bound in \eqref{eq:productfrontier}. The diagonal binary family in \cref{sec:model} attains every deterministic strength profile, proving tightness and showing that adaptive or non-QND freedom cannot improve the support.
+An expectation cannot exceed the largest realised bracket, proving the upper bound in \eqref{eq:productfrontier}. The diagonal binary family in \cref{sec:model} attains every deterministic strength profile, proving tightness and showing that neither adaptivity nor non-QND dynamics can improve the support.
 
 \subsection{Equal strengths}
 
@@ -81,8 +81,8 @@ G(y_1,\ldots,y_n)=
 \frac{(1-\lambda)+\lambda2^{n-1}\prod_i y_i}
 {\prod_i(1+y_i^2)}.
 \]
-At fixed nonzero $Y=\prod_i y_i$, let $z_i=\log y_i$. Since
-$\phi(z)=\log(1+e^{2z})$ is strictly convex, Jensen's inequality minimises the denominator at $z_1=\cdots=z_n$, hence $y_1=\cdots=y_n$. If $Y=0$, setting every $y_i=0$ minimises the denominator. This proves \eqref{eq:frontier} globally, including boundaries.
+For fixed $Y=\prod_i y_i>0$, let $z_i=\log y_i$. Since
+$\phi(z)=\log(1+e^{2z})$ is strictly convex, Jensen's inequality shows that the denominator is minimised at $z_1=\cdots=z_n$, hence $y_1=\cdots=y_n$. If $Y=0$, setting every $y_i=0$ minimises the denominator. This proves \eqref{eq:frontier} globally, including boundaries.
 
 \subsection{Closed forms and first-order transition}
 
@@ -95,7 +95,7 @@ Direct maximisation gives the one-slot circle and \eqref{eq:n2}. For $n\geq3$,
 g_n'(y)=\frac{ny}{(1+y^2)^{n+1}}
 \left[\lambda2^{n-1}y^{n-2}(1-y^2)-2(1-\lambda)\right].
 \]
-The endpoint $y=0$ remains locally maximal. Requiring a nonzero stationary point to tie it eliminates $\lambda$ and yields \eqref{eq:zn}; substituting back gives \eqref{eq:lambdac}. The solution interval in \eqref{eq:zn} contains exactly one root because the left side decreases from a value above one to zero after its maximum at $(n-2)/n$. Since the tying $y$ is nonzero, the exposed optimal strength jumps. Expanding around $z_n=1$ gives
+The endpoint $y=0$ remains locally maximal. Requiring a nonzero stationary point to tie it eliminates $\lambda$ and yields \eqref{eq:zn}; substituting back gives \eqref{eq:lambdac}. On the interval in \eqref{eq:zn}, the left-hand side decreases strictly from its maximum, which exceeds one, to zero; hence exactly one root exists. Since the tying $y$ is nonzero, the exposed optimal strength jumps. Expanding around $z_n=1$ gives
 \begin{align*}
 1-z_n&=2^{1-n}+\frac{n-1}{2}2^{2-2n}
        +O(n^2 2^{3-3n}),\\
@@ -109,6 +109,7 @@ Let $D=2^n$ and $d=D/2$. For a collective outcome $k$, set
 a_k=\sum_{x:\operatorname{par}(x)=0}p(k|x),\qquad
 b_k=\sum_{x:\operatorname{par}(x)=1}p(k|x).
 \]
+Here $\operatorname{par}(x)=x_1\oplus\cdots\oplus x_n$.
 Optimal parity decoding gives
 \[
 \PA=\frac12+\frac1{2D}\sum_k|a_k-b_k|.
@@ -121,6 +122,6 @@ With $A_k=a_k/d$, $B_k=b_k/d$,
 \[
 T=\frac12\lVert A-B\rVert_1,\qquad C=\sum_k\sqrt{A_kB_k},
 \]
-we have $\PA=(1+T)/2$ and $\FR\leq(1+C)/2$. The classical fidelity--total-variation relation $T^2+C^2\leq1$ yields $\FR\leq f(T)$. Optimising the resulting one-variable score proves \eqref{eq:collective}. A weak measurement of the two parity projectors attains equality.
+these definitions give $\PA=(1+T)/2$ and $\FR\leq(1+C)/2$. The classical fidelity--total-variation relation $T^2+C^2\leq1$ \cite{fuchs1999cryptographic} yields $\FR\leq f(T)$. Optimising the resulting one-variable score proves \eqref{eq:collective}. A weak measurement of the two parity projectors attains equality.
 
-Finally, for any $n\geq2$, $\prod_i f(t_i)\leq f(\prod_i t_i)$. The collective device can therefore reproduce the same parity bias with no greater disturbance and is strictly better in every interior support direction except at trivial equality cases. This proves the strict resource gap.
+Finally, for any $n\geq2$, $\prod_i f(t_i)\leq f(\prod_i t_i)$. The collective device can therefore reproduce the same parity bias with no greater disturbance and is strictly better for every nontrivial interior support direction. This proves the strict resource gap.

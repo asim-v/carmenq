@@ -1,30 +1,30 @@
 \section{Scope and related work}
 
-The closest literature supplies the ingredients of the benchmark, but not the full streamed task. The distinctions below are stated explicitly because the comparison class is part of the result.
+The closest literature supplies the ingredients of the benchmark, but not the complete streaming task. The distinctions below are stated explicitly because the comparison class is part of the result.
 
 \subsection{The comparison class is the claim}
 
-Quantum memory has several inequivalent meanings in a multitime process. Process tensors and quantum combs provide the general slot structure \cite{chiribella2009networks,pollock2018processes}. Memory cost can be a global property of a strategy even when classical assistance is free \cite{bisio2012memory}. Recent classifications distinguish processes that transmit coherent quantum systems, classical information through conditional instruments, or no information at all \cite{taranto2024hierarchy}. We use a direct operational restriction: after refining every outcome and shared-random seed, each leaf channel factorises over slots. Disposable quantum ancillas are allowed inside a slot; no coherent state or entangled common cause persists between slots.
+Quantum memory has several inequivalent meanings in a multitime process. Process tensors and quantum combs provide the general slot structure \cite{chiribella2009networks,pollock2018processes}. Memory cost can be a global property of a strategy even when classical assistance is free \cite{bisio2012memory}. Recent classifications distinguish processes that transmit coherent quantum systems, classical information through conditional instruments, or no information at all \cite{taranto2024hierarchy}. This work uses a direct operational restriction: after refining every outcome and shared-randomness seed, each leaf CP map factorises over slots. Disposable quantum ancillas are allowed inside a slot; no coherent state or entangled common cause persists between slots.
 
-This null is stronger than saying that some reduced channel is entanglement breaking and weaker than demanding memorylessness. Unlimited classical state, adaptive choice, arbitrary finite alphabets, non-QND maps, and transcript-conditioned joint recovery are included. A positive experiment is therefore a resource witness only relative to trusted timing, source, sequestration, and terminal-port assumptions.
+This condition is not equivalent to entanglement breaking of any reduced channel. It is weaker than memorylessness because it retains unlimited adaptive classical state. Arbitrary finite alphabets, non-QND maps, and transcript-conditioned joint recovery are also included. A positive experiment is therefore a resource witness only relative to trusted timing, source, sequestration, and terminal-port assumptions.
 
 \subsection{Information--disturbance and operational duality}
 
-One-shot estimation--operation fidelity tradeoffs establish that extracting classical information disturbs quantum states \cite{banaszek2001fidelity}. Operational wave--particle duality similarly frames a late game between path and phase information \cite{bagan2018duality}. Quantum seals study how readability limits later verification of an undisturbed state \cite{kimmel2019seals}. Our one-slot curve is not new: it is the binary information--return relation. The new-looking step is causal tensorisation for fresh sequestered inputs, a parity audit from the retained temporal record, and a global all-carrier return score under the full adaptive classical-memory null.
+One-shot estimation--operation fidelity tradeoffs establish that extracting classical information disturbs quantum states \cite{banaszek2001fidelity}. Operational wave--particle duality similarly frames a late game between path and phase information \cite{bagan2018duality}. Quantum seals study how readability limits later verification of an undisturbed state \cite{kimmel2019seals}. The one-slot curve used here is not new; it is the binary information--return relation. The contribution is the causal tensorisation of that relation for fresh sequestered inputs, coupled to a parity audit of the retained temporal record and a global return score for all carriers under the full adaptive classical-memory null.
 
-Parity itself is also occupied. Collective measurements can reveal global parity information unavailable to separate measurements in quantum cryptographic ensembles \cite{bennett1996parity}. Here parity is chosen because a coherent accumulator needs only one qubit while any classical streamed strategy multiplies local posterior biases. The task is not cryptographic and does not claim secrecy.
+Parity-based discrimination is also established territory. Collective measurements can reveal global parity information unavailable to separate measurements in quantum cryptographic ensembles \cite{bennett1996parity}. Here parity is chosen because a coherent accumulator needs only one qubit while any classical streaming strategy multiplies local posterior biases. The task is not cryptographic and does not claim secrecy.
 
 \subsection{Temporal-memory witnesses}
 
-Memory witnesses based on multitime process entanglement, effective environment dimension, and identity-channel behaviour already exist \cite{giarmatzi2018causal,vieira2024dimension,sekatski2023memory}. Sequential random-access codes can separate classical and quantum temporal memory under semi-device-independent assumptions \cite{roy2024semidevice}. Bounded coherent and classical memory in adaptive discrimination can be formulated through constrained separability \cite{ohst2026memory}. Our score differs because its second branch asks for joint entanglement return of the same committed carriers, rather than a later decoding success. This is an adjacent benchmark, not a replacement for those frameworks.
+Memory witnesses based on multitime process entanglement, effective environment dimension, and identity-channel behaviour already exist \cite{giarmatzi2021memory,vieira2024dimension,sekatski2023memory}. Sequential random-access codes can separate classical and quantum temporal memory under semi-device-independent assumptions \cite{roy2024semidevice}. Bounded coherent and classical memory in adaptive discrimination can be formulated through constrained separability \cite{ohst2026memory}. The score used here differs because its second branch asks for joint entanglement return of the same committed carriers, rather than a later decoding success. This is an adjacent benchmark, not a replacement for those frameworks.
 
 \subsection{Reversible computation and interpretation}
 
-The honest strategy uses CNOT accumulation and uncomputation, established reversible-computing operations \cite{bennett1973logical}. Its value comes from the late branch and access constraints, not from describing the circuit as multiple histories. The observed probabilities are fully predicted by standard quantum mechanics. No interpretation-specific claim follows.
+The honest strategy uses CNOT accumulation and uncomputation, both standard tools of reversible computing \cite{bennett1973logical}. Its value comes from the late branch and access constraints, not from describing the circuit as multiple histories. The observed probabilities are fully predicted by standard quantum mechanics. No interpretation-specific claim follows.
 
 \subsection{Priority discipline}
 
-An adversarial search through 12 August 2026 found no primary source stating the full theorem with all of the following: fresh entangled inputs, immediate sequestration, adaptive non-QND instruments with only classical inter-slot memory, late transcript-only parity audit, and joint all-carrier return. A literature search cannot prove absence; the priority claim should be withdrawn if an earlier theorem specialises directly to this interface and score.
+An adversarial search through 12 August 2026 found no primary source stating the full theorem with all of the following: fresh entangled inputs, immediate sequestration, adaptive non-QND instruments with only classical inter-slot memory, late transcript-only parity audit, and joint all-carrier return. A literature search cannot prove absence; the priority claim should be withdrawn if an earlier theorem specialises directly to this interface and scoring rule.
 
 \begin{table*}[t]
 \centering
@@ -37,9 +37,9 @@ Area & Established result & Distinction here \\
 \midrule
 Information--disturbance & Tight one-shot fidelity tradeoffs & Exact causal product law for a parity audit and global return \\
 Ways/Phases games & Late operational duality choices & Fresh time slots, sequestered outputs, and retained temporal memory \\
-Parity discrimination & Collective advantage for global parity & Same-prefix reversal score and a classical-memory comb null \\
+Parity discrimination & Collective advantage for global parity & Shared-prefix global-return score and a classical-memory comb null \\
 Quantum seals & Readability versus later verification & Multitime stream and all-carrier EPR return \\
-Temporal memory witnesses & Classical/quantum hierarchy and sequential scores & Exact same-task support plus coherent one-qubit attainment \\
+Temporal memory witnesses & Classical/quantum hierarchy and sequential scores & Exact same-task support and attainment with one coherent qubit \\
 Reversible computing & Compute--uncompute circuits & Hidden late challenge and a falsifiable resource separation \\
 \bottomrule
 \end{tabularx}

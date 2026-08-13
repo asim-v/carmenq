@@ -81,21 +81,21 @@ def test_retained_memory_removes_interference_and_keeps_one_extra_bit() -> None:
 def test_environment_overlap_sets_visibility_and_conditional_record_tradeoff() -> None:
     overlaps = np.linspace(0.0, 1.0, 6)
     visibilities = []
-    informations = []
+    information_values = []
     for overlap in overlaps:
         config = ProtocolConfig(noise=NoiseModel(environment_overlap=float(overlap)))
         result = run_protocol(config)
         visibilities.append(result.metrics["visibility"])
-        informations.append(environment_conditional_information(float(overlap)))
+        information_values.append(environment_conditional_information(float(overlap)))
         assert np.isclose(result.metrics["visibility"], overlap, atol=1e-12)
         assert np.isclose(
             result.metrics["predicate_fidelity"], 0.25 + 0.75 * overlap, atol=1e-12
         )
         assert np.isclose(result.metrics["reset_fidelity"], 1.0, atol=1e-12)
     assert np.all(np.diff(visibilities) >= -1e-12)
-    assert np.all(np.diff(informations) <= 1e-12)
-    assert np.isclose(informations[0], 1.0)
-    assert np.isclose(informations[-1], 0.0, atol=1e-12)
+    assert np.all(np.diff(information_values) <= 1e-12)
+    assert np.isclose(information_values[0], 1.0)
+    assert np.isclose(information_values[-1], 0.0, atol=1e-12)
 
 
 def test_dephasing_monotonically_reduces_visibility() -> None:

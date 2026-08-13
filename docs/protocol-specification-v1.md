@@ -12,7 +12,7 @@ The basic object is not an ontological "branch" but a multitime quantum process 
 
 ## 2. Systems and access
 
-We use
+This specification uses
 
 \[
 \mathcal H=\mathcal H_B\otimes\mathcal H_W\otimes\mathcal H_M

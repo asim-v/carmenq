@@ -1,11 +1,11 @@
 \begin{abstract}
-Can a device remember a property of a quantum stream and still return the stream coherently? We turn this question into a two-branch benchmark. A trusted verifier sends one half of each of $n$ independent EPR pairs through a device and sequesters every output before releasing the next input. Only after the stream is committed does a hidden choice request either the parity of later reference measurements (AUDIT) or recovery of every EPR pair together with visible memory reset (RETURN). For arbitrary adaptive local instruments with unlimited classical memory, but no coherent state persisting between slots, we prove the exact support
+Can a device remember a property of a quantum stream and still return the stream coherently? This work turns that question into a two-branch benchmark. A trusted verifier sends one half of each of $n$ independent EPR pairs through a device and sequesters every output before releasing the next input. Only after the terminal memory is committed does a hidden choice request either the parity of later reference measurements (AUDIT) or recovery of every EPR pair together with visible memory reset (RETURN). For strategies comprising arbitrary adaptive local instruments with unlimited classical memory but no coherent state persisting between slots, the exact support function is
 \begin{align*}
 f(t)&=\frac{1+\sqrt{1-t^2}}2,\\[-1mm]
 \Cstream&=\max_{0\leq t\leq1}
 \left\{\frac{\lambda}{2}(1+t^n)+(1-\lambda)f(t)^n\right\}.
 \end{align*}
-At equal branch weight, this classical-memory ceiling is $3/4$ for every $n\geq2$, while one persistent coherent qubit reaches $(\PA,\FR)=(1,1)$. Removing the streaming restriction raises the classical ceiling, which isolates the operational cost of causality. We also derive a first-order change in the optimal classical strategy for $n\geq3$, a fixed-sample certificate, and a hardware-facing protocol. The result is a trusted-interface temporal-memory witness, not a device-independent claim or a proof of global erasure.
+With equal branch weights, this classical-memory ceiling is $3/4$ for every $n\geq2$, while one persistent coherent qubit reaches $(\PA,\FR)=(1,1)$. Removing the streaming restriction raises the classical ceiling, which isolates the operational cost of causality. The analysis also identifies a first-order transition in the optimal classical strategy for $n\geq3$, supplies a fixed-sample certificate, and specifies a hardware-oriented protocol. The result is a trusted-interface temporal-memory witness, not a device-independent claim or a proof of global erasure.
 \end{abstract}
 
 \noindent\textbf{Keywords:} quantum memory; multitime quantum processes; information--disturbance; entanglement fidelity; reversible computation; causal benchmarks.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.2 - 2026-08-12
+
+- Revised the manuscript and public protocol specification into a consistently single-author, impersonal academic voice.
+- Corrected the reported automated-test count from 25 to 26 and completed a fresh editorial, mathematical, citation, metadata, and visual audit.
+- Preserved the theorem statements, numerical results, figures, and declared evidentiary boundaries while improving sentence flow.
+
 ## 2.0.1 - 2026-08-12
 
 - Finalized the two-column manuscript as the branded `CARMEN-Q-paper.pdf`, with complete document metadata and a cleaner title treatment.

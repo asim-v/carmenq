@@ -1,6 +1,6 @@
 # CARMEN-Q brand
 
-**CARMEN-Q** expands to *Causal Audit-Return Memory Evaluation and Numerics for Quantum processes*.
+**CARMEN-Q** expands to *Causal Audit-Return Memory Evaluation and Numerics for Quantum Processes*.
 
 The enclosing Q represents a coherent temporal memory. The amber and teal paths share a committed prefix before separating into AUDIT and RETURN. The central dot is the persistent qubit.
 
