@@ -22,7 +22,7 @@ The library implements the exact classical-memory frontier derived in the accomp
 The package is installable directly from the public release:
 
 ```bash
-python -m pip install "carmenq @ git+https://github.com/asim-v/carmenq.git@v2.0.0"
+python -m pip install "carmenq @ git+https://github.com/asim-v/carmenq.git@v2.0.1"
 ```
 
 PyPI packaging is ready, but this repository does not claim that the `carmenq` name has already been uploaded to PyPI.
@@ -69,7 +69,7 @@ python scripts/run_all.py
 python scripts/build_pdf.py
 ```
 
-The pipeline regenerates the numerical tables and publication figures under `data/` and `figures/`. Continuous integration compares cross-platform numerical outputs at declared relative and absolute tolerances of `1e-12`, while same-platform tests retain byte-level determinism. The visually verified manuscript is available as [PDF](output/pdf/causal_audit_return_memory.pdf), with LaTeX sources in `manuscript/` and audited references in `references/`. The package source lives in `src/carmenq/`; `tests/` contains the analytic, statistical, protocol, and reproducibility checks.
+The pipeline regenerates the numerical tables and publication figures under `data/` and `figures/`. Continuous integration compares cross-platform numerical outputs at declared relative and absolute tolerances of `1e-12`, while same-platform tests retain byte-level determinism. The visually verified manuscript is available as [PDF](output/pdf/CARMEN-Q-paper.pdf), with LaTeX sources in `manuscript/` and audited references in `references/`. The package source lives in `src/carmenq/`; `tests/` contains the analytic, statistical, protocol, and reproducibility checks.
 
 ## Scientific boundary
 
