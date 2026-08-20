@@ -299,8 +299,7 @@ This non-sharp estimate certifies a strict gap below the static qubit support fo
 0.997339868377\ldots\leq\lambda<1.
 \]
 
-The exact interior frontier remains open, but the strongest numerical branch
-now has an exact analytic realization.  For \(q,v\in[0,1]\), a complete
+The exact interior frontier remains open.  For \(q,v\in[0,1]\), a complete
 four-slot QND instrument achieves
 
 \[
@@ -314,12 +313,25 @@ F_{\rm can}=\frac14\left[
 \right]^2.
 \]
 
-Optimizing this explicit family gives a first-order onset at
+Optimizing this explicit family gives a first-order onset within that family at
 \(\lambda=0.477812793357157\ldots\) and the balanced lower bound
 \(0.755437446228747\ldots\).  Unrestricted binary-tree searches and
-three-/four-outcome QND controls found no improvement.  These facts do not
-replace the missing arbitrary-instrument converse: the analytic curve remains
-a lower bound and is not used to strengthen either proved upper theorem.
+three-/four-outcome QND controls found no improvement, but those ansatzes did
+not cover arbitrary finite-outcome non-QND instruments.  A subsequent
+complete ternary-outcome search produced
+
+\[
+(P_{\rm A},F_{\rm R})
+=(0.625754561820\ldots,0.893143378814\ldots)
+\]
+
+at balanced weight, with support
+\(0.759448970317\ldots\).  The stored instrument independently verifies a
+strict excess of \(0.004011524089\ldots\), so the two-parameter frontier
+conjecture is false.  This correction does not alter either proved endpoint
+theorem.  It instead sharpens the remaining problem: local finite-outcome
+completion and non-QND polar geometry cannot be discarded in an interior
+converse.
 
 The structural condition is the standard trellis-connectivity quantity
 
@@ -343,8 +355,8 @@ This is not a claim of absolute priority. An equivalent statement may exist unde
 The result should not be promoted as a full frontier: only the grouped curve,
 the interleaved perfect-AUDIT endpoint, and a conservative robust neighbourhood
 are proved as upper statements over the full strategy class. The interleaved
-interior now has an exact two-parameter physical construction, but that curve
-remains a lower bound until a matching causal-completion converse is proved.
+interior now has an explicit finite-outcome lower bound above the earlier
+two-parameter family, but no matching causal-completion converse.
 A general $2^{-\tau}$ law, higher-rank extension, or exact dimension witness
 has not been established.
 

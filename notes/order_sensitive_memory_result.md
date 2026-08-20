@@ -358,7 +358,7 @@ Therefore no valid endpoint correction can be \(o(\sqrt\epsilon)\). The
 \(\epsilon^{1/4}\) term in equation (12) is a proof loss, not evidence for the
 true scaling.
 
-## 7. Analytic lower bound for the unknown interior
+## 7. Interior lower bounds and a falsified ansatz
 
 An unrestricted complex binary-tree optimization over adaptive non-QND node
 instruments and transcript-conditioned qubit POVMs first found, at
@@ -421,22 +421,39 @@ As \(h=1-\lambda\downarrow0\), this construction has
 \tag{19}
 \]
 
-Three- and four-outcome QND instrument searches, as well as the unrestricted
-binary-tree controls at \(\lambda=.5,.9,.99\), found no improvement.  This
-exceeds the best balanced score \(0.75\) in the simple product weak-record
-family and remains below the static value
-\(B_{4,2}(1/2)=0.8535533906\).
+Three- and four-outcome QND searches and unrestricted binary-outcome controls
+found no improvement.  Those searches did not cover the declared class of
+arbitrary finite-outcome non-QND instruments.  A complete ternary-outcome
+search subsequently produced the strict counterexample
 
-High-AUDIT runs approach the exact endpoint: approximately
-\((0.9982256,0.2808604)\) at \(\lambda=0.9\) and
-\((0.9999871,0.2525485)\) at \(\lambda=0.99\). These values are feasible lower
-bounds, not optimality certificates. Equations (17)--(19) solve the explicit
-construction but not the arbitrary-instrument converse.  A deliberately
-weaker single-leaf TT-rank-two relaxation exceeds equation (18), because a
-postselected leaf need not admit a locally complete causal instrument with
-the same bond.  Therefore a valid converse must use local completeness, not
-only tensor rank.  No exact full-interior support function or dual certificate
-is currently known for \(H_{\rm I}\).
+\[
+(P_{\rm A},F_{\rm R})
+=(0.625754561820\ldots,0.893143378814\ldots),
+\]
+
+\[
+\frac{P_{\rm A}+F_{\rm R}}2
+=0.759448970317\ldots
+>0.755437446229\ldots .
+\tag{20}
+\]
+
+Thus equations (17)--(19) remain a transparent exact construction, but they
+do not describe the unrestricted interior frontier.  Four- and five-outcome
+trees initialized from the counterexample did not improve equation (20),
+which is falsification evidence rather than an outcome-cardinality theorem.
+The framework-neutral stored instrument and independent contraction are
+documented in **notes/interleaved_ternary_counterexample.md**.
+
+High-AUDIT runs approach the exact endpoint, but remain feasible lower bounds
+rather than optimality certificates.  A general single-leaf TT-rank-two
+relaxation reaches \(0.759802783851\ldots\) at balanced weight.  Its global
+optimum has not been certified, and a postselected leaf need not admit a
+locally complete causal instrument with the same bond.  The narrow numerical
+gap of \(3.54\times10^{-4}\) is therefore a target, not an error bar.  A valid
+converse must use local completeness rather than tensor rank alone.  No exact
+full-interior support function or dual certificate is currently known for
+\(H_{\rm I}\).
 
 ## 8. What is occupied and what may be new
 
@@ -524,9 +541,11 @@ replacement for the analytic theorem.
 **scripts/verify_interleaved_candidate.py** separately constructs all 64
 terminal vectors of the two-parameter instrument, checks local completeness,
 and reproduces equations (17)--(18) without using the closed formulas during
-the contraction. Exploratory variational searches used
-to falsify simple interior ansatzes are not part of the stable package and do
-not enter any proved claim.
+the contraction.  **scripts/verify_interleaved_counterexample.py** contracts
+the stored finite-outcome instrument independently, checks every local Kraus
+and terminal-POVM completeness relation, and verifies the strict inequality
+in equation (20).  The counterexample is a reproducible lower bound and does
+not enter any endpoint proof.
 
 ## 11. Next theorem, not a claim already made
 
@@ -537,9 +556,10 @@ The highest-value unresolved target is the exact function
 \qquad 0<\lambda<1,
 \]
 
-The attaining two-parameter candidate is now explicit.  The remaining target
-is an analytic or computer-assisted upper certificate that matches it, or a
-valid strategy that exceeds it. A sharp
+The two-parameter conjecture has been falsified.  The remaining target is an
+analytic or computer-assisted upper certificate matching the best complete
+finite-outcome strategy, or a stronger construction that narrows the gap to
+the single-leaf relaxation. A sharp
 \(O(\sqrt{1-P_{\rm A}})\) robust converse would be a second meaningful
 advance. Higher-rank work should begin only after checking
 whether a proposed generalization contains information beyond standard

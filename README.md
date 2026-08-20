@@ -65,6 +65,7 @@ Version 2.1 adds a bounded-memory result that depends on temporal order rather t
 ```python
 from carmenq import (
     GROUPED_CHECK_MATRIX,
+    INTERLEAVED_BALANCED_COUNTEREXAMPLE,
     INTERLEAVED_PERFECT_AUDIT_ENDPOINT,
     grouped_frontier,
     interleaved_candidate_lower_bound,
@@ -74,15 +75,26 @@ from carmenq import (
 print(trellis_connectivity_tau(GROUPED_CHECK_MATRIX))  # 1
 print(grouped_frontier(1.0).return_fidelity)            # 0.5
 print(INTERLEAVED_PERFECT_AUDIT_ENDPOINT.maximum_return_fidelity)  # 0.25
-print(interleaved_candidate_lower_bound(0.5).support_value)  # 0.7554374462...
+print(interleaved_candidate_lower_bound(0.5).support_value)  # restricted family
+print(INTERLEAVED_BALANCED_COUNTEREXAMPLE.support_value)  # 0.7594489703...
 ```
 
-The last value is an exact physical construction optimized as a lower bound;
-the returned object explicitly marks that the arbitrary-instrument interior
-converse remains open. The [canonical result note](notes/order_sensitive_memory_result.md) states the model, proof map, analytic construction, robust interval, novelty boundary, and open problems. Run `python scripts/classify_order_sensitive_checks.py` to reproduce the finite classification of four-slot orders.
+The last value is an exact physical construction, but it is not the strongest
+known lower bound. A complete finite-outcome non-QND instrument reaches
+`0.7594489703` at balanced weight and therefore falsifies the earlier
+two-parameter frontier conjecture. The public API continues to label the
+two-parameter result as a lower bound; no unrestricted interior optimum is
+claimed. The [canonical result note](notes/order_sensitive_memory_result.md)
+states the model, proof map, corrected numerical status, robust interval,
+novelty boundary, and open problems. Run
+`python scripts/classify_order_sensitive_checks.py` to reproduce the finite
+classification of four-slot orders.
 Run `python scripts/verify_interleaved_candidate.py` to contract the complete
 two-parameter instrument independently and compare all 64 terminal vectors
 with the public closed formulas.
+Run `python scripts/verify_interleaved_counterexample.py` to contract the
+stored 81-branch instrument, audit every local completeness relation, and
+verify its strict excess over that construction without PyTorch.
 
 ## Reproduce the paper
 

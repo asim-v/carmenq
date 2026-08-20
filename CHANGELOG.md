@@ -5,7 +5,8 @@
 - Added the exact grouped and interleaved rank-two syndrome instances, binary cut-connectivity utilities, and the attained perfect-AUDIT order gap to the public Python API.
 - Added the arbitrary-instrument endpoint proof, a quantitative robust full-crossing bound, and a focused priority audit that separates the new operational result from established trellis, comb, and recovery theory.
 - Added regression coverage and a reproducible enumeration of all four-slot nonzero-column order classes while leaving the unsolved interleaved interior explicitly unclaimed.
-- Reconstructed the best interleaved interior strategy as an exact two-parameter causal instrument, exposed it as an explicitly nonoptimality-claiming lower-bound API, and identified its first-order onset at audit weight `0.477812793357157...`.
+- Reconstructed a binary/QND interleaved strategy as an exact two-parameter causal instrument and exposed it as an explicitly nonoptimality-claiming lower-bound API, with a first-order onset inside that restricted family at audit weight `0.477812793357157...`.
+- Added a framework-neutral complete finite-outcome counterexample that strictly beats the two-parameter construction at balanced weight (`0.7594489703 > 0.7554374462`), an independent NumPy verifier, and regression coverage. The unrestricted interior frontier remains open.
 
 ## 2.0.2 - 2026-08-12
 

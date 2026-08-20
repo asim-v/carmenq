@@ -1,8 +1,17 @@
-# Analytic Candidate for the Interleaved Interior Frontier
+# Falsified Analytic Candidate for the Interleaved Interior Frontier
 
 **Date:** 20 August 2026<br>
-**Status:** exact achievable family and exact reduced optimization; global
-arbitrary-instrument converse still open
+**Status:** exact achievable family and exact reduced optimization, but not the
+unrestricted frontier; falsified by a complete finite-outcome non-QND
+instrument on 20 August 2026
+
+> **Correction.** A complete ternary-outcome instrument reaches
+> \(0.759448970317260\ldots\) at balanced weight, strictly above
+> \(\beta_{\rm can}(1/2)=0.755437446228747\ldots\).  Equations (1)--(15)
+> remain valid for the construction defined here, but the conjectured global
+> equality is false.  The counterexample, independent verifier, and revised
+> theorem gate are documented in
+> `notes/interleaved_ternary_counterexample.md`.
 
 ## 1. Problem
 
@@ -272,8 +281,9 @@ solution requires either:
    temporal cut; or
 2. a counterexample that exceeds equation (9).
 
-The current extensive searches support the equality, but numerical agreement
-is not a substitute for that theorem.
+The equality is now disproved.  The earlier binary-outcome and QND searches
+did not cover arbitrary finite-outcome non-QND instruments, even though that
+broader class was part of the declared model.
 
 ## 7. Closest proof technology
 

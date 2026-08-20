@@ -2,6 +2,7 @@
 
 from carmenq import (
     GROUPED_CHECK_MATRIX,
+    INTERLEAVED_BALANCED_COUNTEREXAMPLE,
     INTERLEAVED_PERFECT_AUDIT_ENDPOINT,
     __version__,
     certify,
@@ -31,3 +32,7 @@ def test_order_sensitive_exact_results_are_public() -> None:
     candidate = interleaved_candidate_lower_bound(0.5)
     assert candidate.support_value > 0.7554
     assert candidate.support_is_globally_optimal is False
+    counterexample = INTERLEAVED_BALANCED_COUNTEREXAMPLE
+    assert counterexample.support_value > candidate.support_value + 0.004
+    assert counterexample.independently_verified is True
+    assert counterexample.support_is_globally_optimal is False

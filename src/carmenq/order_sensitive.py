@@ -4,8 +4,9 @@ This module covers binary rank-two syndrome checks streamed through one
 persistent qubit.  It exposes the grouped four-slot frontier and the exact
 perfect-AUDIT endpoint of its interleaved column permutation.  The latter is
 an endpoint theorem only.  An exact two-parameter achievable construction is
-also exposed as a lower bound, but the unknown interleaved interior is never
-presented as an asserted upper bound or solved frontier.
+also exposed as a lower bound.  A stored finite-outcome non-QND instrument is
+known to exceed that restricted family, and the unknown interleaved interior
+is never presented as an asserted upper bound or solved frontier.
 
 All ranks and cut profiles are over :math:`GF(2)`.  A cut index ``i`` means
 that columns ``[:i]`` have arrived and columns ``[i:]`` remain.
@@ -200,8 +201,9 @@ class InterleavedCandidatePoint:
     """One achievable point from the analytic interleaved candidate family.
 
     ``support_is_globally_optimal`` is deliberately false: the construction
-    is an exact lower bound, while the arbitrary-instrument interior converse
-    remains open.
+    is an exact lower bound.  A finite-outcome non-QND counterexample exceeds
+    this family, while the arbitrary-instrument interior converse remains
+    open.
     """
 
     audit_weight: float
@@ -211,6 +213,19 @@ class InterleavedCandidatePoint:
     audit_probability: float
     return_fidelity: float
     support_value: float
+    support_is_globally_optimal: bool = False
+
+
+@dataclass(frozen=True)
+class StoredCounterexamplePoint:
+    """Framework-neutral verified point outside the two-parameter family."""
+
+    audit_weight: float
+    local_outcome_arity: int
+    audit_probability: float
+    return_fidelity: float
+    support_value: float
+    independently_verified: bool
     support_is_globally_optimal: bool = False
 
 
@@ -234,6 +249,25 @@ RETURN decoding.  It does not supply the unknown interior frontier.
 """
 
 
+INTERLEAVED_BALANCED_COUNTEREXAMPLE: Final[StoredCounterexamplePoint] = (
+    StoredCounterexamplePoint(
+        audit_weight=0.5,
+        local_outcome_arity=3,
+        audit_probability=0.6257545618203884,
+        return_fidelity=0.8931433788141326,
+        support_value=0.7594489703172604,
+        independently_verified=True,
+        support_is_globally_optimal=False,
+    )
+)
+"""Stored complete instrument that falsifies the restricted candidate.
+
+The local Kraus tree and AUDIT effects are in
+``data/interleaved_ternary_counterexample.npz``.  The value is an achievable
+lower bound, not a claimed optimum of the unrestricted interior game.
+"""
+
+
 def interleaved_candidate_scores(q: float, v: float) -> tuple[float, float]:
     """Evaluate the exact two-parameter interleaved construction.
 
@@ -244,7 +278,8 @@ def interleaved_candidate_scores(q: float, v: float) -> tuple[float, float]:
     and the corresponding flagged polar-recovery fidelity.  The parameters
     must lie in the unit square.  This is a physical streamed one-qubit
     construction, not an asserted characterization of every possible
-    interleaved strategy.
+    interleaved strategy.  In particular, the stored ternary-outcome
+    counterexample has a strictly larger balanced score.
     """
     q_value = float(q)
     v_value = float(v)
@@ -342,10 +377,12 @@ def interleaved_candidate_lower_bound(
 __all__ = [
     "GROUPED_CHECK_MATRIX",
     "INTERLEAVED_CHECK_MATRIX",
+    "INTERLEAVED_BALANCED_COUNTEREXAMPLE",
     "INTERLEAVED_PERFECT_AUDIT_ENDPOINT",
     "GroupedFrontierPoint",
     "InterleavedCandidatePoint",
     "PerfectAuditEndpoint",
+    "StoredCounterexamplePoint",
     "full_crossing_cuts",
     "gf2_rank",
     "grouped_frontier",
