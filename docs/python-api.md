@@ -8,6 +8,9 @@ CARMEN-Q exposes a compact top-level API for the common audit-return workflow. T
 | Collective classical ceiling | `collective_bound(audit_weight)` | `collective_classical_record_bound(...)` |
 | Fixed-sample certificate | `certify(counts, n_steps, ...)` | `certify_classical_memory(...)` |
 | Power planning | `plan(n_steps, audit_probability, return_fidelity, ...)` | `plan_experiment(...)` |
+| Binary cut rank | `gf2_rank(matrix)` | `carmenq.order_sensitive.gf2_rank(...)` |
+| Ordered cut profile | `trellis_connectivity_profile(matrix)` | same |
+| Exact grouped point | `grouped_frontier(audit_weight)` | same |
 
 ```python
 from carmenq import BenchmarkCounts, certify, streaming_bound
@@ -24,3 +27,5 @@ result = certify(
 `certify` returns an immutable `CertificationResult` dataclass containing the observed score, systematic penalty, confidence radius, enlarged null threshold, decision, and conservative margin. It can be serialized with `result.to_dict()`.
 
 The lower-level modules `carmenq.protocol`, `carmenq.linalg`, and `carmenq.experiments` implement the exact density-matrix reference protocol and deterministic reproduction pipeline. They are public for research use, but the top-level API is the stability boundary for ordinary users.
+
+The `carmenq.order_sensitive` module contains the separate rank-two syndrome result. `GROUPED_CHECK_MATRIX` and `INTERLEAVED_CHECK_MATRIX` define the canonical coordinate orders. `grouped_frontier` evaluates the exact attainable grouped boundary, while `INTERLEAVED_PERFECT_AUDIT_ENDPOINT` records the proved and attained interleaved endpoint. The latter deliberately reports `interior_frontier_known=False`; numerical interior searches are not presented as exact API results.

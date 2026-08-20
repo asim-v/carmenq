@@ -34,7 +34,7 @@ Writing $H\in\mathbb F_2^{k\times n}$ for a full-rank check matrix, the target q
 
 where the supremum covers arbitrary adaptive, non-QND slot instruments satisfying the declared coherent-bond constraint. The search found no primary source stating this full optimization or an exact intermediate-$d$ solution for it. That absence is not evidence of priority. The problem lies close enough to recent work by Ohst *et al.*, Hsieh *et al.*, Lim *et al.*, and Zonnios--Binder that a result is publishable only if it is more than an application of their frameworks.
 
-The present verdict is therefore **amber-green for the exact theorem and red for the surrounding architecture**. A closed analytic frontier for at least one nontrivial intermediate dimension, with a strict dimension separation and equality cases over the full causal strategy class, would be a real contribution. A generic continuity bound, a monotonicity statement, a numerical seesaw, or an SDP formulation alone would not clear the novelty bar.
+The derivation completed after this search changes that conditional verdict. A full interior frontier was not obtained, but an exact order-sensitive endpoint and a quantitative robust neighbourhood were proved over the full declared causal class: two temporal permutations of the same rank-two code have perfect-AUDIT return optima (1/2) and (1/4), respectively. The result therefore clears the minimum bar for a focused theorem paper, while the surrounding architecture remains prior art. A generic continuity bound, monotonicity statement, numerical seesaw, or SDP formulation alone would still not have done so.
 
 ## 2. The candidate task, frozen before the search
 
@@ -116,6 +116,8 @@ Lim, Hhan, and Kwon study nondestructive local discrimination of entangled state
 
 König, Maurer, and Renner compare classical and quantum storage of a random string when a predicate is selected later [@konig2005power]. Ballester, Wehner, and Winter allow unlimited classical information together with a bounded quantum register, reveal side information after the memory bound applies, and optimize the later computation of a function $f(X)$ [@ballester2008postmeasurement]. In their two-basis construction, one qubit can suffice to compute any Boolean function, a warning against informal claims that the number of possible queries alone lower-bounds memory.
 
+Shah proves the exact dimension-only message-discrimination lemma needed by the AUDIT coordinate: for arbitrary priors, a $d$-dimensional quantum encoding cannot achieve a guessing probability larger than the sum of the $d$ largest prior masses, and a classical $d$-level message attains the bound [@shah2025qudits]. Thus that step is explicit recent prior art rather than an original memory theorem.
+
 Doriguello and Montanaro define random-access codes for Boolean functions and connect achievable performance to Fourier analysis and noise stability [@doriguello2021boolean]. Roy *et al.* then use a sequential RAC operationally as a temporal quantum-memory witness [@roy2024semidevice]. If the proposed AUDIT branch were changed from returning the complete syndrome to answering one syndrome bit selected after commitment, it would move even closer to this occupied RAC literature. The complete-syndrome version is therefore the cleaner originality target.
 
 Late choice itself adds no novelty. Delayed-choice wave--particle games, post-measurement information, quantum seals, and audit-versus-recovery formulations already make the decision after a common prefix [@bagan2018duality; @kimmel2019seals]. The contribution, if any, must lie in the exact bounded-memory support for the same causal device.
@@ -138,7 +140,7 @@ The order dependence of sequential code processing also has a classical antecede
 
 For the present terminal task there is an additional negative result: if the device must output the entire syndrome, two classical prefixes are equivalent for every common suffix precisely when their partial syndromes agree. The deterministic width after cut $i$ is therefore $2^{\operatorname{rank}(H_{\leq i})}$, reaching $2^k$ at the end for full-rank $H$. Ordinary trellis merging does not compress exact terminal syndrome output. Trellis or pathwidth could become central only after changing the task to intermediate/random-cut audits, a decision problem such as $Hx=0$, or partial row queries.
 
-The open opportunity is subtler: the audit score is a decoding objective, the return score charges irreversible information extraction, and a coherent bond of dimension $d$ can carry a superposition of partial-syndrome states. The exact joint optimum could depend on the ordered columns of $H$ in a way not captured by the elementary terminal-width argument. That dependence has not been established by the sources located here and must be demonstrated rather than assumed.
+The open opportunity is subtler: the audit score is a decoding objective, the return score charges irreversible information extraction, and a coherent bond of dimension $d$ can carry a superposition of partial-syndrome states. The post-review derivation recorded in Section 8 establishes that the attainable region can depend on the ordered columns of $H$, even when rank and abstract code are unchanged. The result is an endpoint and robust-neighbourhood theorem rather than a solution of the complete interior frontier.
 
 ### 4.5 The 2026 frontier is moving quickly
 
@@ -239,55 +241,92 @@ The operational payoff would be a calibrated dimension witness. If an experiment
 
 then, under the audited interface, no realization with coherent bond dimension at most $d$ is compatible with the data. This is more informative than the current binary statement “some coherent cross-slot resource was present.”
 
-## 8. Minimum theorem that would change the publication verdict
+## 8. Post-review theorem resolution
 
-The smallest useful instance is
+The proposed triangle gate was solved exactly, but it failed the stronger originality test. For
 
 \[
-n=3,
-\qquad
-k=2,
-\qquad
 H_\triangle=
 \begin{pmatrix}
 1&1&0\\
 0&1&1
 \end{pmatrix},
-\qquad
-d\in\{1,2,4\}.
+\qquad d=2,
 \]
 
-Here $d=4$ gives the full coherent construction, while $d=2$ is a genuinely intermediate resource. A publishable core would provide an exact analytic expression or a finite algebraic characterization of $\beta_{H_\triangle,2}(\lambda)$, prove it against all adaptive non-QND strategies, and exhibit an interval of $\lambda$ on which it is strictly separated from both the $d=1$ region and trivial classical time-sharing with the $d=4$ strategy. A dual certificate or a symmetry reduction with fully justified extremality would be substantially stronger than floating-point optimization.
+the support function reduces to the static four-label/qubit information--recovery curve. The proof is valid for arbitrary adaptive non-QND instruments, but it loses the ordered structure of $H$. It is therefore a useful baseline rather than the flagship contribution.
 
-The next step would compare two rank-two matrices with different ordered column structure. If the frontiers coincide for every such example and depend only on $k$ and $d$, that is also informative: it suggests a representation-theoretic theorem rather than a code-specific one. Either outcome is scientifically cleaner than assuming code dependence from the outset.
+The first genuinely order-sensitive instance compares
 
-A robust corollary should translate a finite score gap into a lower bound on coherent dimension after explicit allowances for source infidelity, sequestration leakage, decoder error, and classical-transcript side channels. It should state only incompatibility with the declared $d$-bounded model, not a unique microscopic memory size.
+\[
+H_{\rm G}=\begin{pmatrix}1&1&0&0\\0&0&1&1\end{pmatrix},
+\qquad
+H_{\rm I}=\begin{pmatrix}1&0&1&0\\0&1&0&1\end{pmatrix}.
+\]
 
-## 9. Hard kill criteria
+These matrices differ only by a coordinate permutation. With one persistent coherent qubit, an unrestricted genuinely classical transcript, immediate sequestration of emitted carriers, and the same late AUDIT/RETURN choice, the grouped order attains the complete static boundary. In particular, at perfect AUDIT it attains $F_{\mathrm R}=1/2$. For the interleaved order, an arbitrary-instrument converse proves
 
-The pivot should be abandoned as the flagship contribution if the exact optimization reduces directly to Hsieh *et al.*'s instrument robustness, Lim *et al.*'s nondestructive discrimination tradeoff, or Ohst *et al.*'s published constrained-separability example after relabelling. It should also be killed if the only analytic statement is the perfect-return ratio $d/2^k$, if intermediate dimensions give only the convex hull of known endpoints, or if the proof covers only diagonal/iid instruments while the claim says arbitrary adaptive instruments.
+\[
+P_{\mathrm A}=1
+\quad\Longrightarrow\quad
+F_{\mathrm R}\leq\frac14,
+\]
 
-A purely numerical hierarchy is appropriate as a tool, not as the central theorem. Likewise, the project should not claim a coding-theory contribution if $H$ appears only through a standard weight enumerator, or a tensor-network contribution if $d$ appears only as an ordinary MPS bond dimension. Finally, any experimental claim fails if an uncharged coherent subsystem can cross a cut, if the device can access $B_i$ during AUDIT, if separate devices implement the two branches, or if high conditional return fidelity is bought with unreported failure probability.
+and the bound is attained. The proof refines each transcript to a single Kraus leaf, uses the full-crossing cut to limit every perfect-audit leaf to one quarter of the computational words, and then applies flagged polar recovery and pinching. It makes no QND, Clifford, covariance, or finite-transcript-alphabet assumption.
 
-## 10. Recommended research sequence
+The endpoint has a robust version. For the four-slot interleaved stream, with $\epsilon=1-P_{\mathrm A}$,
 
-The current parity theorem should remain frozen as the $k=1,d=1$ baseline. Work on the manuscript should pause while the new theorem is tested. First, formulate the $n=3,k=2,d=2$ comb exactly and derive primal and dual finite-dimensional programs. Second, solve it numerically at high precision for a grid of $\lambda$, including unrestricted transcript-conditioned recovery, and use the optimizer to conjecture an analytic strategy. Third, search for a reduction to the four closest frameworks: constrained-separability memory bounds, interactive-instrument robustness, nondestructive MES discrimination, and bounded-storage functional decoding. Only if no reduction closes the problem should effort move to an analytic proof and a robust statistical witness.
+\[
+F_{\mathrm R}
+\leq
+\frac14+\frac72\sqrt\epsilon
++\frac{\sqrt{21}}2\epsilon^{1/4}.
+\]
 
-If that instance has a strict frontier, the natural software contribution is not another generic simulator. It is a reproducible bounded-bond optimizer that exports primal strategies, certified upper bounds, symmetry reductions, and dimension-witness thresholds. A later circuit layer can compile the honest accumulator and the verifier's decoder. Hardware forecasts should wait until the trusted coherent storage required for the sequestered $B_i$ carriers is counted explicitly.
+This non-sharp estimate certifies a strict gap below the static qubit support for
+
+\[
+0.997339868377\ldots\leq\lambda<1.
+\]
+
+The exact interior frontier remains open. Numerical searches supply lower bounds and are not used in either theorem.
+
+The structural condition is the standard trellis-connectivity quantity
+
+\[
+\tau(H)=\max_i\bigl(
+\operatorname{rank}H_{\leq i}
++\operatorname{rank}H_{>i}
+-\operatorname{rank}H\bigr).
+\]
+
+For rank-two checks, $\tau\leq1$ admits a one-qubit handoff construction that reaches the static boundary, whereas $\tau=2$ supplies a full-crossing cut and the perfect-audit $1/4$ upper bound. The invariant and its order dependence are established trellis theory [@forney1994trellis; @mceliece1996bcjr; @kashyap2008pathwidth]. The new object is the late-choice information--recoverability consequence under the declared interface, not $\tau$ itself.
+
+## 9. Updated collision assessment
+
+The exact result survives the focused priority search, but only as a narrow conjunction. Sequential quantum-state generation already links emission order to persistent coherent resources [@li2022emitters]. Quantum trellises, coherent message passing, and uncomputation for linear codes are also occupied [@ollivier2006trellises; @piveteau2022message; @piveteau2025belief]. Lim--Hhan--Kwon obtain a numerical value $1/4$ in a different spatial nondestructive-discrimination model [@lim2025local]. None of these sources located through the cutoff contains the same-code column permutation, one-qubit temporal bond, late complete-syndrome AUDIT, all-carrier EPR RETURN, and exact grouped $1/2$ versus interleaved $1/4$ endpoint.
+
+This is not a claim of absolute priority. An equivalent statement may exist under quantum-comb rank, recoverability, or tensor-network language. The exact-collision risk is assessed as low to moderate, and the search should be repeated before submission.
+
+## 10. Remaining kill criteria and research sequence
+
+The result should not be promoted as a full frontier: only the grouped curve, the interleaved perfect-AUDIT endpoint, and a conservative robust neighbourhood are proved. The interior numerical curve remains a lower bound. A general $2^{-\tau}$ law, higher-rank extension, or exact dimension witness has not been established.
+
+The next mathematical target is a sharp robust inequality of order $\sqrt{1-P_{\mathrm A}}$ or an exact interleaved interior support. A legal weak-measurement family proves that a correction $o(\!\sqrt{1-P_{\mathrm A}})$ is impossible, while the current proof loses an additional square root. A useful experimental result must also charge every coherent side channel, verify carrier sequestration, include all RETURN failures, and conclude only incompatibility with the declared one-qubit streaming model.
 
 ## 11. Safe novelty language
 
 The following sentence is supportable at this cutoff:
 
-> Within the primary-source corpus searched through 19 August 2026, no work was located that derives the exact complete-syndrome audit versus all-carrier entanglement-return support function for a single adaptive streaming process with unlimited classical transcript and a bounded coherent temporal bond. The candidate contribution is this exact intermediate-dimension frontier and its robust dimension-witness consequence, not bounded memory, late choice, syndrome accumulation, weight enumerators, entanglement recovery, or semidefinite optimization separately.
+> Within the primary literature located through 19 August 2026, this appears to be the first exact late-choice syndrome-AUDIT/all-carrier-RETURN separation produced solely by permuting the temporal coordinates of one rank-two linear code under a one-qubit coherent-memory constraint: the noncrossing order attains $F_{\mathrm R}=1/2$ at perfect audit, whereas a full-crossing order is bounded by, and attains, $F_{\mathrm R}=1/4$.
 
-Unsafe formulations include “the first coherent-memory hierarchy,” “the first reversible syndrome observer,” “a new relation between coding and quantum memory,” and “certification of $d$ quantum memory levels” without the access assumptions. The search result should be reported as a bounded absence statement, never as proof that no equivalent theorem exists.
+The qualifiers “appears,” the date, the exact interface, and “at perfect audit” are essential. Unsafe formulations include “the first order dependence of quantum memory,” “a new trellis invariant,” “the first quantum processing of linear checks,” “the first $1/4$ information--disturbance relation,” and “the complete frontier is solved.”
 
 ## 12. Final go/no-go decision
 
-**GO, but only to the $n=3,k=2,d=2$ theorem gate.** The problem is sufficiently differentiated to justify a focused derivation and adversarial numerical search. It is not yet sufficiently differentiated to justify rewriting the public paper around it.
+**GO for a focused theorem paper; NO for the original broad framing.** The order-sensitive endpoint and its robust extension are mathematically nontrivial, independently red-teamed, and not reduced by the closest located literature. They establish a real operational consequence of temporal code order under bounded coherent memory.
 
-The decision after that gate is binary. An exact strict intermediate-dimension frontier, with a proof over the full causal class, is a plausible solid publication and a useful functional quantum-memory benchmark. Failure to beat endpoint interpolation, or discovery that the frontier is a direct corollary of the closest papers, means the pivot should be documented as a negative result and not marketed as a new research program.
+The paper should be built around this result, with the triangle solution presented as a negative originality gate and the full interleaved frontier listed as open. The broader reversible-histories narrative can remain motivation, but it is not the contribution.
 
 ---
 

@@ -1,11 +1,14 @@
 """Tests for the stable CARMEN-Q entry points."""
 
 from carmenq import (
+    GROUPED_CHECK_MATRIX,
+    INTERLEAVED_PERFECT_AUDIT_ENDPOINT,
     __version__,
     certify,
     certify_classical_memory,
     collective_bound,
     collective_classical_record_bound,
+    grouped_frontier,
     plan,
     plan_experiment,
     streaming_bound,
@@ -17,4 +20,10 @@ def test_concise_aliases_match_scientific_api() -> None:
     assert collective_bound(0.5) == collective_classical_record_bound(0.5)
     assert certify is certify_classical_memory
     assert plan is plan_experiment
-    assert __version__ == "2.0.2"
+    assert __version__ == "2.1.0"
+
+
+def test_order_sensitive_exact_results_are_public() -> None:
+    assert grouped_frontier(1.0).return_fidelity == 0.5
+    assert GROUPED_CHECK_MATRIX == ((1, 1, 0, 0), (0, 0, 1, 1))
+    assert INTERLEAVED_PERFECT_AUDIT_ENDPOINT.maximum_return_fidelity == 0.25

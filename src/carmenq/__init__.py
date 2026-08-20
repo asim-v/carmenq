@@ -28,6 +28,19 @@ from .protocol import (
     environment_conditional_information,
     run_protocol,
 )
+from .order_sensitive import (
+    GROUPED_CHECK_MATRIX,
+    INTERLEAVED_CHECK_MATRIX,
+    INTERLEAVED_PERFECT_AUDIT_ENDPOINT,
+    GroupedFrontierPoint,
+    PerfectAuditEndpoint,
+    full_crossing_cuts,
+    gf2_rank,
+    grouped_frontier,
+    rank_two_static_qubit_support,
+    trellis_connectivity_profile,
+    trellis_connectivity_tau,
+)
 
 # Concise public aliases. The descriptive originals remain part of the API.
 streaming_bound = classical_memory_bound
@@ -39,9 +52,14 @@ __all__ = [
     "BenchmarkCounts",
     "CertificationResult",
     "FrontierPoint",
+    "GROUPED_CHECK_MATRIX",
+    "GroupedFrontierPoint",
+    "INTERLEAVED_CHECK_MATRIX",
+    "INTERLEAVED_PERFECT_AUDIT_ENDPOINT",
     "NoiseModel",
     "PhenomenologicalNoise",
     "PowerPlan",
+    "PerfectAuditEndpoint",
     "ProtocolConfig",
     "ProtocolResult",
     "certify",
@@ -52,14 +70,20 @@ __all__ = [
     "collective_classical_record_bound",
     "conditional_record_information",
     "environment_conditional_information",
+    "full_crossing_cuts",
+    "gf2_rank",
+    "grouped_frontier",
     "plan",
     "plan_experiment",
     "return_curve",
+    "rank_two_static_qubit_support",
     "run_protocol",
     "score",
     "simulate_counts",
     "streaming_bound",
+    "trellis_connectivity_profile",
+    "trellis_connectivity_tau",
     "weighted_hoeffding_radius",
 ]
 
-__version__ = "2.0.2"
+__version__ = "2.1.0"

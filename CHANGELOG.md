@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.0 - 2026-08-19
+
+- Added the exact grouped and interleaved rank-two syndrome instances, binary cut-connectivity utilities, and the attained perfect-AUDIT order gap to the public Python API.
+- Added the arbitrary-instrument endpoint proof, a quantitative robust full-crossing bound, and a focused priority audit that separates the new operational result from established trellis, comb, and recovery theory.
+- Added regression coverage and a reproducible enumeration of all four-slot nonzero-column order classes while leaving the unsolved interleaved interior explicitly unclaimed.
+
 ## 2.0.2 - 2026-08-12
 
 - Revised the manuscript and public protocol specification into a consistently single-author, impersonal academic voice.

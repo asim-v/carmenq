@@ -31,6 +31,14 @@ def main() -> int:
             "8192",
         ]
     )
+    run(
+        [
+            sys.executable,
+            "scripts/classify_order_sensitive_checks.py",
+            "--output",
+            "data/order_sensitive_classes.json",
+        ]
+    )
     print("Reproducibility pipeline completed successfully.")
     return 0
 

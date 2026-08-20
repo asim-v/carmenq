@@ -22,7 +22,7 @@ The library implements the exact classical-memory frontier derived in the accomp
 The package is installable directly from the public release:
 
 ```bash
-python -m pip install "carmenq @ git+https://github.com/asim-v/carmenq.git@v2.0.2"
+python -m pip install "carmenq @ git+https://github.com/asim-v/carmenq.git@lit/bounded-coherent-memory-review"
 ```
 
 PyPI packaging is ready, but this repository does not claim that the `carmenq` name has already been uploaded to PyPI.
@@ -58,6 +58,25 @@ python examples/quickstart.py
 
 The [Python API guide](docs/python-api.md) explains the concise and long-form scientific interfaces. The [benchmark specification](docs/audit-return-benchmark-v0.1.md) states the trusted access model, while the [preregistration example](docs/audit-return-preregistration.example.json) records the experimental assumptions that must be fixed before data are observed.
 
+## Explore the order-sensitive theorem
+
+Version 2.1 adds a bounded-memory result that depends on temporal order rather than only on terminal memory dimension. Two rank-two check matrices represent the same code up to a coordinate permutation. The grouped order reaches return fidelity `0.5` at perfect syndrome audit; the interleaved order has the exact and attained ceiling `0.25` under the declared one-qubit streaming interface.
+
+```python
+from carmenq import (
+    GROUPED_CHECK_MATRIX,
+    INTERLEAVED_PERFECT_AUDIT_ENDPOINT,
+    grouped_frontier,
+    trellis_connectivity_tau,
+)
+
+print(trellis_connectivity_tau(GROUPED_CHECK_MATRIX))  # 1
+print(grouped_frontier(1.0).return_fidelity)            # 0.5
+print(INTERLEAVED_PERFECT_AUDIT_ENDPOINT.maximum_return_fidelity)  # 0.25
+```
+
+The [canonical result note](notes/order_sensitive_memory_result.md) states the model, proof map, robust interval, novelty boundary, and open problems. Run `python scripts/classify_order_sensitive_checks.py` to reproduce the finite classification of four-slot orders.
+
 ## Reproduce the paper
 
 Clone the repository and run:
@@ -79,7 +98,7 @@ CARMEN-Q is a trusted-interface resource witness. A positive score rejects the d
 
 The project began as an investigation of reversible quantum histories. Its originality audit showed that compute-phase-uncompute circuits alone are established quantum computing. CARMEN-Q retains the part that survived that audit: an exact same-task separation between streamed classical memory, collective classical recording, and coherent temporal memory.
 
-The next-theorem decision is documented in a [focused literature review](notes/literature_review_bounded_coherent_memory.md). Its conclusion is deliberately narrow: bounded coherent memory, late choice, syndrome accumulation, entanglement recovery, and dimension hierarchies are prior art; only an exact intermediate-dimension syndrome-audit/entanglement-return frontier remains a plausible contribution, subject to the stated kill criteria.
+The [focused literature review](notes/literature_review_bounded_coherent_memory.md) records the originality gate. Its conclusion is deliberately narrow: bounded coherent memory, late choice, syndrome accumulation, entanglement recovery, and trellis order dependence are prior art. What survives is the exact operational consequence of permuting one code under a fixed coherent-memory constraint. The full interleaved interior frontier remains open.
 
 ## Citation and authorship
 
