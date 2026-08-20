@@ -79,6 +79,8 @@ CARMEN-Q is a trusted-interface resource witness. A positive score rejects the d
 
 The project began as an investigation of reversible quantum histories. Its originality audit showed that compute-phase-uncompute circuits alone are established quantum computing. CARMEN-Q retains the part that survived that audit: an exact same-task separation between streamed classical memory, collective classical recording, and coherent temporal memory.
 
+The next-theorem decision is documented in a [focused literature review](notes/literature_review_bounded_coherent_memory.md). Its conclusion is deliberately narrow: bounded coherent memory, late choice, syndrome accumulation, entanglement recovery, and dimension hierarchies are prior art; only an exact intermediate-dimension syndrome-audit/entanglement-return frontier remains a plausible contribution, subject to the stated kill criteria.
+
 ## Citation and authorship
 
 The manuscript and software are by **Javier Emilio Bazán Sánchez**, Facultad de Ciencias, Universidad Nacional Autónoma de México, `bazan@ciencias.unam.mx`. Machine-readable citation metadata are in [`CITATION.cff`](CITATION.cff).
