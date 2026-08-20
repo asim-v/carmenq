@@ -67,15 +67,22 @@ from carmenq import (
     GROUPED_CHECK_MATRIX,
     INTERLEAVED_PERFECT_AUDIT_ENDPOINT,
     grouped_frontier,
+    interleaved_candidate_lower_bound,
     trellis_connectivity_tau,
 )
 
 print(trellis_connectivity_tau(GROUPED_CHECK_MATRIX))  # 1
 print(grouped_frontier(1.0).return_fidelity)            # 0.5
 print(INTERLEAVED_PERFECT_AUDIT_ENDPOINT.maximum_return_fidelity)  # 0.25
+print(interleaved_candidate_lower_bound(0.5).support_value)  # 0.7554374462...
 ```
 
-The [canonical result note](notes/order_sensitive_memory_result.md) states the model, proof map, robust interval, novelty boundary, and open problems. Run `python scripts/classify_order_sensitive_checks.py` to reproduce the finite classification of four-slot orders.
+The last value is an exact physical construction optimized as a lower bound;
+the returned object explicitly marks that the arbitrary-instrument interior
+converse remains open. The [canonical result note](notes/order_sensitive_memory_result.md) states the model, proof map, analytic construction, robust interval, novelty boundary, and open problems. Run `python scripts/classify_order_sensitive_checks.py` to reproduce the finite classification of four-slot orders.
+Run `python scripts/verify_interleaved_candidate.py` to contract the complete
+two-parameter instrument independently and compare all 64 terminal vectors
+with the public closed formulas.
 
 ## Reproduce the paper
 

@@ -11,6 +11,7 @@ CARMEN-Q exposes a compact top-level API for the common audit-return workflow. T
 | Binary cut rank | `gf2_rank(matrix)` | `carmenq.order_sensitive.gf2_rank(...)` |
 | Ordered cut profile | `trellis_connectivity_profile(matrix)` | same |
 | Exact grouped point | `grouped_frontier(audit_weight)` | same |
+| Interleaved analytic lower bound | `interleaved_candidate_lower_bound(audit_weight)` | same |
 
 ```python
 from carmenq import BenchmarkCounts, certify, streaming_bound
@@ -28,4 +29,4 @@ result = certify(
 
 The lower-level modules `carmenq.protocol`, `carmenq.linalg`, and `carmenq.experiments` implement the exact density-matrix reference protocol and deterministic reproduction pipeline. They are public for research use, but the top-level API is the stability boundary for ordinary users.
 
-The `carmenq.order_sensitive` module contains the separate rank-two syndrome result. `GROUPED_CHECK_MATRIX` and `INTERLEAVED_CHECK_MATRIX` define the canonical coordinate orders. `grouped_frontier` evaluates the exact attainable grouped boundary, while `INTERLEAVED_PERFECT_AUDIT_ENDPOINT` records the proved and attained interleaved endpoint. The latter deliberately reports `interior_frontier_known=False`; numerical interior searches are not presented as exact API results.
+The `carmenq.order_sensitive` module contains the separate rank-two syndrome result. `GROUPED_CHECK_MATRIX` and `INTERLEAVED_CHECK_MATRIX` define the canonical coordinate orders. `grouped_frontier` evaluates the exact attainable grouped boundary, while `INTERLEAVED_PERFECT_AUDIT_ENDPOINT` records the proved and attained interleaved endpoint. `interleaved_candidate_scores(q, v)` evaluates an exact two-parameter streamed construction, and `interleaved_candidate_lower_bound` optimizes that construction deterministically. Its result keeps `support_is_globally_optimal=False`: the arbitrary-instrument interior converse remains open, even though the returned point itself is physically achievable and its score formula is exact.

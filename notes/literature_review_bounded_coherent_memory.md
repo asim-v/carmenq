@@ -120,6 +120,15 @@ Shah proves the exact dimension-only message-discrimination lemma needed by the 
 
 Doriguello and Montanaro define random-access codes for Boolean functions and connect achievable performance to Fourier analysis and noise stability [@doriguello2021boolean]. Roy *et al.* then use a sequential RAC operationally as a temporal quantum-memory witness [@roy2024semidevice]. If the proposed AUDIT branch were changed from returning the complete syndrome to answering one syndrome bit selected after commitment, it would move even closer to this occupied RAC literature. The complete-syndrome version is therefore the cleaner originality target.
 
+Mohan, Tavakoli, and Brunner derive a tight two-score frontier for sequential
+\(2\to1\) QRACs and use equality to self-test a qubit instrument
+[@mohan2019sequential].  Their polar-decomposition, extremal-instrument, and
+Bloch-sphere proof technology is the closest clear template for the new
+two-parameter interleaved construction below.  It is not an exact reduction:
+their downstream score is a second random-access decoding probability on one
+travelling qubit, not transcript-conditioned recovery of four sequestered EPR
+carriers after a common late-choice prefix.
+
 Late choice itself adds no novelty. Delayed-choice wave--particle games, post-measurement information, quantum seals, and audit-versus-recovery formulations already make the decision after a common prefix [@bagan2018duality; @kimmel2019seals]. The contribution, if any, must lie in the exact bounded-memory support for the same causal device.
 
 ### 4.4 Linear syndromes bring established coding and streaming structure
@@ -163,6 +172,7 @@ These works are preprints at the cutoff and must be labelled as such. They are n
 | Lim--Hhan--Kwon 2025 [@lim2025local] | Nondestructive MES discrimination, tight tradeoff, stabilizer protocol, entanglement cost | Spatial LOCC resource instead of temporal memory | A possible reduction is a hard novelty risk |
 | König *et al.* 2005; Ballester *et al.* 2008 [@konig2005power; @ballester2008postmeasurement] | Late functional query with bounded quantum memory and free classical data | No obligation to restore EPR carriers | Late-query bounded storage is occupied |
 | Doriguello--Montanaro 2021 [@doriguello2021boolean] | Boolean-function RACs and noise-stability analysis | No return branch or causal comb | Boolean/noise-stability generalization is occupied |
+| Mohan--Tavakoli--Brunner 2019 [@mohan2019sequential] | Tight sequential-QRAC score frontier and qubit-instrument self-test | Second QRAC score rather than all-carrier EPR return; no four-slot local-completion constraint | Sequential weak-instrument/Bloch machinery is occupied, but does not solve the present support |
 | MacWilliams 1963; McEliece 1996 [@macwilliams1963weights; @mceliece1996bcjr] | Weight enumerators and minimal trellis state complexity | No quantum recovery objective | Code enumerators and trellis memory are ingredients, not novelty |
 | Schön *et al.* 2005; Guo *et al.* 2020 [@schoen2005sequential; @guomodi2020tensor] | Sequential ancilla dimension equals an MPS/process bond resource | No audit score | The tensor-network connection is occupied |
 | Arunachalam--Schatzki 2026, preprint [@arunachalam2026stabilizer] | Tight limited-coherent-memory separations for sequential stabilizer tasks | Multiple-copy testing/learning, no return | Stabilizer plus bounded memory is not a headline |
@@ -289,7 +299,27 @@ This non-sharp estimate certifies a strict gap below the static qubit support fo
 0.997339868377\ldots\leq\lambda<1.
 \]
 
-The exact interior frontier remains open. Numerical searches supply lower bounds and are not used in either theorem.
+The exact interior frontier remains open, but the strongest numerical branch
+now has an exact analytic realization.  For \(q,v\in[0,1]\), a complete
+four-slot QND instrument achieves
+
+\[
+P_{\rm can}=\frac12+qv\sqrt{1-v^2}-q(1-q)v^2,
+\]
+
+\[
+F_{\rm can}=\frac14\left[
+\sqrt{1-(1-q^2)v^2}
++v\bigl(1-q+2\sqrt{q(1-q)}\bigr)
+\right]^2.
+\]
+
+Optimizing this explicit family gives a first-order onset at
+\(\lambda=0.477812793357157\ldots\) and the balanced lower bound
+\(0.755437446228747\ldots\).  Unrestricted binary-tree searches and
+three-/four-outcome QND controls found no improvement.  These facts do not
+replace the missing arbitrary-instrument converse: the analytic curve remains
+a lower bound and is not used to strengthen either proved upper theorem.
 
 The structural condition is the standard trellis-connectivity quantity
 
@@ -310,7 +340,13 @@ This is not a claim of absolute priority. An equivalent statement may exist unde
 
 ## 10. Remaining kill criteria and research sequence
 
-The result should not be promoted as a full frontier: only the grouped curve, the interleaved perfect-AUDIT endpoint, and a conservative robust neighbourhood are proved. The interior numerical curve remains a lower bound. A general $2^{-\tau}$ law, higher-rank extension, or exact dimension witness has not been established.
+The result should not be promoted as a full frontier: only the grouped curve,
+the interleaved perfect-AUDIT endpoint, and a conservative robust neighbourhood
+are proved as upper statements over the full strategy class. The interleaved
+interior now has an exact two-parameter physical construction, but that curve
+remains a lower bound until a matching causal-completion converse is proved.
+A general $2^{-\tau}$ law, higher-rank extension, or exact dimension witness
+has not been established.
 
 The next mathematical target is a sharp robust inequality of order $\sqrt{1-P_{\mathrm A}}$ or an exact interleaved interior support. A legal weak-measurement family proves that a correction $o(\!\sqrt{1-P_{\mathrm A}})$ is impossible, while the current proof loses an additional square root. A useful experimental result must also charge every coherent side channel, verify carrier sequestration, include all RETURN failures, and conclude only incompatibility with the declared one-qubit streaming model.
 

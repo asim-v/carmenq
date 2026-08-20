@@ -13,6 +13,8 @@ from carmenq.order_sensitive import (
     full_crossing_cuts,
     gf2_rank,
     grouped_frontier,
+    interleaved_candidate_lower_bound,
+    interleaved_candidate_scores,
     rank_two_static_qubit_support,
     trellis_connectivity_profile,
     trellis_connectivity_tau,
@@ -124,6 +126,43 @@ def test_endpoint_exhibits_exact_order_gap_at_perfect_audit() -> None:
     assert grouped.audit_probability == interleaved.audit_probability == 1.0
     assert grouped.return_fidelity == 0.5
     assert interleaved.maximum_return_fidelity == 0.25
+
+
+def test_interleaved_candidate_closed_scores() -> None:
+    audit, returned = interleaved_candidate_scores(
+        0.6168956030718684, 0.8003177036431812
+    )
+    assert isclose(audit, 0.6446434022644623, abs_tol=2e-15)
+    assert isclose(returned, 0.8662314901930318, abs_tol=2e-15)
+    endpoint = interleaved_candidate_scores(1.0, 1.0 / sqrt(2.0))
+    assert isclose(endpoint[0], 1.0, abs_tol=2e-15)
+    assert isclose(endpoint[1], 0.25, abs_tol=2e-15)
+
+
+@pytest.mark.parametrize(
+    ("q", "v"), [(-0.1, 0.5), (1.1, 0.5), (0.5, -0.1), (0.5, 1.1)]
+)
+def test_interleaved_candidate_validates_parameters(q: float, v: float) -> None:
+    with pytest.raises(ValueError, match=r"\[0, 1\]"):
+        interleaved_candidate_scores(q, v)
+
+
+def test_interleaved_candidate_balanced_lower_bound() -> None:
+    point = interleaved_candidate_lower_bound(0.5)
+    assert point.strategy == "two_parameter"
+    assert point.q is not None and isclose(point.q, 0.6168956031, abs_tol=2e-7)
+    assert point.v is not None and isclose(point.v, 0.8003177036, abs_tol=2e-7)
+    assert isclose(point.support_value, 0.755437446228747, abs_tol=2e-13)
+    assert point.support_is_globally_optimal is False
+
+
+def test_interleaved_candidate_selects_no_record_below_transition() -> None:
+    point = interleaved_candidate_lower_bound(0.47)
+    assert point.strategy == "no_record"
+    assert point.q is None and point.v is None
+    assert point.audit_probability == 0.5
+    assert point.return_fidelity == 1.0
+    assert point.support_value == 0.765
 
 
 def test_four_slot_order_classification_has_both_connectivity_types() -> None:

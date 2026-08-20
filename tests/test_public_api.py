@@ -9,6 +9,7 @@ from carmenq import (
     collective_bound,
     collective_classical_record_bound,
     grouped_frontier,
+    interleaved_candidate_lower_bound,
     plan,
     plan_experiment,
     streaming_bound,
@@ -27,3 +28,6 @@ def test_order_sensitive_exact_results_are_public() -> None:
     assert grouped_frontier(1.0).return_fidelity == 0.5
     assert GROUPED_CHECK_MATRIX == ((1, 1, 0, 0), (0, 0, 1, 1))
     assert INTERLEAVED_PERFECT_AUDIT_ENDPOINT.maximum_return_fidelity == 0.25
+    candidate = interleaved_candidate_lower_bound(0.5)
+    assert candidate.support_value > 0.7554
+    assert candidate.support_is_globally_optimal is False

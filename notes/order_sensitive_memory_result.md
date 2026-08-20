@@ -2,7 +2,7 @@
 
 **Canonical result note**<br>
 **Status:** exact endpoint theorem, exact rank-two order dichotomy, quantitative
-near-endpoint separation, and numerical interior lower bounds<br>
+near-endpoint separation, and an analytic two-parameter interior lower bound<br>
 **Literature cutoff:** 19 August 2026<br>
 **Scope:** binary rank-two checks, one persistent coherent qubit, and the
 trusted streaming interface below
@@ -358,11 +358,11 @@ Therefore no valid endpoint correction can be \(o(\sqrt\epsilon)\). The
 \(\epsilon^{1/4}\) term in equation (12) is a proof loss, not evidence for the
 true scaling.
 
-## 7. Numerical status of the unknown interior
+## 7. Analytic lower bound for the unknown interior
 
-Numerics are lower-bound searches only. An unrestricted complex binary-tree
-optimization over adaptive non-QND node instruments and
-transcript-conditioned qubit POVMs found, at \(\lambda=1/2\),
+An unrestricted complex binary-tree optimization over adaptive non-QND node
+instruments and transcript-conditioned qubit POVMs first found, at
+\(\lambda=1/2\),
 
 \[
 (P_{\rm A},F_{\rm R})
@@ -373,16 +373,70 @@ transcript-conditioned qubit POVMs found, at \(\lambda=1/2\),
 \tag{16}
 \]
 
-This exceeds the best balanced score \(0.75\) in the simple weak-record
-family, so that family is not the full frontier. It remains well below the
-static value \(B_{4,2}(1/2)=0.8535533906\), but the missing interval is not a
-certified gap at balanced weight.
+The optimized tensor has an exact two-parameter causal realization.  Only
+slots one and three emit classical flags; slots two and four perform
+controlled qubit updates.  For \(q,v\in[0,1]\), direct contraction gives
+
+\[
+P_{\rm can}(q,v)
+=\frac12+qv\sqrt{1-v^2}-q(1-q)v^2,
+\tag{17}
+\]
+
+\[
+F_{\rm can}(q,v)
+=\frac14\left[
+\sqrt{1-(1-q^2)v^2}
++v\bigl(1-q+2\sqrt{q(1-q)}\bigr)
+\right]^2.
+\tag{18}
+\]
+
+These are exact achievable scores, not a fit.  The complete leaf-likelihood
+orbits are
+
+\[
+(A,B,B,C)=
+\bigl(1-(1-q^2)v^2,
+q(1-q)v^2,q(1-q)v^2,(1-q)^2v^2\bigr).
+\]
+
+At balanced weight, their maximum occurs at
+\(q=0.6168956031\ldots\), \(v=0.8003177036\ldots\) and reproduces
+equation (16).  The lower-bound support undergoes a first-order transition:
+the exact no-record strategy wins below
+
+\[
+\lambda_{\rm c}=0.477812793357157\ldots,
+\]
+
+while the two-parameter branch wins above it.  At coexistence the nontrivial
+point is
+\((P_{\rm A},F_{\rm R})=(0.6121749115\ldots,0.8973574858\ldots)\).
+As \(h=1-\lambda\downarrow0\), this construction has
+
+\[
+\beta_{\rm can}(1-h)
+=1-\frac{3h}{4}+\frac{h^2}{8}+O(h^3).
+\tag{19}
+\]
+
+Three- and four-outcome QND instrument searches, as well as the unrestricted
+binary-tree controls at \(\lambda=.5,.9,.99\), found no improvement.  This
+exceeds the best balanced score \(0.75\) in the simple product weak-record
+family and remains below the static value
+\(B_{4,2}(1/2)=0.8535533906\).
 
 High-AUDIT runs approach the exact endpoint: approximately
 \((0.9982256,0.2808604)\) at \(\lambda=0.9\) and
 \((0.9999871,0.2525485)\) at \(\lambda=0.99\). These values are feasible lower
-bounds, not optimality certificates. No closed form, exact support function,
-or full-interior dual certificate is currently known for \(H_{\rm I}\).
+bounds, not optimality certificates. Equations (17)--(19) solve the explicit
+construction but not the arbitrary-instrument converse.  A deliberately
+weaker single-leaf TT-rank-two relaxation exceeds equation (18), because a
+postselected leaf need not admit a locally complete causal instrument with
+the same bond.  Therefore a valid converse must use local completeness, not
+only tensor rank.  No exact full-interior support function or dual certificate
+is currently known for \(H_{\rm I}\).
 
 ## 8. What is occupied and what may be new
 
@@ -442,8 +496,10 @@ operational theorem about temporal coherent-memory constraints.
 ## 10. Reproducibility and source map
 
 The detailed exact proof is in **notes/order_gap_analytic.md**; the quantitative
-proof is in **notes/order_gap_robust.md**. Both proofs were independently
-audited before consolidation. The literature and collision audit is recorded
+proof is in **notes/order_gap_robust.md**.  The construction and reduction
+behind equations (17)--(19), together with the precise global-converse gate,
+are in **notes/interleaved_interior_candidate.md**. Both proof notes were
+independently audited before consolidation. The literature and collision audit is recorded
 in **notes/order_gap_priority.md** and
 **notes/literature_review_bounded_coherent_memory.md**, with primary-source
 metadata in **references/library.bib**.
@@ -452,8 +508,11 @@ The public Python surface is **carmenq.order_sensitive** in
 **src/carmenq/order_sensitive.py**. It provides the two canonical matrices,
 binary-rank and trellis-connectivity utilities, full-crossing-cut detection,
 the static support ceiling, the exact grouped frontier, and explicit metadata
-for the interleaved perfect-AUDIT endpoint. It intentionally does not label a
-numerical interior curve as exact. Regression tests are in
+for the interleaved perfect-AUDIT endpoint.  It also evaluates and
+deterministically optimizes the analytic two-parameter interleaved
+construction as an explicit lower bound.  Its result object permanently marks
+``support_is_globally_optimal=False`` so the API cannot silently present the
+open converse as solved. Regression tests are in
 **tests/test_order_sensitive.py** and **tests/test_public_api.py**.
 
 For independent computation,
@@ -461,7 +520,11 @@ For independent computation,
 order classes. It finds 78 full-rank nonzero-column sequences and nine classes
 after quotienting by row-basis changes and time reversal: four have
 \(\tau=1\) and five have \(\tau=2\). This is a structural check, not a
-replacement for the analytic theorem. Exploratory variational searches used
+replacement for the analytic theorem.
+**scripts/verify_interleaved_candidate.py** separately constructs all 64
+terminal vectors of the two-parameter instrument, checks local completeness,
+and reproduces equations (17)--(18) without using the closed formulas during
+the contraction. Exploratory variational searches used
 to falsify simple interior ansatzes are not part of the stable package and do
 not enter any proved claim.
 
@@ -474,8 +537,10 @@ The highest-value unresolved target is the exact function
 \qquad 0<\lambda<1,
 \]
 
-including attaining strategies and analytic or computer-assisted upper
-certificates. A sharp \(O(\sqrt{1-P_{\rm A}})\) robust converse would be a
-second meaningful advance. Higher-rank work should begin only after checking
+The attaining two-parameter candidate is now explicit.  The remaining target
+is an analytic or computer-assisted upper certificate that matches it, or a
+valid strategy that exceeds it. A sharp
+\(O(\sqrt{1-P_{\rm A}})\) robust converse would be a second meaningful
+advance. Higher-rank work should begin only after checking
 whether a proposed generalization contains information beyond standard
 trellis width and comb memory cost.

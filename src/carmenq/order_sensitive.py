@@ -3,8 +3,9 @@
 This module covers binary rank-two syndrome checks streamed through one
 persistent qubit.  It exposes the grouped four-slot frontier and the exact
 perfect-AUDIT endpoint of its interleaved column permutation.  The latter is
-an endpoint theorem only: the interleaved interior frontier is not known and
-is intentionally not approximated here by an asserted upper bound.
+an endpoint theorem only.  An exact two-parameter achievable construction is
+also exposed as a lower bound, but the unknown interleaved interior is never
+presented as an asserted upper bound or solved frontier.
 
 All ranks and cut profiles are over :math:`GF(2)`.  A cut index ``i`` means
 that columns ``[:i]`` have arrived and columns ``[i:]`` remain.
@@ -18,6 +19,7 @@ from typing import Final
 
 import numpy as np
 from numpy.typing import ArrayLike
+from scipy.optimize import minimize
 
 
 # Immutable tuple representations keep public canonical instances safe from
@@ -193,6 +195,25 @@ class PerfectAuditEndpoint:
     interior_frontier_known: bool
 
 
+@dataclass(frozen=True)
+class InterleavedCandidatePoint:
+    """One achievable point from the analytic interleaved candidate family.
+
+    ``support_is_globally_optimal`` is deliberately false: the construction
+    is an exact lower bound, while the arbitrary-instrument interior converse
+    remains open.
+    """
+
+    audit_weight: float
+    strategy: str
+    q: float | None
+    v: float | None
+    audit_probability: float
+    return_fidelity: float
+    support_value: float
+    support_is_globally_optimal: bool = False
+
+
 INTERLEAVED_PERFECT_AUDIT_ENDPOINT: Final[PerfectAuditEndpoint] = (
     PerfectAuditEndpoint(
         check_matrix=INTERLEAVED_CHECK_MATRIX,
@@ -213,15 +234,123 @@ RETURN decoding.  It does not supply the unknown interior frontier.
 """
 
 
+def interleaved_candidate_scores(q: float, v: float) -> tuple[float, float]:
+    """Evaluate the exact two-parameter interleaved construction.
+
+    The returned pair is ``(P_A, F_R)`` with
+
+    ``P_A = 1/2 + q*v*sqrt(1-v**2) - q*(1-q)*v**2``
+
+    and the corresponding flagged polar-recovery fidelity.  The parameters
+    must lie in the unit square.  This is a physical streamed one-qubit
+    construction, not an asserted characterization of every possible
+    interleaved strategy.
+    """
+    q_value = float(q)
+    v_value = float(v)
+    if not 0.0 <= q_value <= 1.0:
+        raise ValueError("q must lie in [0, 1]")
+    if not 0.0 <= v_value <= 1.0:
+        raise ValueError("v must lie in [0, 1]")
+    audit_probability = (
+        0.5
+        + q_value * v_value * sqrt(max(0.0, 1.0 - v_value**2))
+        - q_value * (1.0 - q_value) * v_value**2
+    )
+    return_fidelity = 0.25 * (
+        sqrt(max(0.0, 1.0 - (1.0 - q_value**2) * v_value**2))
+        + v_value
+        * (
+            1.0
+            - q_value
+            + 2.0 * sqrt(max(0.0, q_value * (1.0 - q_value)))
+        )
+    ) ** 2
+    return audit_probability, return_fidelity
+
+
+def interleaved_candidate_lower_bound(
+    audit_weight: float = 0.5,
+) -> InterleavedCandidatePoint:
+    """Optimize the analytic interleaved family as an achievable lower bound.
+
+    A deterministic multistart two-variable search is compared with the exact
+    no-record strategy ``(P_A,F_R)=(1/2,1)``.  Numerical optimization affects
+    only which explicit achievable parameters are returned.  It does not
+    convert the still-open arbitrary-instrument converse into a theorem.
+    """
+    weight = _audit_weight(audit_weight)
+    no_record_score = 1.0 - weight / 2.0
+
+    def negative_score(point: np.ndarray) -> float:
+        audit_probability, return_fidelity = interleaved_candidate_scores(
+            float(point[0]), float(point[1])
+        )
+        return -(
+            weight * audit_probability + (1.0 - weight) * return_fidelity
+        )
+
+    starts = (
+        (0.15, 0.25),
+        (0.35, 0.60),
+        (0.58, 0.81),
+        (0.75, 0.77),
+        (0.90, 0.73),
+        (0.99, 1.0 / sqrt(2.0)),
+    )
+    best_result = min(
+        (
+            minimize(
+                negative_score,
+                np.asarray(start, dtype=float),
+                method="L-BFGS-B",
+                bounds=((0.0, 1.0), (0.0, 1.0)),
+                options={"ftol": 1e-15, "gtol": 1e-11, "maxiter": 2000},
+            )
+            for start in starts
+        ),
+        key=lambda result: float(result.fun),
+    )
+    q_value, v_value = map(float, best_result.x)
+    audit_probability, return_fidelity = interleaved_candidate_scores(
+        q_value, v_value
+    )
+    candidate_score = (
+        weight * audit_probability + (1.0 - weight) * return_fidelity
+    )
+    if no_record_score >= candidate_score - 5e-13:
+        return InterleavedCandidatePoint(
+            audit_weight=weight,
+            strategy="no_record",
+            q=None,
+            v=None,
+            audit_probability=0.5,
+            return_fidelity=1.0,
+            support_value=no_record_score,
+        )
+    return InterleavedCandidatePoint(
+        audit_weight=weight,
+        strategy="two_parameter",
+        q=q_value,
+        v=v_value,
+        audit_probability=audit_probability,
+        return_fidelity=return_fidelity,
+        support_value=candidate_score,
+    )
+
+
 __all__ = [
     "GROUPED_CHECK_MATRIX",
     "INTERLEAVED_CHECK_MATRIX",
     "INTERLEAVED_PERFECT_AUDIT_ENDPOINT",
     "GroupedFrontierPoint",
+    "InterleavedCandidatePoint",
     "PerfectAuditEndpoint",
     "full_crossing_cuts",
     "gf2_rank",
     "grouped_frontier",
+    "interleaved_candidate_lower_bound",
+    "interleaved_candidate_scores",
     "rank_two_static_qubit_support",
     "trellis_connectivity_profile",
     "trellis_connectivity_tau",
