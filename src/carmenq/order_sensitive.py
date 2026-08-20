@@ -1,12 +1,13 @@
 """Exact utilities for the canonical order-sensitive AUDIT--RETURN instances.
 
 This module covers binary rank-two syndrome checks streamed through one
-persistent qubit.  It exposes the grouped four-slot frontier and the exact
-perfect-AUDIT endpoint of its interleaved column permutation.  The latter is
-an endpoint theorem only.  An exact two-parameter achievable construction is
-also exposed as a lower bound.  A stored finite-outcome non-QND instrument is
-known to exceed that restricted family, and the unknown interleaved interior
-is never presented as an asserted upper bound or solved frontier.
+persistent qubit and the finite-field perfect-AUDIT temporal power law.  It
+exposes the grouped four-slot frontier and the exact perfect-AUDIT endpoint of
+its interleaved column permutation.  The latter is an endpoint theorem only.
+An exact two-parameter achievable construction is also exposed as a lower
+bound.  A stored finite-outcome non-QND instrument is known to exceed that
+restricted family, and the unknown interleaved interior is never presented as
+an asserted upper bound or solved frontier.
 
 All ranks and cut profiles are over :math:`GF(2)`.  A cut index ``i`` means
 that columns ``[:i]`` have arrived and columns ``[i:]`` remain.
@@ -16,6 +17,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from math import sqrt
+from operator import index
 from typing import Final
 
 import numpy as np
@@ -120,6 +122,148 @@ def full_crossing_cuts(matrix: ArrayLike) -> tuple[int, ...]:
         for cut in range(1, checks.shape[1])
         if gf2_rank(checks[:, :cut]) == rank
         and gf2_rank(checks[:, cut:]) == rank
+    )
+
+
+def full_rank_block_packing_number(matrix: ArrayLike) -> int:
+    """Return the maximum number of consecutive full-rank binary blocks.
+
+    For a positive-rank ordered check matrix ``H``, this is the largest ``m``
+    for which the full column sequence can be partitioned into ``m`` nonempty
+    consecutive blocks, each having rank ``rank(H)``.  The greedy algorithm is
+    optimal: close each block at the earliest column where full rank is
+    reached, and append any final rank-deficient tail to the last block.
+
+    A rank-zero matrix returns zero.  The quantity is a structural descriptor,
+    not a claim of a new classical trellis invariant.
+    """
+    checks = _binary_integer_matrix(matrix)
+    rank = gf2_rank(checks)
+    if rank == 0:
+        return 0
+    blocks = 0
+    start = 0
+    for stop in range(1, checks.shape[1] + 1):
+        if gf2_rank(checks[:, start:stop]) == rank:
+            blocks += 1
+            start = stop
+    return blocks
+
+
+def _positive_integer(value: int, name: str) -> int:
+    """Return an integer-like value after enforcing strict positivity."""
+    try:
+        result = index(value)
+    except TypeError as error:
+        raise TypeError(f"{name} must be an integer") from error
+    if result <= 0:
+        raise ValueError(f"{name} must be positive")
+    return result
+
+
+def _is_prime_power(value: int) -> bool:
+    """Return whether ``value`` is the order of a finite field."""
+    divisor = 2
+    while divisor * divisor <= value and value % divisor:
+        divisor += 1
+    if divisor * divisor > value:
+        return True
+    remainder = value
+    while remainder % divisor == 0:
+        remainder //= divisor
+    return remainder == 1
+
+
+def full_crossing_perfect_audit_return_bound(
+    syndrome_rank: int,
+    coherent_dimension: int,
+    alphabet_size: int = 2,
+) -> float:
+    """Bound perfect-AUDIT EPR return at one full-crossing syndrome cut.
+
+    Consider a rank-``syndrome_rank`` linear check over a finite field with
+    prime-power ``alphabet_size`` elements.  At the declared cut, both the arrived and
+    remaining column blocks must retain the full check rank.  If at most
+    ``coherent_dimension`` coherent dimensions cross the cut and reach the
+    terminal decoder, perfect full-syndrome AUDIT implies
+
+    ``F_R <= min(1, (d/N)**2)``,
+
+    where ``N = alphabet_size**syndrome_rank``.  Unlimited finite genuinely
+    classical transcript is allowed.  The function returns an upper bound;
+    it does not claim attainability for every matrix or dimension.
+
+    For the canonical binary rank-two/qubit interleaved instance, the value
+    is exactly ``1/4`` and is attained.
+    """
+    return full_rank_block_perfect_audit_return_bound(
+        syndrome_rank=syndrome_rank,
+        coherent_dimension=coherent_dimension,
+        block_count=2,
+        alphabet_size=alphabet_size,
+    )
+
+
+def full_rank_block_perfect_audit_return_bound(
+    syndrome_rank: int,
+    coherent_dimension: int,
+    block_count: int,
+    alphabet_size: int = 2,
+) -> float:
+    """Return the perfect-AUDIT temporal power-law upper bound.
+
+    The ordered check matrix must admit ``block_count`` consecutive blocks,
+    each retaining the full ``syndrome_rank`` over a finite field of
+    prime-power size ``alphabet_size``.  If at most ``coherent_dimension``
+    coherent dimensions cross every block boundary and reach terminal AUDIT,
+    then
+
+    ``F_R <= min(1, (d/N)**block_count)``,
+
+    where ``N = alphabet_size**syndrome_rank``.  Unlimited finite genuinely
+    classical transcript is allowed.  The theorem is tight on repeated
+    identity blocks when ``d`` is a power of the alphabet size, but this
+    function does not assert attainability for every matrix.
+    """
+    rank = _positive_integer(syndrome_rank, "syndrome_rank")
+    dimension = _positive_integer(coherent_dimension, "coherent_dimension")
+    blocks = _positive_integer(block_count, "block_count")
+    alphabet = _positive_integer(alphabet_size, "alphabet_size")
+    if alphabet < 2:
+        raise ValueError("alphabet_size must be at least two")
+    if not _is_prime_power(alphabet):
+        raise ValueError("alphabet_size must be a prime power")
+    syndrome_count = alphabet**rank
+    if dimension >= syndrome_count:
+        return 1.0
+    return (dimension / syndrome_count) ** blocks
+
+
+def ordered_check_perfect_audit_return_bound(
+    matrix: ArrayLike,
+    coherent_dimension: int,
+) -> float:
+    """Bound perfect-AUDIT return for an ordered binary check matrix.
+
+    If ``r = rank(H)`` and ``mu`` is the maximum number of consecutive
+    full-rank blocks returned by :func:`full_rank_block_packing_number`, the
+    temporal product theorem gives
+
+    ``F_R <= min(1, (d / 2**r)**mu)``.
+
+    The zero-rank case returns one.  This endpoint bound does not assert
+    attainability for every matrix or solve an approximate-AUDIT frontier.
+    """
+    checks = _binary_integer_matrix(matrix)
+    rank = gf2_rank(checks)
+    if rank == 0:
+        _positive_integer(coherent_dimension, "coherent_dimension")
+        return 1.0
+    return full_rank_block_perfect_audit_return_bound(
+        syndrome_rank=rank,
+        coherent_dimension=coherent_dimension,
+        block_count=full_rank_block_packing_number(checks),
+        alphabet_size=2,
     )
 
 
@@ -384,10 +528,14 @@ __all__ = [
     "PerfectAuditEndpoint",
     "StoredCounterexamplePoint",
     "full_crossing_cuts",
+    "full_crossing_perfect_audit_return_bound",
+    "full_rank_block_packing_number",
+    "full_rank_block_perfect_audit_return_bound",
     "gf2_rank",
     "grouped_frontier",
     "interleaved_candidate_lower_bound",
     "interleaved_candidate_scores",
+    "ordered_check_perfect_audit_return_bound",
     "rank_two_static_qubit_support",
     "trellis_connectivity_profile",
     "trellis_connectivity_tau",

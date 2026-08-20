@@ -1,11 +1,12 @@
 # Temporal Order Changes a Bounded-Memory Information--Recovery Frontier
 
 **Canonical result note**<br>
-**Status:** exact endpoint theorem, exact rank-two order dichotomy, quantitative
-near-endpoint separation, and an analytic two-parameter interior lower bound<br>
-**Literature cutoff:** 19 August 2026<br>
-**Scope:** binary rank-two checks, one persistent coherent qubit, and the
-trusted streaming interface below
+**Status:** exact endpoint theorem, tight finite-field temporal power law,
+exact rank-two order dichotomy, quantitative near-endpoint separation, and
+explicit interior lower bounds<br>
+**Literature cutoff:** 20 August 2026<br>
+**Scope:** the binary rank-two benchmark plus its finite-field
+perfect-AUDIT dimension generalization under the trusted streaming interface
 
 ## 1. Result in one paragraph
 
@@ -279,6 +280,71 @@ This dichotomy holds for arbitrary length, including repeated and zero
 columns. It is not a claimed formula \(F_{\rm R}=2^{-\tau(H)}\) beyond this
 rank-two theorem.
 
+### Full-rank-block temporal power law
+
+The endpoint argument extends beyond binary rank two. Let
+\(H\in\mathbb F_q^{r\times n}\) split into \(m\) consecutive nonempty column
+blocks, each of rank \(r\). Put \(N=q^r\), and let at most \(d\) coherent
+dimensions cross every block boundary and reach terminal AUDIT. Then
+
+\[
+P_{\rm A}=1
+\quad\Longrightarrow\quad
+\boxed{F_{\rm R}\leq\min\{1,(d/N)^m\}.}
+\tag{11a}
+\]
+
+For each refined leaf and each block boundary, every supported cumulative
+syndrome class needs a memory direction that one suffix continuation and one
+terminal syndrome projector can isolate from all other classes. Those private
+directions are linearly independent, so at most \(d\) cumulative labels cross
+each boundary. The transformation between block contributions and cumulative
+labels is bijective, leaving at most \(d^m\) of the \(N^m\) block-syndrome
+tuples. Flagged polar recovery, Schur--Horn pinching, Cauchy--Schwarz, and
+instrument completeness convert that support fraction into equation (11a).
+
+The law is tight on \(H=[I_r\mid\cdots\mid I_r]\) whenever \(d=q^k\). A
+streamed construction coherently retains \(k\) syndrome coordinates and
+projectively records the remaining coordinates in every block, giving
+\(F_{\rm R}=q^{-m(r-k)}=(d/N)^m\). The earlier full-crossing square law is the
+case \(m=2\). The full proof and its declared assumptions are in
+**notes/full_crossing_dimension_bound.md**.
+
+For any ordered full-rank matrix, let \(\mu(H)\) be the maximum number of
+consecutive full-rank blocks in such a partition. Closing every block at its
+earliest full-rank endpoint computes this maximum greedily. The matrix-level
+corollary is
+
+\[
+P_{\rm A}=1
+\quad\Longrightarrow\quad
+F_{\rm R}\leq
+\min\left\{1,\left(\frac d{q^r}\right)^{\mu(H)}\right\}.
+\tag{11b}
+\]
+
+Thus \(\mu(H_{\rm G})=1\), \(\mu(H_{\rm I})=2\), and repeated identity blocks
+produce arbitrary exponents. Consecutive trellis sectionalization is prior art
+[@lafourcade1996sectionalization]; the contribution claimed here is the
+late-choice recovery law, not the partition itself.
+
+The strongest family-level consequence compares the same multiset of basis
+columns in two orders. If each standard column \(e_j\) occurs \(m\) times,
+batching equal columns gives \(\mu=1\), whereas cycling through
+\(e_1,\ldots,e_r\) gives \(\mu=m\). For \(d=q^k\), \(1\leq k<r\), both
+bounds are attained at perfect AUDIT:
+
+\[
+F_{\rm R}^{\star}(H_{\rm batched})=\frac d{q^r},
+\qquad
+F_{\rm R}^{\star}(H_{\rm cycled})=left(\frac d{q^r}\right)^m.
+\tag{11c}
+\]
+
+Their ratio \((q^r/d)^{m-1}\) is exponential in the number of cycles. This
+turns the four-slot \(1/2\)-versus-\(1/4\) example into an arbitrarily large
+same-columns order separation.
+
 ## 6. Quantitative robustness
 
 Let a full-crossing cut occur after slot \(i\), put
@@ -473,12 +539,17 @@ headlines, invariants, or values should be claimed as new.
 
 The defensible candidate contribution is the conjunction:
 
-> Within the primary literature located through 19 August 2026, this appears
+> Within the primary literature located through 20 August 2026, this appears
 > to be the first exact separation in a late-choice complete-syndrome
 > AUDIT/all-carrier EPR-RETURN game produced solely by permuting the temporal
 > coordinates of one rank-two linear code under a one-qubit coherent-memory
 > constraint. A full-crossing order forces \(F_{\rm R}\leq1/4\) at perfect
 > audit, while a noncrossing order attains \(F_{\rm R}=1/2\).
+
+The separate higher-rank claim is equally narrow: in the declared interface,
+\(m\) consecutive full-rank syndrome blocks obey the perfect-AUDIT product
+law \(F_{\rm R}\leq\prod_j\min\{1,d_j/q^r\}\), with the uniform-dimension
+case tight on repeated identity blocks when \(d=q^k\).
 
 The qualifiers “appears,” the literature date, exact interface, rank, memory
 dimension, and perfect-AUDIT condition are essential. The priority search is a
@@ -493,8 +564,11 @@ one exact endpoint and a conservative strict interval near it. The robust
 exponent is non-sharp, and the general full-crossing \(1/4\) upper bound need
 not always be attainable.
 
-The theorem is limited to two binary checks and one persistent qubit. It does
-not establish a general \(2^{-\tau}\) law, a higher-rank characterization, a
+The complete order dichotomy and robust interior interval remain limited to
+two binary checks and one persistent qubit. The product-law extension covers
+higher-rank finite-field checks only at perfect AUDIT and only when the stream
+admits a partition into full-rank blocks. It does not establish a general
+\(2^{-\tau}\) law, a frontier for arbitrary check matrices, a
 device-independent memory witness, or the physical dimension of an
 uncharacterized laboratory system.
 
@@ -512,8 +586,10 @@ operational theorem about temporal coherent-memory constraints.
 
 ## 10. Reproducibility and source map
 
-The detailed exact proof is in **notes/order_gap_analytic.md**; the quantitative
-proof is in **notes/order_gap_robust.md**.  The construction and reduction
+The detailed rank-two proof is in **notes/order_gap_analytic.md**; the
+quantitative proof is in **notes/order_gap_robust.md**; and the finite-field
+temporal product law is proved in
+**notes/full_crossing_dimension_bound.md**. The construction and reduction
 behind equations (17)--(19), together with the precise global-converse gate,
 are in **notes/interleaved_interior_candidate.md**. Both proof notes were
 independently audited before consolidation. The literature and collision audit is recorded
@@ -524,8 +600,10 @@ metadata in **references/library.bib**.
 The public Python surface is **carmenq.order_sensitive** in
 **src/carmenq/order_sensitive.py**. It provides the two canonical matrices,
 binary-rank and trellis-connectivity utilities, full-crossing-cut detection,
-the static support ceiling, the exact grouped frontier, and explicit metadata
-for the interleaved perfect-AUDIT endpoint.  It also evaluates and
+the ordered full-rank block-packing count, the finite-field temporal power-law
+bound, the static support ceiling, the exact grouped frontier, and explicit
+metadata for the interleaved
+perfect-AUDIT endpoint. It also evaluates and
 deterministically optimizes the analytic two-parameter interleaved
 construction as an explicit lower bound.  Its result object permanently marks
 ``support_is_globally_optimal=False`` so the API cannot silently present the
@@ -561,6 +639,6 @@ analytic or computer-assisted upper certificate matching the best complete
 finite-outcome strategy, or a stronger construction that narrows the gap to
 the single-leaf relaxation. A sharp
 \(O(\sqrt{1-P_{\rm A}})\) robust converse would be a second meaningful
-advance. Higher-rank work should begin only after checking
-whether a proposed generalization contains information beyond standard
-trellis width and comb memory cost.
+advance. For the new product law, the corresponding high-value target is a
+sharp approximate-AUDIT version or a theorem for blocks of partial rank that
+contains information beyond standard trellis width and comb memory cost.

@@ -67,26 +67,52 @@ from carmenq import (
     GROUPED_CHECK_MATRIX,
     INTERLEAVED_BALANCED_COUNTEREXAMPLE,
     INTERLEAVED_PERFECT_AUDIT_ENDPOINT,
+    full_crossing_perfect_audit_return_bound,
+    full_rank_block_packing_number,
+    full_rank_block_perfect_audit_return_bound,
     grouped_frontier,
     interleaved_candidate_lower_bound,
+    ordered_check_perfect_audit_return_bound,
     trellis_connectivity_tau,
 )
 
 print(trellis_connectivity_tau(GROUPED_CHECK_MATRIX))  # 1
 print(grouped_frontier(1.0).return_fidelity)            # 0.5
 print(INTERLEAVED_PERFECT_AUDIT_ENDPOINT.maximum_return_fidelity)  # 0.25
+print(full_crossing_perfect_audit_return_bound(2, 2))  # 0.25
+print(full_rank_block_perfect_audit_return_bound(2, 2, 3))  # 0.125
+print(full_rank_block_packing_number(GROUPED_CHECK_MATRIX))  # 1
+print(ordered_check_perfect_audit_return_bound(GROUPED_CHECK_MATRIX, 2))  # 0.5
 print(interleaved_candidate_lower_bound(0.5).support_value)  # restricted family
 print(INTERLEAVED_BALANCED_COUNTEREXAMPLE.support_value)  # 0.7594489703...
 ```
 
-The last value is an exact physical construction, but it is not the strongest
-known lower bound. A complete finite-outcome non-QND instrument reaches
-`0.7594489703` at balanced weight and therefore falsifies the earlier
-two-parameter frontier conjecture. The public API continues to label the
-two-parameter result as a lower bound; no unrestricted interior optimum is
-claimed. The [canonical result note](notes/order_sensitive_memory_result.md)
-states the model, proof map, corrected numerical status, robust interval,
-novelty boundary, and open problems. Run
+The two-parameter result is an exact physical construction, but it is not the
+strongest known lower bound. The stored complete finite-outcome non-QND
+instrument reaches `0.7594489703` at balanced weight and therefore falsifies
+the earlier frontier conjecture. No unrestricted interior optimum is claimed.
+
+The endpoint theorem now extends to every finite field. If the ordered check
+matrix splits into `m` consecutive blocks that each retain syndrome rank `r`,
+perfect AUDIT with coherent dimension `d` across the block boundaries implies
+`F_R <= min(1, (d / q**r)**m)`. Every additional full-rank temporal block adds
+one factor `d/q**r`. The law is tight for repeated identity blocks when
+`d=q**k`; the earlier interleaved square law is its `m=2` case. See the
+[dimension-bound proof](notes/full_crossing_dimension_bound.md).
+For a concrete ordered binary matrix, `full_rank_block_packing_number(H)`
+computes the maximum exponent `mu(H)` greedily, and
+`ordered_check_perfect_audit_return_bound(H, d)` evaluates
+`min(1, (d/2**rank(H))**mu(H))`.
+
+This exponent gives an exact asymptotic order effect. With `m` copies of each
+basis column and `d=q**k`, batching equal columns has perfect-AUDIT optimum
+`d/q**r`, while cycling through all basis columns `m` times has optimum
+`(d/q**r)**m`. The matrices have the same column multiset; their exact return
+fidelities differ by `(q**r/d)**(m-1)`.
+
+The [canonical result note](notes/order_sensitive_memory_result.md) states the
+model, proof map, corrected numerical status, robust interval, novelty
+boundary, and open problems. Run
 `python scripts/classify_order_sensitive_checks.py` to reproduce the finite
 classification of four-slot orders.
 Run `python scripts/verify_interleaved_candidate.py` to contract the complete
@@ -117,7 +143,7 @@ CARMEN-Q is a trusted-interface resource witness. A positive score rejects the d
 
 The project began as an investigation of reversible quantum histories. Its originality audit showed that compute-phase-uncompute circuits alone are established quantum computing. CARMEN-Q retains the part that survived that audit: an exact same-task separation between streamed classical memory, collective classical recording, and coherent temporal memory.
 
-The [focused literature review](notes/literature_review_bounded_coherent_memory.md) records the originality gate. Its conclusion is deliberately narrow: bounded coherent memory, late choice, syndrome accumulation, entanglement recovery, and trellis order dependence are prior art. What survives is the exact operational consequence of permuting one code under a fixed coherent-memory constraint. The full interleaved interior frontier remains open.
+The [focused literature review](notes/literature_review_bounded_coherent_memory.md) records the originality gate. Its conclusion is deliberately narrow: bounded coherent memory, late choice, syndrome accumulation, entanglement recovery, and trellis order dependence are prior art. What survives is the exact operational consequence of permuting one code under a fixed coherent-memory constraint and the perfect-AUDIT temporal product law for consecutive full-rank blocks. The full interleaved interior frontier and every approximate-AUDIT extension of the product law remain open.
 
 ## Citation and authorship
 

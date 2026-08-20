@@ -11,10 +11,14 @@ from carmenq.order_sensitive import (
     INTERLEAVED_CHECK_MATRIX,
     INTERLEAVED_PERFECT_AUDIT_ENDPOINT,
     full_crossing_cuts,
+    full_crossing_perfect_audit_return_bound,
+    full_rank_block_packing_number,
+    full_rank_block_perfect_audit_return_bound,
     gf2_rank,
     grouped_frontier,
     interleaved_candidate_lower_bound,
     interleaved_candidate_scores,
+    ordered_check_perfect_audit_return_bound,
     rank_two_static_qubit_support,
     trellis_connectivity_profile,
     trellis_connectivity_tau,
@@ -60,6 +64,155 @@ def test_full_crossing_cut_detection() -> None:
     assert full_crossing_cuts(INTERLEAVED_CHECK_MATRIX) == (2,)
     assert full_crossing_cuts([[0, 0, 0]]) == ()
     assert full_crossing_cuts([[1, 1]]) == (1,)
+
+
+def test_full_rank_block_packing_captures_temporal_repetition() -> None:
+    assert full_rank_block_packing_number(GROUPED_CHECK_MATRIX) == 1
+    assert full_rank_block_packing_number(INTERLEAVED_CHECK_MATRIX) == 2
+    assert full_rank_block_packing_number([[0, 0, 0]]) == 0
+    assert full_rank_block_packing_number([[1, 0, 1, 0, 0]]) == 2
+    for rank in range(1, 5):
+        identity = np.eye(rank, dtype=int)
+        for block_count in range(1, 5):
+            repeated = np.tile(identity, (1, block_count))
+            assert full_rank_block_packing_number(repeated) == block_count
+
+
+def test_ordered_matrix_bound_unifies_grouped_and_interleaved_endpoints() -> None:
+    assert ordered_check_perfect_audit_return_bound(GROUPED_CHECK_MATRIX, 2) == 0.5
+    assert (
+        ordered_check_perfect_audit_return_bound(INTERLEAVED_CHECK_MATRIX, 2)
+        == 0.25
+    )
+    repeated = np.tile(np.eye(2, dtype=int), (1, 3))
+    assert ordered_check_perfect_audit_return_bound(repeated, 2) == 0.125
+    assert ordered_check_perfect_audit_return_bound([[0, 0]], 1) == 1.0
+    with pytest.raises(ValueError, match="coherent_dimension must be positive"):
+        ordered_check_perfect_audit_return_bound([[0, 0]], 0)
+
+
+def test_same_columns_can_have_exponentially_different_order_bounds() -> None:
+    for rank in range(2, 5):
+        identity = np.eye(rank, dtype=int)
+        for repetitions in range(2, 5):
+            batched = np.repeat(identity, repetitions, axis=1)
+            cycled = np.tile(identity, (1, repetitions))
+            assert sorted(map(tuple, batched.T)) == sorted(map(tuple, cycled.T))
+            assert full_rank_block_packing_number(batched) == 1
+            assert full_rank_block_packing_number(cycled) == repetitions
+            for retained_coordinates in range(1, rank):
+                dimension = 2**retained_coordinates
+                base = dimension / (2**rank)
+                assert ordered_check_perfect_audit_return_bound(
+                    batched, dimension
+                ) == base
+                assert ordered_check_perfect_audit_return_bound(
+                    cycled, dimension
+                ) == base**repetitions
+
+
+@pytest.mark.parametrize(
+    ("rank", "dimension", "alphabet", "expected"),
+    [
+        (1, 1, 2, 1 / 4),
+        (1, 2, 2, 1.0),
+        (2, 1, 2, 1 / 16),
+        (2, 2, 2, 1 / 4),
+        (2, 3, 2, 9 / 16),
+        (3, 2, 2, 1 / 16),
+        (2, 2, 3, 4 / 81),
+    ],
+)
+def test_full_crossing_dimension_bound(
+    rank: int, dimension: int, alphabet: int, expected: float
+) -> None:
+    assert full_crossing_perfect_audit_return_bound(
+        rank, dimension, alphabet
+    ) == expected
+
+
+def test_full_crossing_square_law_matches_canonical_construction() -> None:
+    for alphabet in (2, 3, 5):
+        for rank in range(1, 5):
+            for retained_coordinates in range(rank + 1):
+                dimension = alphabet**retained_coordinates
+                expected = alphabet ** (-2 * (rank - retained_coordinates))
+                assert isclose(
+                    full_crossing_perfect_audit_return_bound(
+                        rank, dimension, alphabet
+                    ),
+                    expected,
+                    abs_tol=1e-16,
+                )
+
+
+def test_temporal_power_law_matches_repeated_identity_construction() -> None:
+    for alphabet in (2, 3, 4, 5):
+        for rank in range(1, 5):
+            for block_count in range(1, 5):
+                for retained_coordinates in range(rank + 1):
+                    dimension = alphabet**retained_coordinates
+                    expected = alphabet ** (
+                        -block_count * (rank - retained_coordinates)
+                    )
+                    assert isclose(
+                        full_rank_block_perfect_audit_return_bound(
+                            rank,
+                            dimension,
+                            block_count,
+                            alphabet,
+                        ),
+                        expected,
+                        abs_tol=1e-16,
+                    )
+
+
+def test_full_crossing_wrapper_is_the_two_block_power_law() -> None:
+    for alphabet in (2, 3, 4, 5):
+        for rank in range(1, 5):
+            for dimension in (1, alphabet, alphabet**rank, alphabet ** (rank + 1)):
+                assert full_crossing_perfect_audit_return_bound(
+                    rank, dimension, alphabet
+                ) == full_rank_block_perfect_audit_return_bound(
+                    rank, dimension, 2, alphabet
+                )
+
+
+@pytest.mark.parametrize(
+    ("arguments", "error", "message"),
+    [
+        ((0, 1, 2), ValueError, "syndrome_rank must be positive"),
+        ((1, 0, 2), ValueError, "coherent_dimension must be positive"),
+        ((1, 1, 1), ValueError, "alphabet_size must be at least two"),
+        ((1, 1, 6), ValueError, "alphabet_size must be a prime power"),
+        ((1.5, 1, 2), TypeError, "syndrome_rank must be an integer"),
+    ],
+)
+def test_full_crossing_dimension_bound_validates_inputs(
+    arguments: tuple[object, object, object],
+    error: type[Exception],
+    message: str,
+) -> None:
+    with pytest.raises(error, match=message):
+        full_crossing_perfect_audit_return_bound(*arguments)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    ("block_count", "error", "message"),
+    [
+        (0, ValueError, "block_count must be positive"),
+        (1.5, TypeError, "block_count must be an integer"),
+    ],
+)
+def test_temporal_power_law_validates_block_count(
+    block_count: object,
+    error: type[Exception],
+    message: str,
+) -> None:
+    with pytest.raises(error, match=message):
+        full_rank_block_perfect_audit_return_bound(
+            2, 2, block_count  # type: ignore[arg-type]
+        )
 
 
 @pytest.mark.parametrize("weight", [0.0, 0.2, 0.5, 0.8, 1.0])

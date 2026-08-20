@@ -7,6 +7,8 @@
 - Added regression coverage and a reproducible enumeration of all four-slot nonzero-column order classes while leaving the unsolved interleaved interior explicitly unclaimed.
 - Reconstructed a binary/QND interleaved strategy as an exact two-parameter causal instrument and exposed it as an explicitly nonoptimality-claiming lower-bound API, with a first-order onset inside that restricted family at audit weight `0.477812793357157...`.
 - Added a framework-neutral complete finite-outcome counterexample that strictly beats the two-parameter construction at balanced weight (`0.7594489703 > 0.7554374462`), an independent NumPy verifier, and regression coverage. The unrestricted interior frontier remains open.
+- Generalized the perfect-AUDIT endpoint to the finite-field temporal power law `F_R <= min(1, (d/q**r)**m)` for `m` consecutive full-rank blocks, proved tight on repeated identity blocks when `d=q**k`, and added public helpers for the general law, its two-block specialization, the greedy ordered block-packing exponent `mu(H)`, and the resulting binary matrix-level bound.
+- Derived an exact exponential same-columns order separation: batching repeated basis columns gives optimum `d/q**r`, whereas cycling them through `m` full-rank blocks gives `(d/q**r)**m` under the same perfect-AUDIT memory constraint.
 
 ## 2.0.2 - 2026-08-12
 

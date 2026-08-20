@@ -1,11 +1,12 @@
 # Priority and Collision Audit: Temporal-Order AUDIT/RETURN Gap
 
-**Search date and cutoff:** 19 August 2026
+**Search date and cutoff:** 20 August 2026
 
 **Scope:** focused primary-literature search, not a proof of priority
 
 **Object audited:** `notes/order_gap_analytic.md`,
-`notes/order_gap_robust.md`, and `notes/order_sensitive_memory_result.md`
+`notes/order_gap_robust.md`, `notes/order_sensitive_memory_result.md`, and
+`notes/full_crossing_dimension_bound.md`
 
 ## Bottom line
 
@@ -30,6 +31,38 @@ The publishable object, if the proof survives independent review, is the *exact
 late-choice information--recoverability separation under a column permutation*,
 not any one of those ingredients.
 
+The endpoint proof now has a finite-field temporal generalization. If the
+ordered check matrix splits into \(m\) consecutive nonempty blocks that each
+retain syndrome rank \(r\), \(N=q^r\), and the charged coherent dimension at
+boundary \(j\) is \(d_j\), perfect AUDIT implies
+
+\[
+F_{\rm R}\leq\prod_{j=1}^m\min\{1,d_j/N\}.
+\]
+
+For uniform dimension \(d\), this becomes \(F_{\rm R}\leq(d/N)^m\), capped
+at one. The uniform law is tight on the repeated-identity family for
+\(d=q^k\). No exact
+primary-source collision was located for this temporal power law in the
+declared late AUDIT/all-carrier RETURN interface. Its proof is elementary
+enough that the risk of it being an unstated corollary of broader comb or
+tensor-network machinery remains material.
+
+If \(\mu(H)\) denotes the maximum number of consecutive full-rank blocks in
+an ordered partition, the uniform statement is
+\(F_{\rm R}\leq(d/q^r)^{\mu(H)}\), capped at one. The maximum is found by
+closing each block at its earliest full-rank endpoint. Trellis sectionalization
+itself is established [@lafourcade1996sectionalization]; neither the partition
+nor its greedy computation is assigned novelty here.
+
+The matrix-level form supplies an exact exponential order separation. With
+the same multiset containing \(m\) copies of each basis column, a batched order
+has \(\mu=1\) and a cycled order has \(\mu=m\). For \(d=q^k\),
+\(1\leq k<r\), the exact perfect-AUDIT return optima differ by
+\((q^r/d)^{m-1}\). No searched source combined trellis sectionalization with
+this late-choice recovery exponent; the claim remains scoped to the frozen
+interface.
+
 ## What was tested
 
 The two matrices
@@ -42,7 +75,7 @@ H_{\rm I}=\begin{pmatrix}1&0&1&0\\0&1&0&1\end{pmatrix}
 
 represent the same code up to coordinate order. The claimed theorem quantifies
 over arbitrary adaptive instruments, not only QND syndrome accumulators. The
-general proved extension in the notes is specifically the two-check statement
+order dichotomy in the notes is specifically the two-check statement
 
 \[
 \tau(H)=2,\ d=2,\ P_{\rm A}=1
@@ -54,13 +87,15 @@ general proved extension in the notes is specifically the two-check statement
 \]
 
 The search did **not** treat a general formula \(F_{\rm R}=2^{-\tau(H)}\) as
-proved; the current proof establishes the full-crossing, rank-two endpoint.
+proved. The separate higher-rank theorem uses the stronger hypothesis of a
+partition into full-rank blocks and gives a product of boundary-dimension
+factors; it is not a formula in \(\tau(H)\) alone.
 
 ## Collision map
 
 | Primary line of work | What it already occupies | Why it does not imply the audited theorem |
 |---|---|---|
-| Classical minimal trellises and matroid pathwidth [@forney1994trellis; @mceliece1996bcjr; @kashyap2008pathwidth; @sheshadri2026trellis] | The cut expression \(\operatorname{rank}H_L+\operatorname{rank}H_R-\operatorname{rank}H\), coordinate-order dependence, and its interpretation as trellis state complexity are established. | These works contain neither quantum disturbance nor a late audit-versus-EPR-return objective. **The invariant \(\tau\) itself is not new.** |
+| Classical minimal trellises, sectionalization, and matroid pathwidth [@forney1994trellis; @mceliece1996bcjr; @lafourcade1996sectionalization; @kashyap2008pathwidth; @sheshadri2026trellis] | The cut expression \(\operatorname{rank}H_L+\operatorname{rank}H_R-\operatorname{rank}H\), coordinate-order dependence, and consecutive trellis partitioning are established. | These works contain neither quantum disturbance nor a late audit-versus-EPR-return objective. **The invariants and partitions themselves are not new.** |
 | Sequential quantum-state generation [@schoen2005sequential; @li2022emitters] | Persistent ancilla dimension is governed by MPS/Schmidt width. Li--Economou--Barnes explicitly show that emission order changes the minimum number of coherent emitters, even from linear scaling to two emitters for one graph family. | This is fixed target-state generation. There is no classical syndrome transcript, late task choice, or recovery of unknown input entanglement. |
 | Graph-state scheduling [@elman2025scheduling] | Quantum scheduling cost is exactly tied to path decompositions; order--width connections in a quantum protocol are therefore occupied. | The resource is the number of active graph-state qubits, not disturbance of streamed EPR halves after extracting a syndrome. |
 | Quantum trellises and quantum code decoding [@ollivier2006trellises; @piveteau2022message; @piveteau2025belief] | Trellises for stabilizer codes are old. BPQM gives coherent message passing for classical linear codes, and the 2025 preprint gives optimal quantum decoders for every code with an efficient trellis, including deferred measurement and uncomputation. | Those decoders discriminate classical codewords encoded into quantum channel outputs. They may use the received quantum block/message registers and are not constrained to return every input carrier entangled with a reference. There is no late RETURN branch. |
@@ -103,12 +138,24 @@ inputs or compare coordinate orders under a fixed coherent bond.
 
 A defensible provisional claim is:
 
-> Within the primary literature located through 19 August 2026, this appears to
+> Within the primary literature located through 20 August 2026, this appears to
 > be the first exact separation in a late-choice syndrome-AUDIT/all-carrier-RETURN
 > game produced solely by permuting the temporal coordinates of one rank-two
 > linear code under a one-qubit coherent-memory constraint. A full-crossing cut
 > forces \(F_{\rm R}\leq1/4\) at perfect audit, while a noncrossing order attains
 > \(F_{\rm R}=1/2\).
+
+For the higher-rank extension, the safe sentence is:
+
+> In the same declared interface, \(m\) consecutive full-rank syndrome blocks
+> give the perfect-AUDIT temporal law
+> \(F_{\rm R}\leq\prod_j\min\{1,d_j/q^r\}\); its uniform-dimension form is
+> attained by the repeated-identity family when \(d=q^k\).
+
+The corresponding consequence can be stated without priority language: two
+column permutations with the same basis-column multiset have exact
+perfect-AUDIT optima \(d/q^r\) and \((d/q^r)^m\), respectively, for
+\(d=q^k\) and \(1\leq k<r\).
 
 The qualifiers “appears,” the date, the exact model, and “at perfect audit” are
 essential. The following claims are not supportable:

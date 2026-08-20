@@ -1,6 +1,6 @@
 # Focused Literature Review: Causal Audit--Return Frontiers with Bounded Coherent Memory
 
-**Cutoff:** 19 August 2026<br>
+**Cutoff:** 20 August 2026<br>
 **Document type:** focused scoping review and adversarial novelty audit; not a PRISMA systematic review<br>
 **Language:** English<br>
 **Evidence base:** primary papers, publisher records, and first-party preprint archives<br>
@@ -34,7 +34,19 @@ Writing $H\in\mathbb F_2^{k\times n}$ for a full-rank check matrix, the target q
 
 where the supremum covers arbitrary adaptive, non-QND slot instruments satisfying the declared coherent-bond constraint. The search found no primary source stating this full optimization or an exact intermediate-$d$ solution for it. That absence is not evidence of priority. The problem lies close enough to recent work by Ohst *et al.*, Hsieh *et al.*, Lim *et al.*, and Zonnios--Binder that a result is publishable only if it is more than an application of their frameworks.
 
-The derivation completed after this search changes that conditional verdict. A full interior frontier was not obtained, but an exact order-sensitive endpoint and a quantitative robust neighbourhood were proved over the full declared causal class: two temporal permutations of the same rank-two code have perfect-AUDIT return optima (1/2) and (1/4), respectively. The result therefore clears the minimum bar for a focused theorem paper, while the surrounding architecture remains prior art. A generic continuity bound, monotonicity statement, numerical seesaw, or SDP formulation alone would still not have done so.
+The derivation completed after this search changes that conditional verdict. A
+full interior frontier was not obtained, but an exact order-sensitive endpoint
+and a quantitative robust neighbourhood were proved over the full declared
+causal class: two temporal permutations of the same rank-two code have
+perfect-AUDIT return optima (1/2) and (1/4), respectively. The endpoint proof
+then generalized to a finite-field temporal product law. If \(m\) consecutive
+blocks each have full syndrome rank \(r\), perfect AUDIT forces
+\(F_{\mathrm R}\leq\prod_j\min\{1,d_j/q^r\}\), where \(d_j\) is the coherent
+dimension crossing boundary \(j\); its uniform-dimension form is tight on
+repeated identity blocks. These results clear the minimum bar for a focused
+theorem paper, while the surrounding architecture remains prior art. A generic
+continuity bound, monotonicity statement, numerical seesaw, or SDP formulation
+alone would still not have done so.
 
 ## 2. The candidate task, frozen before the search
 
@@ -78,7 +90,7 @@ This is a trusted-interface resource test. It does not identify a unique interna
 
 ## 3. Search method and evidentiary standard
 
-The search covered combinations of *bounded coherent memory*, *quantum comb memory cost*, *process-tensor bond dimension*, *classically adaptive tester*, *post-measurement information*, *random access code*, *syndrome*, *linear sketch*, *nondestructive discrimination*, *information gain and recovery*, *entanglement fidelity*, *stabilizer*, *trellis complexity*, and *quantum branching program*. Searches were run against arXiv, APS journals, Quantum, IEEE publication records, IOP, Nature-family journals, and the reference lists of the closest papers. The cutoff is 19 August 2026.
+The search covered combinations of *bounded coherent memory*, *quantum comb memory cost*, *process-tensor bond dimension*, *classically adaptive tester*, *post-measurement information*, *random access code*, *syndrome*, *linear sketch*, *nondestructive discrimination*, *information gain and recovery*, *entanglement fidelity*, *stabilizer*, *trellis complexity*, and *quantum branching program*. Searches were run against arXiv, APS journals, Quantum, IEEE publication records, IOP, Nature-family journals, and the reference lists of the closest papers. The cutoff is 20 August 2026.
 
 Peer-reviewed results and preprints are distinguished below. The search is a focused novelty audit, not a database-complete systematic review. It did not include a formal Scopus or Web of Science export, citation-count screening, dual independent reviewers, or author contact. “No exact collision located” therefore means only that no collision appeared in the searched primary corpus. It must never be rewritten as “the first” without a further professional priority search.
 
@@ -145,7 +157,7 @@ t^{\operatorname{wt}(H^{\mathsf T}u)}.
 
 The sum is the weight enumerator of the row code of $H$, evaluated at a particular point. This is a direct character/Fourier calculation and belongs to the MacWilliams weight-enumerator tradition [@macwilliams1963weights]. It is a useful reduction for constructing examples, but it cannot be advertised as a new connection between quantum memory and coding theory.
 
-The order dependence of sequential code processing also has a classical antecedent. Minimal conventional trellises realize a linear block code with a time-dependent state space, and their state-complexity profile depends on the coordinate ordering [@forney1994trellis; @mceliece1996bcjr; @kashyap2008pathwidth]. Quantum and classical branching programs likewise use width as a memory measure [@ablayev2005branching]. A theorem that merely identifies a syndrome accumulator with a code trellis or branching program would therefore be expository.
+The order dependence of sequential code processing also has a classical antecedent. Minimal conventional trellises realize a linear block code with a time-dependent state space, their state-complexity profile depends on the coordinate ordering, and optimizing consecutive trellis sectionalizations is established [@forney1994trellis; @mceliece1996bcjr; @kashyap2008pathwidth; @lafourcade1996sectionalization]. Quantum and classical branching programs likewise use width as a memory measure [@ablayev2005branching]. A theorem that merely identifies a syndrome accumulator, a consecutive column partition, or its greedy computation with a code trellis or branching program would therefore be expository.
 
 For the present terminal task there is an additional negative result: if the device must output the entire syndrome, two classical prefixes are equivalent for every common suffix precisely when their partial syndromes agree. The deterministic width after cut $i$ is therefore $2^{\operatorname{rank}(H_{\leq i})}$, reaching $2^k$ at the end for full-rank $H$. Ordinary trellis merging does not compress exact terminal syndrome output. Trellis or pathwidth could become central only after changing the task to intermediate/random-cut audits, a decision problem such as $Hx=0$, or partial row queries.
 
@@ -344,9 +356,62 @@ The structural condition is the standard trellis-connectivity quantity
 
 For rank-two checks, $\tau\leq1$ admits a one-qubit handoff construction that reaches the static boundary, whereas $\tau=2$ supplies a full-crossing cut and the perfect-audit $1/4$ upper bound. The invariant and its order dependence are established trellis theory [@forney1994trellis; @mceliece1996bcjr; @kashyap2008pathwidth]. The new object is the late-choice information--recoverability consequence under the declared interface, not $\tau$ itself.
 
+The endpoint mechanism extends beyond binary rank two. Let
+\(H\in\mathbb F_q^{r\times n}\) split into \(m\) consecutive nonempty blocks,
+each of rank \(r\), and let \(d_j\) be the coherent dimension crossing the
+boundary after block \(j\). For arbitrary adaptive non-QND instruments with a
+genuinely classical transcript,
+
+\[
+P_{\mathrm A}=1
+\quad\Longrightarrow\quad
+F_{\mathrm R}\leq
+\prod_{j=1}^m\min\left\{1,\frac{d_j}{q^r}\right\}.
+\]
+
+The proof bounds every refined leaf to at most \(d_j\) cumulative syndrome
+labels at boundary \(j\), counts the resulting block-syndrome tuples, and
+converts computational support into flagged recovery fidelity. For uniform
+\(d=q^k\), repeated identity blocks attain
+\(F_{\mathrm R}=(d/q^r)^m\). Thus the result is a temporal product law, not a
+new definition of memory or trellis width.
+
+Let \(\mu(H)\) be the maximum number of consecutive full-rank blocks in a
+partition of the ordered columns. The earliest-full-rank greedy partition is
+optimal, and the uniform-dimension theorem becomes
+
+\[
+F_{\mathrm R}\leq
+\min\left\{1,\left(\frac{d}{q^r}\right)^{\mu(H)}\right\}.
+\]
+
+This descriptor gives \(\mu(H_{\rm G})=1\) and
+\(\mu(H_{\rm I})=2\), so the original order separation is the first two values
+of the same law. Trellis sectionalization is prior art
+[@lafourcade1996sectionalization]; no novelty is assigned to partitioning an
+ordered code. The candidate contribution is the exact EPR-return exponent in
+the frozen late-choice interface.
+
+This yields an exact asymptotic order separation using the same column
+multiset. Put \(m\) copies of each standard column into either a batched order
+or the cycled order \([I_r\mid\cdots\mid I_r]\). For \(d=q^k\),
+\(1\leq k<r\), both perfect-AUDIT bounds are attainable and
+
+\[
+F_{\mathrm R}^{\star}(H_{\rm batched})=\frac d{q^r},
+\qquad
+F_{\mathrm R}^{\star}(H_{\rm cycled})
+=\left(\frac d{q^r}\right)^m.
+\]
+
+The ratio \((q^r/d)^{m-1}\) grows exponentially. This is the strongest
+resolved contribution: it promotes the four-slot example from an isolated
+constant gap to an exact family while keeping the code columns, memory bound,
+and late tasks fixed.
+
 ## 9. Updated collision assessment
 
-The exact result survives the focused priority search, but only as a narrow conjunction. Sequential quantum-state generation already links emission order to persistent coherent resources [@li2022emitters]. Quantum trellises, coherent message passing, and uncomputation for linear codes are also occupied [@ollivier2006trellises; @piveteau2022message; @piveteau2025belief]. Lim--Hhan--Kwon obtain a numerical value $1/4$ in a different spatial nondestructive-discrimination model [@lim2025local]. None of these sources located through the cutoff contains the same-code column permutation, one-qubit temporal bond, late complete-syndrome AUDIT, all-carrier EPR RETURN, and exact grouped $1/2$ versus interleaved $1/4$ endpoint.
+The exact result survives the focused priority search, but only as a narrow conjunction. Sequential quantum-state generation already links emission order to persistent coherent resources [@li2022emitters]. Quantum trellises, coherent message passing, and uncomputation for linear codes are also occupied [@ollivier2006trellises; @piveteau2022message; @piveteau2025belief]. Lim--Hhan--Kwon obtain a numerical value $1/4$ in a different spatial nondestructive-discrimination model [@lim2025local]. None of these sources located through the cutoff contains the same-code column permutation, one-qubit temporal bond, late complete-syndrome AUDIT, all-carrier EPR RETURN, and exact grouped $1/2$ versus interleaved $1/4$ endpoint. Nor did the search locate the finite-field product law for repeated full-rank temporal blocks in this interface.
 
 This is not a claim of absolute priority. An equivalent statement may exist under quantum-comb rank, recoverability, or tensor-network language. The exact-collision risk is assessed as low to moderate, and the search should be repeated before submission.
 
@@ -357,8 +422,8 @@ the interleaved perfect-AUDIT endpoint, and a conservative robust neighbourhood
 are proved as upper statements over the full strategy class. The interleaved
 interior now has an explicit finite-outcome lower bound above the earlier
 two-parameter family, but no matching causal-completion converse.
-A general $2^{-\tau}$ law, higher-rank extension, or exact dimension witness
-has not been established.
+A general $2^{-\tau}$ law, a theorem for arbitrary partial-rank block
+sequences, and an approximate-AUDIT product law have not been established.
 
 The next mathematical target is a sharp robust inequality of order $\sqrt{1-P_{\mathrm A}}$ or an exact interleaved interior support. A legal weak-measurement family proves that a correction $o(\!\sqrt{1-P_{\mathrm A}})$ is impossible, while the current proof loses an additional square root. A useful experimental result must also charge every coherent side channel, verify carrier sequestration, include all RETURN failures, and conclude only incompatibility with the declared one-qubit streaming model.
 
@@ -366,13 +431,20 @@ The next mathematical target is a sharp robust inequality of order $\sqrt{1-P_{\
 
 The following sentence is supportable at this cutoff:
 
-> Within the primary literature located through 19 August 2026, this appears to be the first exact late-choice syndrome-AUDIT/all-carrier-RETURN separation produced solely by permuting the temporal coordinates of one rank-two linear code under a one-qubit coherent-memory constraint: the noncrossing order attains $F_{\mathrm R}=1/2$ at perfect audit, whereas a full-crossing order is bounded by, and attains, $F_{\mathrm R}=1/4$.
+> Within the primary literature located through 20 August 2026, this appears to be the first exact late-choice syndrome-AUDIT/all-carrier-RETURN separation produced solely by permuting the temporal coordinates of one rank-two linear code under a one-qubit coherent-memory constraint: the noncrossing order attains $F_{\mathrm R}=1/2$ at perfect audit, whereas a full-crossing order is bounded by, and attains, $F_{\mathrm R}=1/4$.
+
+For the higher-rank endpoint, the safe statement is: in the same declared
+interface, \(m\) consecutive full-rank syndrome blocks impose
+\(F_{\mathrm R}\leq\prod_j\min\{1,d_j/q^r\}\) at perfect AUDIT; the
+uniform-dimension law is tight on repeated identity blocks for \(d=q^k\).
+Equivalently, a uniform bound \(d\) gives
+\(F_{\mathrm R}\leq(d/q^r)^{\mu(H)}\), capped at one.
 
 The qualifiers “appears,” the date, the exact interface, and “at perfect audit” are essential. Unsafe formulations include “the first order dependence of quantum memory,” “a new trellis invariant,” “the first quantum processing of linear checks,” “the first $1/4$ information--disturbance relation,” and “the complete frontier is solved.”
 
 ## 12. Final go/no-go decision
 
-**GO for a focused theorem paper; NO for the original broad framing.** The order-sensitive endpoint and its robust extension are mathematically nontrivial, independently red-teamed, and not reduced by the closest located literature. They establish a real operational consequence of temporal code order under bounded coherent memory.
+**GO for a focused theorem paper; NO for the original broad framing.** The order-sensitive endpoint, its robust extension, the finite-field temporal product law, and the exact exponential same-columns order separation are mathematically nontrivial and were not reduced by the closest located literature. They establish a real operational consequence of temporal code order and repeated full-rank temporal fragmentation under bounded coherent memory.
 
 The paper should be built around this result, with the triangle solution presented as a negative originality gate and the full interleaved frontier listed as open. The broader reversible-histories narrative can remain motivation, but it is not the contribution.
 
