@@ -9,15 +9,19 @@ import pytest
 from carmenq.order_sensitive import (
     GROUPED_CHECK_MATRIX,
     INTERLEAVED_CHECK_MATRIX,
+    INTERLEAVED_ORDER_GAP_WEIGHT_THRESHOLD,
     INTERLEAVED_PERFECT_AUDIT_ENDPOINT,
     full_crossing_cuts,
     full_crossing_perfect_audit_return_bound,
     full_rank_block_packing_number,
+    full_rank_block_approximate_audit_return_bound,
     full_rank_block_perfect_audit_return_bound,
     gf2_rank,
     grouped_frontier,
     interleaved_candidate_lower_bound,
     interleaved_candidate_scores,
+    interleaved_return_upper_bound,
+    interleaved_support_upper_bound,
     ordered_check_perfect_audit_return_bound,
     rank_two_static_qubit_support,
     trellis_connectivity_profile,
@@ -167,6 +171,70 @@ def test_temporal_power_law_matches_repeated_identity_construction() -> None:
                     )
 
 
+def test_approximate_audit_bound_reduces_to_temporal_power_endpoint() -> None:
+    for alphabet in (2, 3, 4, 5):
+        for rank in range(1, 4):
+            for block_count in range(1, 4):
+                for retained_coordinates in range(rank + 1):
+                    dimension = alphabet**retained_coordinates
+                    assert isclose(
+                        full_rank_block_approximate_audit_return_bound(
+                            1.0,
+                            rank,
+                            dimension,
+                            block_count,
+                            alphabet,
+                        ),
+                        full_rank_block_perfect_audit_return_bound(
+                            rank,
+                            dimension,
+                            block_count,
+                            alphabet,
+                        ),
+                        abs_tol=1e-15,
+                    )
+
+
+def test_interleaved_linear_tail_return_bound() -> None:
+    assert isclose(interleaved_return_upper_bound(1.0), 0.25, abs_tol=1e-15)
+    assert isclose(
+        interleaved_return_upper_bound(0.99),
+        0.25 + 0.01 + sqrt(1.5 * 0.01 * 0.98),
+        abs_tol=2e-15,
+    )
+    assert interleaved_return_upper_bound(0.625) == 1.0
+    assert interleaved_return_upper_bound(0.5) == 1.0
+
+
+@pytest.mark.parametrize("probability", [-0.01, 1.01, float("nan")])
+def test_approximate_audit_bound_validates_probability(probability: float) -> None:
+    with pytest.raises(ValueError, match=r"\[0, 1\]"):
+        full_rank_block_approximate_audit_return_bound(
+            probability, 2, 2, 2
+        )
+
+
+def test_interleaved_support_certificate_is_strict_above_three_sevenths() -> None:
+    threshold = INTERLEAVED_ORDER_GAP_WEIGHT_THRESHOLD
+    assert threshold == 3.0 / 7.0
+    assert isclose(
+        interleaved_support_upper_bound(threshold),
+        rank_two_static_qubit_support(threshold),
+        abs_tol=2e-15,
+    )
+    assert isclose(
+        interleaved_support_upper_bound(0.5),
+        5.0 / 8.0 + sqrt(3.0) / 8.0,
+        abs_tol=2e-15,
+    )
+    for weight in (0.43, 0.5, 0.75, 0.99):
+        assert (
+            interleaved_support_upper_bound(weight)
+            < rank_two_static_qubit_support(weight)
+        )
+    assert interleaved_support_upper_bound(1.0) == 1.0
+
+
 def test_full_crossing_wrapper_is_the_two_block_power_law() -> None:
     for alphabet in (2, 3, 4, 5):
         for rank in range(1, 5):
@@ -260,6 +328,8 @@ def test_support_functions_validate_audit_weight(weight: float) -> None:
         rank_two_static_qubit_support(weight)
     with pytest.raises(ValueError, match=r"\[0, 1\]"):
         grouped_frontier(weight)
+    with pytest.raises(ValueError, match=r"\[0, 1\]"):
+        interleaved_support_upper_bound(weight)
 
 
 def test_exact_interleaved_endpoint_metadata() -> None:

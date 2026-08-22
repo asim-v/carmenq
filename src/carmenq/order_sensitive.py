@@ -1,13 +1,13 @@
 """Exact utilities for the canonical order-sensitive AUDIT--RETURN instances.
 
 This module covers binary rank-two syndrome checks streamed through one
-persistent qubit and the finite-field perfect-AUDIT temporal power law.  It
-exposes the grouped four-slot frontier and the exact perfect-AUDIT endpoint of
-its interleaved column permutation.  The latter is an endpoint theorem only.
-An exact two-parameter achievable construction is also exposed as a lower
-bound.  A stored finite-outcome non-QND instrument is known to exceed that
-restricted family, and the unknown interleaved interior is never presented as
-an asserted upper bound or solved frontier.
+persistent qubit and the finite-field temporal power law.  It exposes the
+grouped four-slot frontier, the exact perfect-AUDIT endpoint of its interleaved
+column permutation, and a rigorous approximate-AUDIT upper certificate based
+on causal list decoding.  An exact two-parameter achievable construction is
+also exposed as a lower bound.  A stored finite-outcome non-QND instrument is
+known to exceed that restricted family, and the still-unknown exact
+interleaved interior is never presented as a solved frontier.
 
 All ranks and cut profiles are over :math:`GF(2)`.  A cut index ``i`` means
 that columns ``[:i]`` have arrived and columns ``[i:]`` remain.
@@ -38,6 +38,13 @@ INTERLEAVED_CHECK_MATRIX: Final[tuple[tuple[int, ...], ...]] = (
     (0, 1, 0, 1),
 )
 """Four-slot interleaved check matrix with column order ``A, B, A, B``."""
+
+INTERLEAVED_ORDER_GAP_WEIGHT_THRESHOLD: Final[float] = 3.0 / 7.0
+"""Lowest audit weight certified by the linear-tail order-gap theorem.
+
+The certificate is strict for weights in ``(3/7, 1)``.  It is not a claim
+that the true order gap begins only at this threshold.
+"""
 
 
 def _binary_integer_matrix(matrix: ArrayLike) -> np.ndarray:
@@ -239,6 +246,57 @@ def full_rank_block_perfect_audit_return_bound(
     return (dimension / syndrome_count) ** blocks
 
 
+def full_rank_block_approximate_audit_return_bound(
+    audit_probability: float,
+    syndrome_rank: int,
+    coherent_dimension: int,
+    block_count: int,
+    alphabet_size: int = 2,
+) -> float:
+    """Bound RETURN for approximate AUDIT across full-rank temporal blocks.
+
+    The ordered check must split into ``block_count`` consecutive blocks of
+    full ``syndrome_rank`` over the finite field of size ``alphabet_size``.
+    With coherent dimension ``d`` at every block boundary, put
+
+    ``alpha = min(1, (d / alphabet_size**syndrome_rank)**block_count)``
+
+    and ``theta = min(block_count * (1 - P_A), 1 - alpha)``.  Causal list
+    decoding and a Ky Fan rank-tail bound give
+
+    ``F_R <= alpha + (1 - 2*alpha)*theta``
+    ``       + 2*sqrt(alpha*(1-alpha)*theta*(1-theta))``.
+
+    At ``P_A=1`` this reduces to the exact temporal power-law endpoint.  The
+    result allows arbitrary adaptive non-QND instruments and unrestricted
+    finite genuinely classical transcript under the declared sequestration
+    interface.  It is an upper certificate, not generally an attainable
+    frontier.
+    """
+    probability = float(audit_probability)
+    if not 0.0 <= probability <= 1.0:
+        raise ValueError("audit_probability must lie in [0, 1]")
+    rank = _positive_integer(syndrome_rank, "syndrome_rank")
+    dimension = _positive_integer(coherent_dimension, "coherent_dimension")
+    blocks = _positive_integer(block_count, "block_count")
+    alphabet = _positive_integer(alphabet_size, "alphabet_size")
+    if alphabet < 2:
+        raise ValueError("alphabet_size must be at least two")
+    if not _is_prime_power(alphabet):
+        raise ValueError("alphabet_size must be a prime power")
+    syndrome_count = alphabet**rank
+    alpha = min(1.0, (dimension / syndrome_count) ** blocks)
+    if alpha == 1.0:
+        return 1.0
+    theta = min(blocks * (1.0 - probability), 1.0 - alpha)
+    return (
+        alpha
+        + (1.0 - 2.0 * alpha) * theta
+        + 2.0
+        * sqrt(max(0.0, alpha * (1.0 - alpha) * theta * (1.0 - theta)))
+    )
+
+
 def ordered_check_perfect_audit_return_bound(
     matrix: ArrayLike,
     coherent_dimension: int,
@@ -288,6 +346,43 @@ def rank_two_static_qubit_support(audit_weight: float = 0.5) -> float:
     """
     weight = _audit_weight(audit_weight)
     return (1.0 + sqrt(weight**2 + (1.0 - weight) ** 2)) / 2.0
+
+
+def interleaved_return_upper_bound(audit_probability: float) -> float:
+    """Return the rigorous linear-tail bound for the interleaved benchmark.
+
+    This is the four-slot binary specialization of
+    :func:`full_rank_block_approximate_audit_return_bound`.  It is exact at
+    perfect AUDIT, where it returns ``1/4``, and becomes trivial at one once
+    ``P_A <= 5/8``.  The square-root approach to the endpoint has the correct
+    exponent, but the complete curve is not claimed optimal.
+    """
+    return full_rank_block_approximate_audit_return_bound(
+        audit_probability=audit_probability,
+        syndrome_rank=2,
+        coherent_dimension=2,
+        block_count=2,
+        alphabet_size=2,
+    )
+
+
+def interleaved_support_upper_bound(audit_weight: float = 0.5) -> float:
+    """Return the explicit causal-list upper certificate on interleaved support.
+
+    For ``lambda`` equal to ``audit_weight``, the certificate is
+
+    ``1/2 + lambda/4 + sqrt(7*lambda**2 - 10*lambda + 4)/4``.
+
+    It lies strictly below the grouped/static support value for
+    ``3/7 < lambda < 1`` and equals ``5/8 + sqrt(3)/8`` at balanced weight.
+    It remains an upper bound rather than the exact interleaved frontier.
+    """
+    weight = _audit_weight(audit_weight)
+    return (
+        0.5
+        + weight / 4.0
+        + sqrt(max(0.0, 7.0 * weight**2 - 10.0 * weight + 4.0)) / 4.0
+    )
 
 
 @dataclass(frozen=True)
@@ -521,6 +616,7 @@ def interleaved_candidate_lower_bound(
 __all__ = [
     "GROUPED_CHECK_MATRIX",
     "INTERLEAVED_CHECK_MATRIX",
+    "INTERLEAVED_ORDER_GAP_WEIGHT_THRESHOLD",
     "INTERLEAVED_BALANCED_COUNTEREXAMPLE",
     "INTERLEAVED_PERFECT_AUDIT_ENDPOINT",
     "GroupedFrontierPoint",
@@ -530,11 +626,14 @@ __all__ = [
     "full_crossing_cuts",
     "full_crossing_perfect_audit_return_bound",
     "full_rank_block_packing_number",
+    "full_rank_block_approximate_audit_return_bound",
     "full_rank_block_perfect_audit_return_bound",
     "gf2_rank",
     "grouped_frontier",
     "interleaved_candidate_lower_bound",
     "interleaved_candidate_scores",
+    "interleaved_return_upper_bound",
+    "interleaved_support_upper_bound",
     "ordered_check_perfect_audit_return_bound",
     "rank_two_static_qubit_support",
     "trellis_connectivity_profile",

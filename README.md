@@ -54,25 +54,31 @@ The same workflow is available from the terminal:
 carmenq bound --steps 8
 carmenq plan --steps 8 --forecast-model
 python examples/quickstart.py
+python examples/order_gap.py
 ```
 
 The [Python API guide](docs/python-api.md) explains the concise and long-form scientific interfaces. The [benchmark specification](docs/audit-return-benchmark-v0.1.md) states the trusted access model, while the [preregistration example](docs/audit-return-preregistration.example.json) records the experimental assumptions that must be fixed before data are observed.
 
 ## Explore the order-sensitive theorem
 
-Version 2.1 adds a bounded-memory result that depends on temporal order rather than only on terminal memory dimension. Two rank-two check matrices represent the same code up to a coordinate permutation. The grouped order reaches return fidelity `0.5` at perfect syndrome audit; the interleaved order has the exact and attained ceiling `0.25` under the declared one-qubit streaming interface.
+Version 2.2 adds a robust bounded-memory result that depends on temporal order rather than only on terminal memory dimension. Two rank-two check matrices represent the same code up to a coordinate permutation. The grouped order reaches return fidelity `0.5` at perfect syndrome audit; the interleaved order has the exact and attained ceiling `0.25` under the declared one-qubit streaming interface. A causal list-decoding theorem now certifies that their support functions remain strictly separated throughout the interior interval `3/7 < audit_weight < 1`.
 
 ```python
 from carmenq import (
     GROUPED_CHECK_MATRIX,
     INTERLEAVED_BALANCED_COUNTEREXAMPLE,
+    INTERLEAVED_ORDER_GAP_WEIGHT_THRESHOLD,
     INTERLEAVED_PERFECT_AUDIT_ENDPOINT,
     full_crossing_perfect_audit_return_bound,
+    full_rank_block_approximate_audit_return_bound,
     full_rank_block_packing_number,
     full_rank_block_perfect_audit_return_bound,
     grouped_frontier,
     interleaved_candidate_lower_bound,
+    interleaved_return_upper_bound,
+    interleaved_support_upper_bound,
     ordered_check_perfect_audit_return_bound,
+    rank_two_static_qubit_support,
     trellis_connectivity_tau,
 )
 
@@ -83,6 +89,10 @@ print(full_crossing_perfect_audit_return_bound(2, 2))  # 0.25
 print(full_rank_block_perfect_audit_return_bound(2, 2, 3))  # 0.125
 print(full_rank_block_packing_number(GROUPED_CHECK_MATRIX))  # 1
 print(ordered_check_perfect_audit_return_bound(GROUPED_CHECK_MATRIX, 2))  # 0.5
+print(interleaved_return_upper_bound(0.99))  # rigorous approximate-AUDIT bound
+print(interleaved_support_upper_bound(0.5))  # 0.8415063509... upper certificate
+print(rank_two_static_qubit_support(0.5))     # 0.8535533905... grouped value
+print(INTERLEAVED_ORDER_GAP_WEIGHT_THRESHOLD)  # 3/7
 print(interleaved_candidate_lower_bound(0.5).support_value)  # restricted family
 print(INTERLEAVED_BALANCED_COUNTEREXAMPLE.support_value)  # 0.7594489703...
 ```
@@ -110,6 +120,17 @@ basis column and `d=q**k`, batching equal columns has perfect-AUDIT optimum
 `(d/q**r)**m`. The matrices have the same column multiset; their exact return
 fidelities differ by `(q**r/d)**(m-1)`.
 
+The endpoint law also has a general approximate-AUDIT extension. Causal
+dimension-to-list conversion bounds the summed Ky Fan spectral tail by
+`m * D * (1 - P_A)` and turns it into an explicit RETURN certificate through
+`full_rank_block_approximate_audit_return_bound`. In the canonical interleaved
+instance this yields
+`interleaved_support_upper_bound(lambda) < rank_two_static_qubit_support(lambda)`
+for every `3/7 < lambda < 1`. This resolves the existence of a genuine
+interior order effect, including balanced weight. It does not close the
+remaining gap between the rigorous upper certificate and the best complete
+finite-outcome lower strategy.
+
 The [canonical result note](notes/order_sensitive_memory_result.md) states the
 model, proof map, corrected numerical status, robust interval, novelty
 boundary, and open problems. Run
@@ -133,9 +154,16 @@ python -m pip install -e ".[dev,reproducibility]"
 python -m pytest -q
 python scripts/run_all.py
 python scripts/build_pdf.py
+python scripts/build_order_pdf.py
 ```
 
 The pipeline regenerates the numerical tables and publication figures under `data/` and `figures/`. Continuous integration compares cross-platform numerical outputs at declared relative and absolute tolerances of `1e-12`, while same-platform tests retain byte-level determinism. The visually verified manuscript is available as [PDF](output/pdf/CARMEN-Q-paper.pdf), with LaTeX sources in `manuscript/` and audited references in `references/`. The package source lives in `src/carmenq/`; `tests/` contains the analytic, statistical, protocol, and reproducibility checks.
+
+The focused temporal-order result has its own visually verified
+[PDF](output/pdf/CARMEN-Q-order-paper.pdf) and two-column LaTeX source in
+`manuscript-order/`. It proves the linear rank-tail theorem and the certified
+interior order gap while keeping the exact interleaved frontier explicitly
+open.
 
 ## Scientific boundary
 
@@ -143,7 +171,7 @@ CARMEN-Q is a trusted-interface resource witness. A positive score rejects the d
 
 The project began as an investigation of reversible quantum histories. Its originality audit showed that compute-phase-uncompute circuits alone are established quantum computing. CARMEN-Q retains the part that survived that audit: an exact same-task separation between streamed classical memory, collective classical recording, and coherent temporal memory.
 
-The [focused literature review](notes/literature_review_bounded_coherent_memory.md) records the originality gate. Its conclusion is deliberately narrow: bounded coherent memory, late choice, syndrome accumulation, entanglement recovery, and trellis order dependence are prior art. What survives is the exact operational consequence of permuting one code under a fixed coherent-memory constraint and the perfect-AUDIT temporal product law for consecutive full-rank blocks. The full interleaved interior frontier and every approximate-AUDIT extension of the product law remain open.
+The [focused literature review](notes/literature_review_bounded_coherent_memory.md) records the originality gate. Its conclusion is deliberately narrow: bounded coherent memory, late choice, syndrome accumulation, entanglement recovery, and trellis order dependence are prior art. What survives is the exact operational consequence of permuting one code under a fixed coherent-memory constraint, the perfect-AUDIT temporal product law for consecutive full-rank blocks, and its linear-tail approximate-AUDIT extension. A broad interval of interior order dependence is now proved; the exact interleaved frontier and the optimal robustness coefficient remain open.
 
 ## Citation and authorship
 

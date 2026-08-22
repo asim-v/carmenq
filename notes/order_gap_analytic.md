@@ -2,10 +2,9 @@
 
 **Status:** rigorous grouped attainer, rigorous canonical-bond obstruction,
 and an exact arbitrary-instrument theorem at the perfect-AUDIT endpoint for
-the interleaved order. This endpoint also implies a strict support gap on an
-open interval of weights next to AUDIT. A companion robust proof makes one
-such interval explicit. The complete interleaved support function remains
-open.
+the interleaved order. A causal-list extension now proves a linear rank-tail
+bound and a strict support gap for \(3/7<\lambda<1\). The complete interleaved
+support function remains open.
 
 Consider the two rank-two, four-slot check matrices
 
@@ -405,10 +404,9 @@ inequality
 \]
 
 Thus the endpoint theorem already proves a nonempty interval of genuine
-causal order dependence. The companion proof in `order_gap_robust.md`
-certifies the explicit subinterval
-\(0.997339868377\ldots\leq\lambda<1\), although the full interior frontier
-remains unknown.
+causal order dependence. The later proof in `order_gap_linear_tail.md`
+certifies the much larger interval \(3/7<\lambda<1\), although the exact full
+interior frontier remains unknown.
 
 ### 3.5 General full-crossing cut criterion
 
@@ -529,9 +527,8 @@ together with attaining strategies and analytic or computer-assisted upper
 certificates. Equation (17) already certifies strict separation from the
 static ceiling on a nonempty interval. The endpoint theorem fixes one boundary
 value exactly, while the live-form calculation identifies the obstruction in
-the canonical family. The robust companion gives a conservative quantitative
-gap for \(0.997339868377\ldots\leq\lambda<1\). None of these results supplies
-the exact interior support.
+the canonical family. The linear-tail companion gives a quantitative gap for
+\(3/7<\lambda<1\). None of these results supplies the exact interior support.
 
 A complete proof will probably need one of the following:
 

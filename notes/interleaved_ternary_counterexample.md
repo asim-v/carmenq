@@ -106,9 +106,10 @@ point roundoff.
 Five independent ternary searches were run for 1,800 optimization steps at
 (lambda=1/2).  Two random seeds converged to the same nontrivial score within
 (2.5\times10^{-11}); the others converged to the exact no-record point.  An
-independent NumPy/SciPy evaluator reproduced the stored POVM score and found a
-slightly larger dual AUDIT value, so the reported value in equation (1) is
-conservative.
+independent NumPy contraction reproduced the stored POVM score. A later
+multi-start qubit-dual calculation gives the same AUDIT value at the displayed
+precision; the earlier report of a slightly larger dual value was a local
+optimizer failure and is withdrawn.
 
 The ternary strategy was embedded into complete four- and five-outcome trees
 and reoptimized.  Neither embedding improved equation (1) at the displayed
@@ -127,8 +128,8 @@ The exact arbitrary-instrument statements remain:
 * the grouped order attains the static rank-two frontier;
 * for the interleaved order, (P_{\rm A}=1) implies
   (F_{\rm R}\leq1/4), and the bound is attained;
-* the robust theorem certifies a strict grouped-versus-interleaved support gap
-  for (0.997339868377\ldots\leq\lambda<1).
+* the linear-tail theorem certifies a strict grouped-versus-interleaved support
+  gap for \(3/7<\lambda<1\), including balanced weight.
 
 For the balanced interior, the explicit lower bound is now equation (1).  A
 general single-leaf tensor-train relaxation reaches
@@ -145,10 +146,11 @@ however, leave only (3.54\times10^{-4}) between the best complete strategy
 and the best located postselected-leaf relaxation.
 
 Continuation searches also reveal a weak-information branch absent from the
-two-parameter family.  It beats the no-record point at
-(lambda=0.45), while at (lambda=0.44) the optimizer returns to the
-no-record support.  The observed onset is consistent with, but does not prove,
-the rational threshold (4/9).
+two-parameter family. A homogeneous active leaf located at
+\((P_{\rm A},F_{\rm R})\approx(0.57217925,0.94295569)\) crosses the no-record
+support at \(\lambda\approx0.44143895\). Complete-instrument continuation is
+consistent with that onset, but neither the decimal nor a closed form is
+proved. The earlier guess \(4/9\) is withdrawn.
 
 ## 6. Revised theorem gate
 

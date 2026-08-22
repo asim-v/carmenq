@@ -3,6 +3,7 @@
 from carmenq import (
     GROUPED_CHECK_MATRIX,
     INTERLEAVED_BALANCED_COUNTEREXAMPLE,
+    INTERLEAVED_ORDER_GAP_WEIGHT_THRESHOLD,
     INTERLEAVED_PERFECT_AUDIT_ENDPOINT,
     __version__,
     certify,
@@ -10,10 +11,13 @@ from carmenq import (
     collective_bound,
     collective_classical_record_bound,
     full_crossing_perfect_audit_return_bound,
+    full_rank_block_approximate_audit_return_bound,
     full_rank_block_packing_number,
     full_rank_block_perfect_audit_return_bound,
     grouped_frontier,
     interleaved_candidate_lower_bound,
+    interleaved_return_upper_bound,
+    interleaved_support_upper_bound,
     ordered_check_perfect_audit_return_bound,
     plan,
     plan_experiment,
@@ -26,7 +30,7 @@ def test_concise_aliases_match_scientific_api() -> None:
     assert collective_bound(0.5) == collective_classical_record_bound(0.5)
     assert certify is certify_classical_memory
     assert plan is plan_experiment
-    assert __version__ == "2.1.0"
+    assert __version__ == "2.2.0"
 
 
 def test_order_sensitive_exact_results_are_public() -> None:
@@ -37,6 +41,10 @@ def test_order_sensitive_exact_results_are_public() -> None:
     assert full_rank_block_perfect_audit_return_bound(2, 2, 3) == 0.125
     assert full_rank_block_packing_number(GROUPED_CHECK_MATRIX) == 1
     assert ordered_check_perfect_audit_return_bound(GROUPED_CHECK_MATRIX, 2) == 0.5
+    assert INTERLEAVED_ORDER_GAP_WEIGHT_THRESHOLD == 3 / 7
+    assert full_rank_block_approximate_audit_return_bound(1.0, 2, 2, 2) == 0.25
+    assert interleaved_return_upper_bound(1.0) == 0.25
+    assert interleaved_support_upper_bound(0.5) < grouped_frontier(0.5).support_value
     candidate = interleaved_candidate_lower_bound(0.5)
     assert candidate.support_value > 0.7554
     assert candidate.support_is_globally_optimal is False

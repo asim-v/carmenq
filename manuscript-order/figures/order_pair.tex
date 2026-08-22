@@ -1,0 +1,47 @@
+\begin{tikzpicture}[
+  x=1cm,y=1cm,font=\small,
+  cell/.style={draw=black!55, rounded corners=1.5pt, minimum width=11mm,
+    minimum height=7.5mm, line width=0.6pt},
+  acol/.style={cell, fill=blue!13},
+  bcol/.style={cell, fill=orange!18},
+  endpoint/.style={draw=teal!70!black, fill=teal!8, rounded corners=2pt,
+    text width=35mm, minimum height=10mm, align=center, inner sep=3pt},
+  note/.style={font=\footnotesize, align=center, text=black!78},
+  arrow/.style={-{Latex[length=2mm]}, line width=0.65pt, draw=black!62}
+]
+  \node[font=\bfseries, anchor=east] at (-0.25,1.1) {grouped};
+  \node[acol] at (0.45,1.1) {$e_1$};
+  \node[acol] at (1.75,1.1) {$e_1$};
+  \node[bcol] at (3.05,1.1) {$e_2$};
+  \node[bcol] at (4.35,1.1) {$e_2$};
+  \draw[teal!70!black, line width=1pt] (5.05,1.63) -- (5.05,0.57);
+  \draw[arrow] (4.95,1.1) -- (5.45,1.1);
+  \node[endpoint, anchor=west] at (5.55,1.1)
+    {$\mu(H_{\rm G})=1$\quad
+     $F_{\rm R}^{\star}(P_{\rm A}=1)=1/2$};
+  \node[note, text width=50mm] at (2.40,0.48)
+    {one complete rank-two syndrome block};
+
+  \node[font=\bfseries, anchor=east] at (-0.25,-1.0) {interleaved};
+  \node[acol] at (0.45,-1.0) {$e_1$};
+  \node[bcol] at (1.75,-1.0) {$e_2$};
+  \node[acol] at (3.05,-1.0) {$e_1$};
+  \node[bcol] at (4.35,-1.0) {$e_2$};
+  \draw[red!70!black, line width=1pt] (2.40,-0.47) -- (2.40,-1.53);
+  \draw[teal!70!black, line width=1pt] (5.05,-0.47) -- (5.05,-1.53);
+  \draw[arrow] (4.95,-1.0) -- (5.45,-1.0);
+  \node[endpoint, anchor=west] at (5.55,-1.0)
+    {$\mu(H_{\rm I})=2$\quad
+     $F_{\rm R}^{\star}(P_{\rm A}=1)=1/4$};
+  \node[note, text width=53mm] at (2.40,-1.72)
+    {two consecutive full-rank blocks; one qubit crosses each boundary};
+
+  \node[note, anchor=west, text width=68mm] at (9.45,1.05)
+    {\textbf{Same code and memory, different order.} AUDIT asks for the
+     two-bit syndrome only after all carriers are committed. RETURN instead
+     asks for all four EPR pairs.};
+  \node[note, anchor=west, text width=68mm] at (9.45,-1.05)
+    {Every full-rank temporal block contributes one factor $d/q^r$ to the
+     perfect-AUDIT recovery ceiling. Interleaving adds a full-rank boundary
+     without changing the column multiset.};
+\end{tikzpicture}

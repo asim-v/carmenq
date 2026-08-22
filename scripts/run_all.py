@@ -39,6 +39,8 @@ def main() -> int:
             "data/order_sensitive_classes.json",
         ]
     )
+    run([sys.executable, "scripts/verify_interleaved_counterexample.py"])
+    run([sys.executable, "scripts/generate_order_gap_figure.py"])
     print("Reproducibility pipeline completed successfully.")
     return 0
 

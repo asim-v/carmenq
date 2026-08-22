@@ -1,6 +1,11 @@
 # A quantitative robust bound at a full-crossing cut
 
-**Status (19 August 2026).** This note proves a non-sharp but fully
+**Status (21 August 2026).** This note proves a valid but now superseded
+non-sharp bound. The causal-list argument in `order_gap_linear_tail.md`
+replaces the fourth-root correction by a linear rank-tail theorem, gives the
+sharp square-root order in RETURN, and expands the certified support-gap
+interval to (3/7<\lambda<1\). This document is retained as an independent
+proof route and audit trail. It proves a fully
 quantitative version of the crossed-pair endpoint theorem. It covers
 arbitrary adaptive non-QND instruments, an unrestricted finite classical
 transcript, and transcript-conditioned AUDIT and RETURN decoders. For the

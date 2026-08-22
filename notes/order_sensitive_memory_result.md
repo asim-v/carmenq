@@ -2,9 +2,9 @@
 
 **Canonical result note**<br>
 **Status:** exact endpoint theorem, tight finite-field temporal power law,
-exact rank-two order dichotomy, quantitative near-endpoint separation, and
-explicit interior lower bounds<br>
-**Literature cutoff:** 20 August 2026<br>
+exact rank-two order dichotomy, linear-tail approximate-AUDIT theorem,
+certified interior order gap, and explicit interior lower bounds<br>
+**Literature cutoff:** 21 August 2026<br>
 **Scope:** the binary rank-two benchmark plus its finite-field
 perfect-AUDIT dimension generalization under the trusted streaming interface
 
@@ -26,9 +26,10 @@ and attainable endpoint
 P_{\rm A}=1\quad\Longrightarrow\quad F_{\rm R}\leq\frac14.
 \]
 
-The separation is caused solely by a coordinate permutation. A robust theorem
-also certifies a strict support-function gap for
-\(0.997339868377\ldots\leq\lambda<1\). The complete interleaved interior
+The separation is caused solely by a coordinate permutation. A causal
+list-decoding theorem now gives a linear Ky Fan rank tail and certifies a
+strict support-function gap throughout
+\(3/7<\lambda<1\), including balanced weight. The exact interleaved interior
 frontier remains open.
 
 ## 2. Frozen operational model
@@ -337,7 +338,7 @@ bounds are attained at perfect AUDIT:
 \[
 F_{\rm R}^{\star}(H_{\rm batched})=\frac d{q^r},
 \qquad
-F_{\rm R}^{\star}(H_{\rm cycled})=left(\frac d{q^r}\right)^m.
+F_{\rm R}^{\star}(H_{\rm cycled})=\left(\frac d{q^r}\right)^m.
 \tag{11c}
 \]
 
@@ -345,84 +346,87 @@ Their ratio \((q^r/d)^{m-1}\) is exponential in the number of cycles. This
 turns the four-slot \(1/2\)-versus-\(1/4\) example into an arbitrarily large
 same-columns order separation.
 
-## 6. Quantitative robustness
+## 6. Linear-tail approximate-AUDIT theorem
 
-Let a full-crossing cut occur after slot \(i\), put
+The endpoint product law has a robust extension with the correct exponent.
+For \(m\) consecutive full-rank blocks, put \(N=q^r\), \(D=q^n\), let the
+coherent boundary dimensions be \(d_j\leq N\), and define
 
 \[
-J=2^{n-i},
-\qquad
-C_i=4\sqrt J,
-\qquad
-\epsilon=1-P_{\rm A}.
+\alpha=\prod_{j=1}^m\frac{d_j}{N},\qquad
+k=\alpha D,\qquad \epsilon=1-P_{\rm A}.
 \]
 
-### Theorem 4: robust full-crossing bound
-
-Every admissible strategy satisfies
+For every refined Kraus leaf \(K_c\), write \(G_c=K_c^\dagger K_c\) and let
+\(t_c\) be the sum of the eigenvalues of \(G_c\) below the largest \(k\).
+Then every admissible strategy satisfies
 
 \[
-\boxed{
-F_{\rm R}
-\leq\frac14
-+\frac{C_i}{2}\sqrt\epsilon
-+\frac{\sqrt{3C_i}}2\epsilon^{1/4}.}
+\boxed{\sum_ct_c\leq mD\epsilon.}
 \tag{12}
 \]
 
-For the four-slot interleaved instance, a sharpened leaf estimate gives
-\(C_i=7\), hence
+The proof converts the \(d_j\)-dimensional cut memory into a classical list
+of at most \(d_j\) cumulative syndrome labels. Pulling the final AUDIT POVM
+back through the future comb shows that each boundary list fails with
+probability at most \(\epsilon\). Their intersection contains at most
+\(q^{n-mr}\prod_jd_j=k\) words and fails with probability at most
+\(m\epsilon\). Schur--Horn majorisation converts this coordinate list into
+equation (12). This avoids the two square-root losses of the earlier
+approximate-injectivity proof.
+
+Put \(\theta=\min\{m\epsilon,1-\alpha\}\). Splitting the singular values of
+every leaf above and below rank \(k\), then using instrument completeness and
+Ky Fan anti-norm superadditivity, gives
 
 \[
-F_{\rm R}
-\leq\frac14
-+\frac72\sqrt{1-P_{\rm A}}
-+\frac{\sqrt{21}}2(1-P_{\rm A})^{1/4}.
+\boxed{
+F_{\rm R}\leq
+\alpha+(1-2\alpha)\theta
++2\sqrt{\alpha(1-\alpha)\theta(1-\theta)}.}
 \tag{13}
 \]
 
-The proof puts each leaf in a right-canonical cut gauge, shows that the two
-most likely syndromes contain all but the AUDIT-error mass, replaces exact
-injectivity by a smallest-singular-value bound, and obtains a set of exactly
-\(D/4\) basis words outside which the leaf likelihood is at most
-\(C_i\sqrt{m_ce_c}\). Applying equation (8), summing completeness, and using
-Cauchy--Schwarz and Hölder gives equation (12). A separate audit checked the
-rank-deficient gauge, sign case in the singular-value lemma, exact cardinality
-needed by the pinching step, constants, and endpoint domain.
-
-Combining equation (13) with the static ceiling proves the explicit strict
-order gap
+At perfect AUDIT this reduces to the temporal product law
+\(F_{\rm R}\leq\alpha\). For the interleaved four-slot instance,
+\(m=2\) and \(\alpha=1/4\). Maximising equation (13) at fixed support weight
+gives the explicit certificate
 
 \[
+\boxed{
 \beta^{\rm stream}_{H_{\rm I},2}(\lambda)
-<B_{4,2}(\lambda)
-\quad\text{for}\quad
-0.997339868377\ldots\leq\lambda<1.
+\leq
+U_{\rm I}(\lambda)
+=\frac12+\frac\lambda4
++\frac14\sqrt{7\lambda^2-10\lambda+4}.}
 \tag{14}
 \]
 
-The endpoint \(\lambda=1\) is deliberately excluded: both support functions
-then equal one because only \(P_{\rm A}\) is weighted. The exact constrained
-endpoint (5) supplies the secondary separation at \(P_{\rm A}=1\).
-
-Equation (12) is non-sharp. The legal weak-record family
+Comparison with the grouped/static value in equation (1) yields
 
 \[
-P_{\rm A}=\frac{1+t^2}{2},
-\qquad
-F_{\rm R}=\left(\frac{1+\sqrt{1-t^2}}2\right)^2
-\]
-
-has, for \(\epsilon=1-P_{\rm A}\),
-
-\[
-F_{\rm R}=\frac14+\sqrt{\frac\epsilon2}+\frac\epsilon2.
+\boxed{
+U_{\rm I}(\lambda)<B_{4,2}(\lambda)
+\quad\text{for}\quad \frac37<\lambda<1.}
 \tag{15}
 \]
 
-Therefore no valid endpoint correction can be \(o(\sqrt\epsilon)\). The
-\(\epsilon^{1/4}\) term in equation (12) is a proof loss, not evidence for the
-true scaling.
+The crossings follow from the factor
+\(-4\lambda^2(\lambda-1)(7\lambda-3)\) after eliminating the square roots and
+checking signs. Thus the order gap is now rigorous at balanced weight, where
+
+\[
+\beta^{\rm stream}_{H_{\rm I},2}(1/2)
+\leq\frac58+\frac{\sqrt3}{8}
+=0.841506350946\ldots
+<0.853553390593\ldots=B_{4,2}(1/2).
+\]
+
+The new exponent is sharp: the legal weak-record family still has
+\(F_{\rm R}=1/4+\sqrt{\epsilon/2}+\epsilon/2\). The leading constant in
+equation (13) is not claimed optimal. The former
+\(\epsilon^{1/4}\) theorem and its \(0.997339868\ldots\) interval remain a
+valid but superseded proof route.
 
 ## 7. Interior lower bounds and a falsified ansatz
 
@@ -539,7 +543,7 @@ headlines, invariants, or values should be claimed as new.
 
 The defensible candidate contribution is the conjunction:
 
-> Within the primary literature located through 20 August 2026, this appears
+> Within the primary literature located through 21 August 2026, this appears
 > to be the first exact separation in a late-choice complete-syndrome
 > AUDIT/all-carrier EPR-RETURN game produced solely by permuting the temporal
 > coordinates of one rank-two linear code under a one-qubit coherent-memory
@@ -549,7 +553,8 @@ The defensible candidate contribution is the conjunction:
 The separate higher-rank claim is equally narrow: in the declared interface,
 \(m\) consecutive full-rank syndrome blocks obey the perfect-AUDIT product
 law \(F_{\rm R}\leq\prod_j\min\{1,d_j/q^r\}\), with the uniform-dimension
-case tight on repeated identity blocks when \(d=q^k\).
+case tight on repeated identity blocks when \(d=q^k\). Its approximate form
+has summed rank tail at most \(mD(1-P_{\mathrm A})\) and yields equation (13).
 
 The qualifiers “appears,” the literature date, exact interface, rank, memory
 dimension, and perfect-AUDIT condition are essential. The priority search is a
@@ -560,14 +565,15 @@ rank theorem, tensor-network cut lemma, or recoverability inequality.
 ## 9. Limitations and falsifiers
 
 The result does not solve the complete interleaved tradeoff curve. It proves
-one exact endpoint and a conservative strict interval near it. The robust
-exponent is non-sharp, and the general full-crossing \(1/4\) upper bound need
-not always be attainable.
+one exact endpoint and a broad strict interior interval, but the numerical gap
+between the best known balanced lower and upper bounds remains substantial.
+The robust square-root exponent is sharp; its coefficient is not. The general
+full-crossing \(1/4\) endpoint upper bound need not always be attainable.
 
-The complete order dichotomy and robust interior interval remain limited to
-two binary checks and one persistent qubit. The product-law extension covers
-higher-rank finite-field checks only at perfect AUDIT and only when the stream
-admits a partition into full-rank blocks. It does not establish a general
+The complete rank-two order dichotomy and explicit comparison remain limited
+to two binary checks and one persistent qubit. The product-law and linear-tail
+extensions cover higher-rank finite-field checks when the stream admits a
+partition into full-rank blocks. They do not establish a general
 \(2^{-\tau}\) law, a frontier for arbitrary check matrices, a
 device-independent memory witness, or the physical dimension of an
 uncharacterized laboratory system.
@@ -586,8 +592,9 @@ operational theorem about temporal coherent-memory constraints.
 
 ## 10. Reproducibility and source map
 
-The detailed rank-two proof is in **notes/order_gap_analytic.md**; the
-quantitative proof is in **notes/order_gap_robust.md**; and the finite-field
+The detailed rank-two proof is in **notes/order_gap_analytic.md**; the original
+near-endpoint proof is in **notes/order_gap_robust.md**; the linear-tail
+interior proof is in **notes/order_gap_linear_tail.md**; and the finite-field
 temporal product law is proved in
 **notes/full_crossing_dimension_bound.md**. The construction and reduction
 behind equations (17)--(19), together with the precise global-converse gate,
@@ -600,8 +607,9 @@ metadata in **references/library.bib**.
 The public Python surface is **carmenq.order_sensitive** in
 **src/carmenq/order_sensitive.py**. It provides the two canonical matrices,
 binary-rank and trellis-connectivity utilities, full-crossing-cut detection,
-the ordered full-rank block-packing count, the finite-field temporal power-law
-bound, the static support ceiling, the exact grouped frontier, and explicit
+the ordered full-rank block-packing count, the exact and approximate
+finite-field temporal bounds, the static support ceiling, the exact grouped
+frontier, the interleaved support certificate, and explicit
 metadata for the interleaved
 perfect-AUDIT endpoint. It also evaluates and
 deterministically optimizes the analytic two-parameter interleaved
@@ -621,9 +629,9 @@ terminal vectors of the two-parameter instrument, checks local completeness,
 and reproduces equations (17)--(18) without using the closed formulas during
 the contraction.  **scripts/verify_interleaved_counterexample.py** contracts
 the stored finite-outcome instrument independently, checks every local Kraus
-and terminal-POVM completeness relation, and verifies the strict inequality
-in equation (20).  The counterexample is a reproducible lower bound and does
-not enter any endpoint proof.
+and terminal-POVM completeness relation, verifies the strict inequality in
+equation (20), and evaluates its causal lists and spectral-tail slack.  The
+counterexample is a reproducible lower bound and does not enter any converse.
 
 ## 11. Next theorem, not a claim already made
 
@@ -637,8 +645,8 @@ The highest-value unresolved target is the exact function
 The two-parameter conjecture has been falsified.  The remaining target is an
 analytic or computer-assisted upper certificate matching the best complete
 finite-outcome strategy, or a stronger construction that narrows the gap to
-the single-leaf relaxation. A sharp
-\(O(\sqrt{1-P_{\rm A}})\) robust converse would be a second meaningful
-advance. For the new product law, the corresponding high-value target is a
-sharp approximate-AUDIT version or a theorem for blocks of partial rank that
-contains information beyond standard trellis width and comb memory cost.
+the single-leaf relaxation. The approximate-AUDIT product theorem is now
+linear at the rank-tail level and has the sharp square-root order in RETURN;
+the remaining robustness question is its optimal coefficient. A theorem for
+partial-rank blocks that contains information beyond standard trellis width
+and comb memory cost is also open.

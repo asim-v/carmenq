@@ -15,3 +15,10 @@ def test_ternary_instrument_strictly_beats_two_parameter_candidate() -> None:
     assert result["maximum_povm_completeness_residual"] < 1e-12
     assert result["minimum_povm_eigenvalue"] > -1e-12
     assert result["active_transcript_count"] == 16
+    assert result["linear_tail_slack"] > 0.29
+    assert result["margin_below_linear_tail_upper_bound"] > 0.08
+    assert abs(
+        result["rank_four_spectral_tail"]
+        - (1.0 - result["best_four_word_list_mass"])
+    ) < 1e-12
+    assert result["causal_four_word_list_mass"] > 0.5477

@@ -7,6 +7,7 @@ Before opening a pull request, state whether each scientific claim is known, der
 ```bash
 python -m pip install -e ".[dev,reproducibility]"
 python scripts/run_all.py
+python scripts/build_order_pdf.py
 python scratch/originality_gate/validate_streaming_parity.py
 ```
 

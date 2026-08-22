@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.2.0 - 2026-08-21
+
+- Proved a linear Ky Fan rank-tail theorem for approximate syndrome AUDIT across consecutive full-rank temporal blocks: the total tail below the perfect-AUDIT rank is at most `m * D * (1 - P_A)` for arbitrary adaptive non-QND instruments in the declared interface.
+- Converted the rank-tail theorem into an explicit all-carrier RETURN upper bound with the sharp square-root endpoint exponent.
+- Certified a strict support-function separation between the grouped and interleaved coordinate orders for every audit weight `3/7 < lambda < 1`, including balanced weight; the exact interleaved frontier remains open.
+- Added public Python functions for the general approximate-AUDIT bound and the canonical interleaved RETURN/support certificates, plus independent artifact checks of the causal lists and spectral-tail slack.
+- Repeated the focused collision search through 21 August 2026 and retained narrow priority language around the complete operational conjunction rather than its established ingredients.
+
 ## 2.1.0 - 2026-08-20
 
 - Added the exact grouped and interleaved rank-two syndrome instances, binary cut-connectivity utilities, and the attained perfect-AUDIT order gap to the public Python API.

@@ -1,6 +1,6 @@
 # Focused Literature Review: Causal Audit--Return Frontiers with Bounded Coherent Memory
 
-**Cutoff:** 20 August 2026<br>
+**Cutoff:** 21 August 2026<br>
 **Document type:** focused scoping review and adversarial novelty audit; not a PRISMA systematic review<br>
 **Language:** English<br>
 **Evidence base:** primary papers, publisher records, and first-party preprint archives<br>
@@ -90,7 +90,7 @@ This is a trusted-interface resource test. It does not identify a unique interna
 
 ## 3. Search method and evidentiary standard
 
-The search covered combinations of *bounded coherent memory*, *quantum comb memory cost*, *process-tensor bond dimension*, *classically adaptive tester*, *post-measurement information*, *random access code*, *syndrome*, *linear sketch*, *nondestructive discrimination*, *information gain and recovery*, *entanglement fidelity*, *stabilizer*, *trellis complexity*, and *quantum branching program*. Searches were run against arXiv, APS journals, Quantum, IEEE publication records, IOP, Nature-family journals, and the reference lists of the closest papers. The cutoff is 20 August 2026.
+The search covered combinations of *bounded coherent memory*, *quantum comb memory cost*, *process-tensor bond dimension*, *classically adaptive tester*, *post-measurement information*, *random access code*, *syndrome*, *linear sketch*, *nondestructive discrimination*, *information gain and recovery*, *entanglement fidelity*, *stabilizer*, *trellis complexity*, and *quantum branching program*. Searches were run against arXiv, APS journals, Quantum, IEEE publication records, IOP, Nature-family journals, and the reference lists of the closest papers. The cutoff is 21 August 2026.
 
 Peer-reviewed results and preprints are distinguished below. The search is a focused novelty audit, not a database-complete systematic review. It did not include a formal Scopus or Web of Science export, citation-count screening, dual independent reviewers, or author contact. “No exact collision located” therefore means only that no collision appeared in the searched primary corpus. It must never be rewritten as “the first” without a further professional priority search.
 
@@ -296,20 +296,35 @@ F_{\mathrm R}\leq\frac14,
 
 and the bound is attained. The proof refines each transcript to a single Kraus leaf, uses the full-crossing cut to limit every perfect-audit leaf to one quarter of the computational words, and then applies flagged polar recovery and pinching. It makes no QND, Clifford, covariance, or finite-transcript-alphabet assumption.
 
-The endpoint has a robust version. For the four-slot interleaved stream, with $\epsilon=1-P_{\mathrm A}$,
+The endpoint now has a linear-tail robust version. For \(m\) consecutive
+full-rank blocks, if \(t_c\) is the spectral mass of a refined leaf below the
+perfect-AUDIT rank and \(D\) is the input dimension, then
 
 \[
-F_{\mathrm R}
-\leq
-\frac14+\frac72\sqrt\epsilon
-+\frac{\sqrt{21}}2\epsilon^{1/4}.
+\sum_ct_c\leq mD(1-P_{\mathrm A}).
 \]
 
-This non-sharp estimate certifies a strict gap below the static qubit support for
+For the four-slot interleaved stream this yields
 
 \[
-0.997339868377\ldots\leq\lambda<1.
+F_{\mathrm R}\leq
+\frac14+\frac12\theta
++\frac{\sqrt3}{2}\sqrt{\theta(1-\theta)},
+\qquad
+\theta=\min\{2(1-P_{\mathrm A}),3/4\}.
 \]
+
+The square-root order is sharp. Maximising the bound at fixed audit weight
+gives
+
+\[
+\beta^{\rm stream}_{H_{\rm I},2}(\lambda)
+\leq\frac12+\frac\lambda4
++\frac14\sqrt{7\lambda^2-10\lambda+4},
+\]
+
+which certifies a strict gap below the grouped/static support throughout
+\(3/7<\lambda<1\), including balanced weight.
 
 The exact interior frontier remains open.  For \(q,v\in[0,1]\), a complete
 four-slot QND instrument achieves
@@ -413,30 +428,47 @@ and late tasks fixed.
 
 The exact result survives the focused priority search, but only as a narrow conjunction. Sequential quantum-state generation already links emission order to persistent coherent resources [@li2022emitters]. Quantum trellises, coherent message passing, and uncomputation for linear codes are also occupied [@ollivier2006trellises; @piveteau2022message; @piveteau2025belief]. Lim--Hhan--Kwon obtain a numerical value $1/4$ in a different spatial nondestructive-discrimination model [@lim2025local]. None of these sources located through the cutoff contains the same-code column permutation, one-qubit temporal bond, late complete-syndrome AUDIT, all-carrier EPR RETURN, and exact grouped $1/2$ versus interleaved $1/4$ endpoint. Nor did the search locate the finite-field product law for repeated full-rank temporal blocks in this interface.
 
-This is not a claim of absolute priority. An equivalent statement may exist under quantum-comb rank, recoverability, or tensor-network language. The exact-collision risk is assessed as low to moderate, and the search should be repeated before submission.
+The same focused update located no primary source combining causal
+dimension-to-list conversion, full-rank temporal block intersections, a Ky
+Fan tail bound, and all-carrier entanglement recovery. Bounded-quantum-storage
+and postmeasurement-information bounds are nearby prior art
+[@konig2005power; @ballester2008postmeasurement; @ohst2026memory], but they do not state the
+rank-tail or support certificate in this interface. This is not a claim of
+absolute priority. An equivalent statement may exist under quantum-comb rank,
+recoverability, list-decoding, or tensor-network language. The exact-collision
+risk is assessed as low to moderate, and the search should be repeated before
+submission.
 
 ## 10. Remaining kill criteria and research sequence
 
-The result should not be promoted as a full frontier: only the grouped curve,
-the interleaved perfect-AUDIT endpoint, and a conservative robust neighbourhood
-are proved as upper statements over the full strategy class. The interleaved
-interior now has an explicit finite-outcome lower bound above the earlier
-two-parameter family, but no matching causal-completion converse.
-A general $2^{-\tau}$ law, a theorem for arbitrary partial-rank block
-sequences, and an approximate-AUDIT product law have not been established.
+The result should not be promoted as a full frontier: the grouped curve, the
+interleaved perfect-AUDIT endpoint, and the interval \(3/7<\lambda<1\) are
+proved as upper statements over the full strategy class, but the latter upper
+bound does not match the best complete lower strategy. A general
+\(2^{-\tau}\) law and a theorem for arbitrary partial-rank block sequences
+have not been established.
 
-The next mathematical target is a sharp robust inequality of order $\sqrt{1-P_{\mathrm A}}$ or an exact interleaved interior support. A legal weak-measurement family proves that a correction $o(\!\sqrt{1-P_{\mathrm A}})$ is impossible, while the current proof loses an additional square root. A useful experimental result must also charge every coherent side channel, verify carrier sequestration, include all RETURN failures, and conclude only incompatibility with the declared one-qubit streaming model.
+The next mathematical target is the optimal coefficient in the sharp
+\(\sqrt{1-P_{\mathrm A}}\) law or the exact interleaved interior support. A
+legal weak-measurement family proves that a smaller asymptotic order is
+impossible. A useful experimental result must also charge every coherent side
+channel, verify carrier sequestration, include all RETURN failures, and
+conclude only incompatibility with the declared one-qubit streaming model.
 
 ## 11. Safe novelty language
 
 The following sentence is supportable at this cutoff:
 
-> Within the primary literature located through 20 August 2026, this appears to be the first exact late-choice syndrome-AUDIT/all-carrier-RETURN separation produced solely by permuting the temporal coordinates of one rank-two linear code under a one-qubit coherent-memory constraint: the noncrossing order attains $F_{\mathrm R}=1/2$ at perfect audit, whereas a full-crossing order is bounded by, and attains, $F_{\mathrm R}=1/4$.
+> Within the primary literature located through 21 August 2026, this appears to be the first exact late-choice syndrome-AUDIT/all-carrier-RETURN separation produced solely by permuting the temporal coordinates of one rank-two linear code under a one-qubit coherent-memory constraint: the noncrossing order attains $F_{\mathrm R}=1/2$ at perfect audit, whereas a full-crossing order is bounded by, and attains, $F_{\mathrm R}=1/4$.
 
 For the higher-rank endpoint, the safe statement is: in the same declared
 interface, \(m\) consecutive full-rank syndrome blocks impose
 \(F_{\mathrm R}\leq\prod_j\min\{1,d_j/q^r\}\) at perfect AUDIT; the
 uniform-dimension law is tight on repeated identity blocks for \(d=q^k\).
+For approximate AUDIT, the safe statement is that the summed spectral mass
+below the perfect-AUDIT rank is at most \(mD(1-P_{\mathrm A})\), which implies
+the explicit recovery bound stated above. Neither coefficient optimality nor
+the exact interior frontier is claimed.
 Equivalently, a uniform bound \(d\) gives
 \(F_{\mathrm R}\leq(d/q^r)^{\mu(H)}\), capped at one.
 
