@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+- Reduced the arbitrary adaptive four-slot interleaved support problem exactly
+  to a Hilbert--Schmidt-normalised bond-two Choi-MPS maximum. A local
+  Pauli/Weyl completion turns every feasible normalised leaf into a complete
+  four-outcome-per-slot causal instrument, eliminating unbounded outcome trees
+  without claiming that the remaining nonconvex maximum is solved.
+- Added a compact three-effect physical construction with balanced support
+  `0.759802783851444`, improving the previous ternary lower bound. The public
+  API, independent NumPy tensor verifier, regression tests, data record, and
+  support-gap figure reproduce the construction and its sub-`1e-15`
+  completeness residuals.
+- Expanded the focused two-column manuscript with the exact completion proof,
+  the compact lower curve, and an explicit statement of the remaining global
+  MPS-certification problem.
+
 ## 2.2.0 - 2026-08-21
 
 - Proved a linear Ky Fan rank-tail theorem for approximate syndrome AUDIT across consecutive full-rank temporal blocks: the total tail below the perfect-AUDIT rank is at most `m * D * (1 - P_A)` for arbitrary adaptive non-QND instruments in the declared interface.

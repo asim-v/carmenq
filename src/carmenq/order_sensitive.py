@@ -4,10 +4,10 @@ This module covers binary rank-two syndrome checks streamed through one
 persistent qubit and the finite-field temporal power law.  It exposes the
 grouped four-slot frontier, the exact perfect-AUDIT endpoint of its interleaved
 column permutation, and a rigorous approximate-AUDIT upper certificate based
-on causal list decoding.  An exact two-parameter achievable construction is
-also exposed as a lower bound.  A stored finite-outcome non-QND instrument is
-known to exceed that restricted family, and the still-unknown exact
-interleaved interior is never presented as a solved frontier.
+on causal list decoding.  Two exact achievable constructions are exposed as
+lower bounds.  The stronger one follows from a compact three-effect Choi-MPS
+family and matches unrestricted variational searches, but the still-unknown
+global interleaved converse is never presented as solved.
 
 All ranks and cut profiles are over :math:`GF(2)`.  A cut index ``i`` means
 that columns ``[:i]`` have arrived and columns ``[i:]`` remain.
@@ -468,6 +468,27 @@ class StoredCounterexamplePoint:
     support_is_globally_optimal: bool = False
 
 
+@dataclass(frozen=True)
+class InterleavedCompactCandidatePoint:
+    """One exposed point of the compact three-effect MPS construction.
+
+    The construction is a complete physical streamed strategy after local
+    Pauli completion.  ``support_is_globally_optimal`` remains false because
+    agreement with unrestricted MPS and cq-instrument searches is numerical,
+    not a certified global converse.
+    """
+
+    audit_weight: float
+    strategy: str
+    t: float | None
+    r: float | None
+    priors: tuple[float, float, float, float] | None
+    audit_probability: float
+    return_fidelity: float
+    support_value: float
+    support_is_globally_optimal: bool = False
+
+
 INTERLEAVED_PERFECT_AUDIT_ENDPOINT: Final[PerfectAuditEndpoint] = (
     PerfectAuditEndpoint(
         check_matrix=INTERLEAVED_CHECK_MATRIX,
@@ -499,11 +520,12 @@ INTERLEAVED_BALANCED_COUNTEREXAMPLE: Final[StoredCounterexamplePoint] = (
         support_is_globally_optimal=False,
     )
 )
-"""Stored complete instrument that falsifies the restricted candidate.
+"""Stored complete instrument that falsifies the older restricted candidate.
 
 The local Kraus tree and AUDIT effects are in
 ``data/interleaved_ternary_counterexample.npz``.  The value is an achievable
-lower bound, not a claimed optimum of the unrestricted interior game.
+lower bound, not a claimed optimum of the unrestricted interior game.  It is
+superseded by :func:`interleaved_compact_lower_bound`.
 """
 
 
@@ -613,6 +635,142 @@ def interleaved_candidate_lower_bound(
     )
 
 
+def _compact_candidate_evaluate(
+    t: float,
+    r: float,
+    audit_weight: float,
+) -> tuple[float, float, float, tuple[float, float, float, float]]:
+    """Evaluate the three-effect family after analytic prior optimisation."""
+
+    t_value = float(t)
+    r_value = float(r)
+    if not 0.0 <= t_value <= 1.0:
+        raise ValueError("t must lie in [0, 1]")
+    if not -1.0 <= r_value <= 1.0:
+        raise ValueError("r must lie in [-1, 1]")
+    weight = _audit_weight(audit_weight)
+
+    other_trace = 1.0 - t_value / 2.0
+    effect_z = -t_value / (2.0 - t_value)
+    effect_x = sqrt(max(0.0, 1.0 - effect_z**2))
+    state_x = sqrt(max(0.0, 1.0 - r_value**2))
+    other_correct = (
+        other_trace
+        * (1.0 + effect_z * r_value + effect_x * state_x)
+        / 2.0
+    )
+    coarse_other = t_value * (1.0 + r_value) / 2.0
+    c_reference = sqrt(t_value) + sqrt(max(0.0, 1.0 - t_value))
+    c_null = sqrt(2.0) if t_value >= 0.5 else c_reference
+    c_other = sqrt(max(0.0, coarse_other)) + sqrt(
+        max(0.0, 1.0 - coarse_other)
+    )
+
+    audit_diagonal = np.asarray((t_value, 0.0, other_correct), dtype=float)
+    hellinger = np.asarray(
+        (c_reference, c_null, sqrt(2.0) * c_other), dtype=float
+    )
+    matrix = weight * np.diag(audit_diagonal)
+    matrix += (1.0 - weight) * np.outer(hellinger, hellinger) / 8.0
+    _, eigenvectors = np.linalg.eigh(matrix)
+    eigenvector = np.abs(eigenvectors[:, -1])
+    eigenvector /= np.linalg.norm(eigenvector)
+    priors = (
+        float(eigenvector[0] ** 2),
+        float(eigenvector[1] ** 2),
+        float(eigenvector[2] ** 2 / 2.0),
+        float(eigenvector[2] ** 2 / 2.0),
+    )
+    audit_probability = (
+        priors[0] * t_value + (priors[2] + priors[3]) * other_correct
+    )
+    return_fidelity = (
+        c_reference * sqrt(priors[0])
+        + c_null * sqrt(priors[1])
+        + c_other * (sqrt(priors[2]) + sqrt(priors[3]))
+    ) ** 2 / 8.0
+    support_value = (
+        weight * audit_probability + (1.0 - weight) * return_fidelity
+    )
+    return support_value, audit_probability, return_fidelity, priors
+
+
+def interleaved_compact_lower_bound(
+    audit_weight: float = 0.5,
+) -> InterleavedCompactCandidatePoint:
+    """Optimise the compact three-effect interleaved MPS construction.
+
+    The local geometry has two real parameters.  Completeness fixes a
+    three-effect extremal qubit POVM from ``t``; ``r`` is the symmetric signal
+    state's Bloch coordinate.  The four prior weights are optimised exactly
+    by a three-by-three Perron eigenproblem.  A deterministic multistart search
+    over ``sqrt(t)`` and ``r`` is compared with the exact no-record point.
+
+    Every returned nontrivial point is physically attainable by a bond-two
+    Choi MPS and a four-outcome-per-slot Pauli completion.  Numerical
+    optimisation selects the best point inside this explicit family; it does
+    not prove the unrestricted MPS maximum.
+    """
+
+    weight = _audit_weight(audit_weight)
+    no_record_score = 1.0 - weight / 2.0
+
+    def negative_score(point: np.ndarray) -> float:
+        u_value = min(1.0, max(0.0, float(point[0])))
+        r_value = min(1.0, max(-1.0, float(point[1])))
+        score, _, _, _ = _compact_candidate_evaluate(
+            u_value**2, r_value, weight
+        )
+        return -score
+
+    starts = (
+        (sqrt(0.56), 0.03),
+        (sqrt(0.46), 0.016),
+        (sqrt(0.15), 0.03),
+        (0.20, 0.0),
+        (0.05, 0.0),
+        (0.005, 0.0),
+        (0.999, -0.60),
+    )
+    results = (
+        minimize(
+            negative_score,
+            np.asarray(start, dtype=float),
+            method="Nelder-Mead",
+            bounds=((0.0, 1.0), (-1.0, 1.0)),
+            options={"xatol": 1e-12, "fatol": 1e-14, "maxiter": 10000},
+        )
+        for start in starts
+    )
+    best_result = min(results, key=lambda result: float(result.fun))
+    u_value, r_value = map(float, best_result.x)
+    t_value = u_value**2
+    score, audit_probability, return_fidelity, priors = (
+        _compact_candidate_evaluate(t_value, r_value, weight)
+    )
+    if no_record_score >= score - 5e-12:
+        return InterleavedCompactCandidatePoint(
+            audit_weight=weight,
+            strategy="no_record",
+            t=None,
+            r=None,
+            priors=None,
+            audit_probability=0.5,
+            return_fidelity=1.0,
+            support_value=no_record_score,
+        )
+    return InterleavedCompactCandidatePoint(
+        audit_weight=weight,
+        strategy="three_effect_mps",
+        t=t_value,
+        r=r_value,
+        priors=priors,
+        audit_probability=audit_probability,
+        return_fidelity=return_fidelity,
+        support_value=score,
+    )
+
+
 __all__ = [
     "GROUPED_CHECK_MATRIX",
     "INTERLEAVED_CHECK_MATRIX",
@@ -621,6 +779,7 @@ __all__ = [
     "INTERLEAVED_PERFECT_AUDIT_ENDPOINT",
     "GroupedFrontierPoint",
     "InterleavedCandidatePoint",
+    "InterleavedCompactCandidatePoint",
     "PerfectAuditEndpoint",
     "StoredCounterexamplePoint",
     "full_crossing_cuts",
@@ -632,6 +791,7 @@ __all__ = [
     "grouped_frontier",
     "interleaved_candidate_lower_bound",
     "interleaved_candidate_scores",
+    "interleaved_compact_lower_bound",
     "interleaved_return_upper_bound",
     "interleaved_support_upper_bound",
     "ordered_check_perfect_audit_return_bound",

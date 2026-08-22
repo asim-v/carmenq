@@ -75,6 +75,7 @@ from carmenq import (
     full_rank_block_perfect_audit_return_bound,
     grouped_frontier,
     interleaved_candidate_lower_bound,
+    interleaved_compact_lower_bound,
     interleaved_return_upper_bound,
     interleaved_support_upper_bound,
     ordered_check_perfect_audit_return_bound,
@@ -95,12 +96,28 @@ print(rank_two_static_qubit_support(0.5))     # 0.8535533905... grouped value
 print(INTERLEAVED_ORDER_GAP_WEIGHT_THRESHOLD)  # 3/7
 print(interleaved_candidate_lower_bound(0.5).support_value)  # restricted family
 print(INTERLEAVED_BALANCED_COUNTEREXAMPLE.support_value)  # 0.7594489703...
+print(interleaved_compact_lower_bound(0.5).support_value)  # 0.7598027839...
 ```
 
-The two-parameter result is an exact physical construction, but it is not the
-strongest known lower bound. The stored complete finite-outcome non-QND
-instrument reaches `0.7594489703` at balanced weight and therefore falsifies
-the earlier frontier conjecture. No unrestricted interior optimum is claimed.
+The original two-parameter result is an exact physical construction, but it is
+not the strongest known lower bound. The stored complete finite-outcome
+non-QND instrument reaches `0.7594489703` at balanced weight and falsifies the
+earlier frontier conjecture. A later three-effect bond-two Choi-MPS
+construction reaches `0.7598027839`. Its local Pauli completion is a legal
+four-outcome instrument at every slot, and the independent NumPy verifier
+checks the complete tensor construction. No unrestricted interior optimum is
+claimed.
+
+The arbitrary adaptive support problem now has an exact compact variational
+form: maximise one normalised bond-two Choi-MPS leaf. A local Weyl/Pauli
+completion proves that every feasible leaf is attainable by a complete
+streamed instrument, so unbounded outcome trees are unnecessary. This closes
+the outcome/completeness part of the problem, but not the nonconvex global MPS
+maximum. The compact three-effect curve agrees with unrestricted MPS and a
+larger pinched cq-instrument search on the tested grid; that agreement remains
+a frontier conjecture until a global upper certificate is supplied. See
+[`notes/mps_leaf_completion.md`](notes/mps_leaf_completion.md) and
+[`notes/interleaved_compact_frontier.md`](notes/interleaved_compact_frontier.md).
 
 The endpoint theorem now extends to every finite field. If the ordered check
 matrix splits into `m` consecutive blocks that each retain syndrome rank `r`,
@@ -142,6 +159,9 @@ with the public closed formulas.
 Run `python scripts/verify_interleaved_counterexample.py` to contract the
 stored 81-branch instrument, audit every local completeness relation, and
 verify its strict excess over that construction without PyTorch.
+Run `python scripts/verify_compact_interleaved_candidate.py` to construct the
+stronger three-effect MPS, verify all temporal ranks and row-isometry
+conditions, and check its local Pauli completion independently.
 
 ## Reproduce the paper
 
@@ -161,9 +181,10 @@ The pipeline regenerates the numerical tables and publication figures under `dat
 
 The focused temporal-order result has its own visually verified
 [PDF](output/pdf/CARMEN-Q-order-paper.pdf) and two-column LaTeX source in
-`manuscript-order/`. It proves the linear rank-tail theorem and the certified
-interior order gap while keeping the exact interleaved frontier explicitly
-open.
+`manuscript-order/`. It proves the linear rank-tail theorem, the certified
+interior order gap, and the exact homogeneous Choi-MPS reduction. The compact
+three-effect curve is a verified physical lower bound; the remaining global
+MPS maximum is explicitly open.
 
 ## Scientific boundary
 

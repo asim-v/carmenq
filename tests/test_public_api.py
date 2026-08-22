@@ -16,6 +16,7 @@ from carmenq import (
     full_rank_block_perfect_audit_return_bound,
     grouped_frontier,
     interleaved_candidate_lower_bound,
+    interleaved_compact_lower_bound,
     interleaved_return_upper_bound,
     interleaved_support_upper_bound,
     ordered_check_perfect_audit_return_bound,
@@ -52,3 +53,6 @@ def test_order_sensitive_exact_results_are_public() -> None:
     assert counterexample.support_value > candidate.support_value + 0.004
     assert counterexample.independently_verified is True
     assert counterexample.support_is_globally_optimal is False
+    compact = interleaved_compact_lower_bound(0.5)
+    assert compact.support_value > counterexample.support_value + 0.0003
+    assert compact.support_is_globally_optimal is False

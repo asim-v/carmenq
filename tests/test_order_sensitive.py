@@ -20,6 +20,7 @@ from carmenq.order_sensitive import (
     grouped_frontier,
     interleaved_candidate_lower_bound,
     interleaved_candidate_scores,
+    interleaved_compact_lower_bound,
     interleaved_return_upper_bound,
     interleaved_support_upper_bound,
     ordered_check_perfect_audit_return_bound,
@@ -386,6 +387,41 @@ def test_interleaved_candidate_selects_no_record_below_transition() -> None:
     assert point.audit_probability == 0.5
     assert point.return_fidelity == 1.0
     assert point.support_value == 0.765
+
+
+def test_compact_interleaved_candidate_reproduces_balanced_mps_point() -> None:
+    point = interleaved_compact_lower_bound(0.5)
+    assert point.strategy == "three_effect_mps"
+    assert point.t is not None and isclose(point.t, 0.45807398, abs_tol=3e-7)
+    assert point.r is not None and isclose(point.r, 0.01637352, abs_tol=3e-7)
+    assert point.priors is not None
+    assert np.allclose(
+        point.priors,
+        (0.19921398, 0.09721290, 0.35178656, 0.35178656),
+        atol=3e-7,
+        rtol=0.0,
+    )
+    assert isclose(point.audit_probability, 0.620085075586, abs_tol=2e-10)
+    assert isclose(point.return_fidelity, 0.899520492117, abs_tol=2e-10)
+    assert isclose(point.support_value, 0.759802783851444, abs_tol=2e-11)
+    assert point.support_is_globally_optimal is False
+
+
+def test_compact_interleaved_candidate_has_first_order_coexistence() -> None:
+    below = interleaved_compact_lower_bound(0.44)
+    above = interleaved_compact_lower_bound(0.442)
+    assert below.strategy == "no_record"
+    assert below.support_value == 0.78
+    assert above.strategy == "three_effect_mps"
+    assert above.support_value > 1.0 - 0.442 / 2.0
+
+
+def test_compact_candidate_reaches_exact_interleaved_endpoint() -> None:
+    point = interleaved_compact_lower_bound(1.0)
+    assert point.strategy == "three_effect_mps"
+    assert isclose(point.audit_probability, 1.0, abs_tol=2e-12)
+    assert isclose(point.return_fidelity, 0.25, abs_tol=2e-10)
+    assert isclose(point.support_value, 1.0, abs_tol=2e-12)
 
 
 def test_four_slot_order_classification_has_both_connectivity_types() -> None:

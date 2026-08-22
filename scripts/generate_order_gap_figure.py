@@ -10,7 +10,7 @@ import numpy as np
 from carmenq import (
     INTERLEAVED_BALANCED_COUNTEREXAMPLE,
     INTERLEAVED_ORDER_GAP_WEIGHT_THRESHOLD,
-    interleaved_candidate_lower_bound,
+    interleaved_compact_lower_bound,
     interleaved_support_upper_bound,
     rank_two_static_qubit_support,
 )
@@ -28,7 +28,7 @@ def main() -> None:
         [interleaved_support_upper_bound(value) for value in weights]
     )
     candidate = np.array(
-        [interleaved_candidate_lower_bound(value).support_value for value in weights]
+        [interleaved_compact_lower_bound(value).support_value for value in weights]
     )
     no_record = 1.0 - weights / 2.0
     threshold = INTERLEAVED_ORDER_GAP_WEIGHT_THRESHOLD
@@ -82,7 +82,7 @@ def main() -> None:
         color="#188977",
         linewidth=1.8,
         linestyle="--",
-        label="analytic achievable family",
+        label="compact three-effect MPS lower bound",
     )
     axis.plot(
         weights,
@@ -98,11 +98,11 @@ def main() -> None:
         [point.support_value],
         s=42,
         marker="D",
-        color="#7A3E9D",
-        edgecolor="white",
-        linewidth=0.7,
+        facecolor="none",
+        edgecolor="#7A3E9D",
+        linewidth=1.1,
         zorder=5,
-        label="verified complete non-QND strategy",
+        label="earlier ternary strategy (superseded)",
     )
     axis.axvline(threshold, color="#C96A1B", linewidth=0.9, alpha=0.75)
     axis.annotate(
