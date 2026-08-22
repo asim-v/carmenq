@@ -1,5 +1,39 @@
 # Changelog
 
+## Unreleased
+
+- Reduced the arbitrary adaptive four-slot interleaved support problem exactly
+  to a Hilbert--Schmidt-normalised bond-two Choi-MPS maximum. A local
+  Pauli/Weyl completion turns every feasible normalised leaf into a complete
+  four-outcome-per-slot causal instrument, eliminating unbounded outcome trees
+  without claiming that the remaining nonconvex maximum is solved.
+- Added a compact three-effect physical construction with balanced support
+  `0.759802783851444`, improving the previous ternary lower bound. The public
+  API, independent NumPy tensor verifier, regression tests, data record, and
+  support-gap figure reproduce the construction and its sub-`1e-15`
+  completeness residuals.
+- Expanded the focused two-column manuscript with the exact completion proof,
+  the compact lower curve, and an explicit statement of the remaining global
+  MPS-certification problem.
+
+## 2.2.0 - 2026-08-21
+
+- Proved a linear Ky Fan rank-tail theorem for approximate syndrome AUDIT across consecutive full-rank temporal blocks: the total tail below the perfect-AUDIT rank is at most `m * D * (1 - P_A)` for arbitrary adaptive non-QND instruments in the declared interface.
+- Converted the rank-tail theorem into an explicit all-carrier RETURN upper bound with the sharp square-root endpoint exponent.
+- Certified a strict support-function separation between the grouped and interleaved coordinate orders for every audit weight `3/7 < lambda < 1`, including balanced weight; the exact interleaved frontier remains open.
+- Added public Python functions for the general approximate-AUDIT bound and the canonical interleaved RETURN/support certificates, plus independent artifact checks of the causal lists and spectral-tail slack.
+- Repeated the focused collision search through 21 August 2026 and retained narrow priority language around the complete operational conjunction rather than its established ingredients.
+
+## 2.1.0 - 2026-08-20
+
+- Added the exact grouped and interleaved rank-two syndrome instances, binary cut-connectivity utilities, and the attained perfect-AUDIT order gap to the public Python API.
+- Added the arbitrary-instrument endpoint proof, a quantitative robust full-crossing bound, and a focused priority audit that separates the new operational result from established trellis, comb, and recovery theory.
+- Added regression coverage and a reproducible enumeration of all four-slot nonzero-column order classes while leaving the unsolved interleaved interior explicitly unclaimed.
+- Reconstructed a binary/QND interleaved strategy as an exact two-parameter causal instrument and exposed it as an explicitly nonoptimality-claiming lower-bound API, with a first-order onset inside that restricted family at audit weight `0.477812793357157...`.
+- Added a framework-neutral complete finite-outcome counterexample that strictly beats the two-parameter construction at balanced weight (`0.7594489703 > 0.7554374462`), an independent NumPy verifier, and regression coverage. The unrestricted interior frontier remains open.
+- Generalized the perfect-AUDIT endpoint to the finite-field temporal power law `F_R <= min(1, (d/q**r)**m)` for `m` consecutive full-rank blocks, proved tight on repeated identity blocks when `d=q**k`, and added public helpers for the general law, its two-block specialization, the greedy ordered block-packing exponent `mu(H)`, and the resulting binary matrix-level bound.
+- Derived an exact exponential same-columns order separation: batching repeated basis columns gives optimum `d/q**r`, whereas cycling them through `m` full-rank blocks gives `(d/q**r)**m` under the same perfect-AUDIT memory constraint.
+
 ## 2.0.2 - 2026-08-12
 
 - Revised the manuscript and public protocol specification into a consistently single-author, impersonal academic voice.
