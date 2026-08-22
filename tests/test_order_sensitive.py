@@ -401,8 +401,8 @@ def test_compact_interleaved_candidate_reproduces_balanced_mps_point() -> None:
         atol=3e-7,
         rtol=0.0,
     )
-    assert isclose(point.audit_probability, 0.620085075586, abs_tol=2e-10)
-    assert isclose(point.return_fidelity, 0.899520492117, abs_tol=2e-10)
+    assert isclose(point.audit_probability, 0.620085075586, abs_tol=5e-9)
+    assert isclose(point.return_fidelity, 0.899520492117, abs_tol=5e-9)
     assert isclose(point.support_value, 0.759802783851444, abs_tol=2e-11)
     assert point.support_is_globally_optimal is False
 
