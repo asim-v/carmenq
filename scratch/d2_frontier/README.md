@@ -42,6 +42,11 @@ The curated search chain is:
   cover of the full sorted ternary terminal-weight strip;
 - `four_active_projection_scip.py`: projected Helstrom spatial relaxation for
   the genuinely four-active region;
+- `audit_common_instrument_candidate.py`: exact fixed-input Choi projection,
+  flagged trace-norm audit, and separating-witness archive for a relaxed
+  first-moment family;
+- `validate_common_instrument_strengthening.py`: validates the multi-scale
+  and branch-local common-instrument experiment at `lambda=0.55`;
 - `active_readout_geometry_probe.py` and
   `four_active_geometry_support_probe.py`: exact Helstrom reconstruction,
   projective-comparison, polygon-closure, and prior-reserve helpers;

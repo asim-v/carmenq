@@ -61,6 +61,24 @@ python examples/order_gap.py
 
 The [Python API guide](docs/python-api.md) explains the concise and long-form scientific interfaces. The [benchmark specification](docs/audit-return-benchmark-v0.1.md) states the trusted access model, while the [preregistration example](docs/audit-return-preregistration.example.json) records the experimental assumptions that must be fixed before data are observed.
 
+For frontier research, the package can also test whether every conditioned
+qubit output comes from one shared quantum instrument. The inexpensive scan
+checks flagged trace-norm data processing; the exact fixed-input projection
+uses the optional solver stack and returns a separating witness when the
+family is incompatible.
+
+```python
+from carmenq import project_to_common_instrument, scan_flagged_trace_norm_cuts
+
+cuts = scan_flagged_trace_norm_cuts(prefix_states, conditioned_outputs)
+projection = project_to_common_instrument(prefix_states, conditioned_outputs)
+print(min(cut.slack for cut in cuts), projection.separation_gap)
+```
+
+The validated `lambda=0.55` strengthening experiment and its explicit local
+versus global boundary are documented in
+[`notes/common_instrument_strengthening_l055.md`](notes/common_instrument_strengthening_l055.md).
+
 ## Explore the order-sensitive theorem
 
 Version 2.2 adds a robust bounded-memory result that depends on temporal order rather than only on terminal memory dimension. Two rank-two check matrices represent the same code up to a coordinate permutation. The grouped order reaches return fidelity `0.5` at perfect syndrome audit; the interleaved order has the exact and attained ceiling `0.25` under the declared one-qubit streaming interface. A causal list-decoding theorem now certifies that their support functions remain strictly separated throughout the interior interval `3/7 < audit_weight < 1`.

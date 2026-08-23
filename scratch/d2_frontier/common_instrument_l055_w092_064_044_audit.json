@@ -1,0 +1,50 @@
+{
+  "source_weight": 0.55,
+  "source_bound": 0.7633274596929631,
+  "source_terminal_effect_weights": [
+    0.92,
+    0.64,
+    0.44,
+    0.0
+  ],
+  "scales": [
+    0.25,
+    0.5,
+    1.0,
+    2.0,
+    4.0
+  ],
+  "worst_flagged_cut": {
+    "input_pair": [
+      0,
+      1
+    ],
+    "scale": 1.0,
+    "input_trace_norm": 1.9746937408970926e-05,
+    "output_trace_norm": 0.5729649211703587,
+    "slack": -0.5729451742329498,
+    "violation": 0.5729451742329498
+  },
+  "negative_flagged_cut_count": 30,
+  "total_flagged_cut_count": 30,
+  "choi_projection": {
+    "status": "optimal",
+    "solver": "CLARABEL",
+    "distance": 0.20092996613685582,
+    "squared_distance": 0.04037285129175803,
+    "candidate_witness_value": 0.20093001183622533,
+    "compatible_support_value": 2.639041332339054e-07,
+    "separation_gap": 0.2009297479320921,
+    "trace_preservation_residual": 1.1102230246251565e-16,
+    "minimum_choi_eigenvalue": 0.0746907012931624,
+    "compatible_at_1e-7": false,
+    "input_lipschitz_constants": [
+      0.3495526843878175,
+      0.3503535159531199,
+      0.2533507549509938,
+      0.23196933290131097
+    ],
+    "uniform_input_trace_radius_budget": 0.16952859545360674
+  },
+  "interpretation": "solver-conditional incompatibility audit of the reported first-moment family; not a global frontier certificate"
+}
