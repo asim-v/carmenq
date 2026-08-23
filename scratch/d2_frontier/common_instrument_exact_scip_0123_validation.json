@@ -1,0 +1,69 @@
+{
+  "support_weight": 0.55,
+  "terminal_effect_weights": [
+    0.92,
+    0.64,
+    0.44,
+    0.0
+  ],
+  "prefix_order": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "exact_formulation": "exact shared Choi variables with complex Cholesky positivity",
+  "scip_status": "timelimit",
+  "scip_primal_bound": 0.7239479692708002,
+  "scip_dual_bound": 0.7699031152109781,
+  "scip_gap": 0.06347852040591596,
+  "scip_nodes": 56,
+  "raw_matrix_audit": {
+    "score": 0.723947920506866,
+    "audit": 0.5007558875053006,
+    "return": 0.9967381830643346,
+    "normalisation": 1.0000000000000002,
+    "statistics_normalisation": 1.0000000000000002,
+    "path_probability_consistency": 1.3877787807814457e-17,
+    "minimum_state_eigenvalue": -9.106149723159263e-10,
+    "minimum_choi_eigenvalue": 3.47317161899286e-11,
+    "minimum_output_eigenvalue": -2.35503736303877e-10,
+    "minimum_effect_eigenvalue": 0.0,
+    "trace_preservation_residual": 3.2957919968262575e-16,
+    "povm_completeness_residual": 0.0,
+    "optimal_terminal_audit": 0.5007558894318139,
+    "fixed_povm_optimality_gap": 1.926513282235476e-09,
+    "optimal_terminal_effect_traces": [
+      0.9199383376611127,
+      0.6400010289622822,
+      0.4399128882469356,
+      0.00014774513444006608
+    ]
+  },
+  "state_depolarising_repair": 7.692894296695762e-09,
+  "repaired_physical_strategy": {
+    "score": 0.7239479194639127,
+    "audit": 0.5007558855800381,
+    "return": 0.9967381830997593,
+    "normalisation": 1.0,
+    "statistics_normalisation": 1.0,
+    "path_probability_consistency": 1.3877787807814457e-17,
+    "minimum_state_eigenvalue": 1.0010499373880322e-12,
+    "minimum_choi_eigenvalue": 3.47317161899286e-11,
+    "minimum_output_eigenvalue": 1.8505570339999444e-11,
+    "minimum_effect_eigenvalue": 0.0,
+    "trace_preservation_residual": 3.2957919968262575e-16,
+    "povm_completeness_residual": 0.0,
+    "optimal_terminal_audit": 0.5007558875065509,
+    "fixed_povm_optimality_gap": 1.9265127271239635e-09,
+    "optimal_terminal_effect_traces": [
+      0.9199383375184687,
+      0.6400010295828802,
+      0.43991288749846447,
+      0.00014774540496339665
+    ]
+  },
+  "previous_checkpoint_score": 0.7225888452252243,
+  "improvement_over_previous_checkpoint": 0.001359074238688418,
+  "status": "one literal shared instrument verified after an inward state-cone repair; the global SCIP upper bound remains solver-conditional and does not close the 0.758 target"
+}

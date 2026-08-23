@@ -82,7 +82,7 @@ def affine_sum(terms: list[tuple[float, Affine]], constant: float = 0.0) -> Affi
 
 
 def value(form: Affine, first: cp.Expression) -> cp.Expression:
-    return form.constant + sum(
+    return cp.Constant(form.constant) + sum(
         coefficient * first[index] for index, coefficient in form.coefficients
     )
 
@@ -93,7 +93,7 @@ def product(
     first: cp.Expression,
     second: cp.Expression,
 ) -> cp.Expression:
-    expression: cp.Expression = left.constant * right.constant
+    expression: cp.Expression = cp.Constant(left.constant * right.constant)
     expression += left.constant * sum(
         coefficient * first[index] for index, coefficient in right.coefficients
     )
@@ -166,10 +166,13 @@ def solve_povm(
     mccormick: str,
     data_processing: str,
     data_processing_scales: tuple[float, ...],
-    witness_cut: dict[str, object] | None,
-    input_trace_radii: tuple[float, ...] | None,
+    state_coordinate_bounds: np.ndarray | None,
+    witness_cuts: tuple[dict[str, object], ...],
     solver: str,
     verbose: bool,
+    tensor_localizers: str = "none",
+    gauge_fix: bool = False,
+    return_linear_weights: np.ndarray | None = None,
 ) -> dict[str, object]:
     traces = np.trace(effects, axis1=1, axis2=2).real
     active = tuple(int(s) for s in OUTCOMES if traces[s] > 1e-9)
@@ -180,18 +183,53 @@ def solve_povm(
             float(np.trace(projector @ pauli).real) for pauli in PAULIS[1:]
         ]
 
+    if state_coordinate_bounds is None:
+        state_bounds = np.zeros((4, 4, 2), dtype=float)
+        state_bounds[:, 0] = (0.0, 1.0)
+        state_bounds[:, 1:, 0] = -1.0
+        state_bounds[:, 1:, 1] = 1.0
+    else:
+        state_bounds = np.asarray(state_coordinate_bounds, dtype=float)
+        if state_bounds.shape != (4, 4, 2):
+            raise ValueError("state-coordinate bounds must have shape (4,4,2)")
+        if np.any(~np.isfinite(state_bounds)) or np.any(
+            state_bounds[..., 0] > state_bounds[..., 1]
+        ):
+            raise ValueError("invalid state-coordinate bounds")
+    if tensor_localizers not in {"none", "state-choi", "state-choi-ppt"}:
+        raise ValueError(
+            "tensor_localizers must be none, state-choi, or state-choi-ppt"
+        )
+
     registry = Registry()
     state: dict[tuple[int, int], Affine] = {}
     for z in range(3):
-        state[z, 0] = coordinate(registry.add(f"rho_{z}_0", 0.0, 1.0))
+        state[z, 0] = coordinate(
+            registry.add(f"rho_{z}_0", *state_bounds[z, 0])
+        )
     state[3, 0] = affine_sum(
         [(-1.0, state[z, 0]) for z in range(3)], constant=1.0
     )
     for z in OUTCOMES:
         for mu in range(1, 4):
+            if gauge_fix and ((z, mu) == (0, 2) or (z == 3 and mu in (1, 2))):
+                continue
             state[z, mu] = coordinate(
-                registry.add(f"rho_{z}_{mu}", -1.0, 1.0)
+                registry.add(f"rho_{z}_{mu}", *state_bounds[z, mu])
             )
+    if gauge_fix:
+        # Simultaneous input conjugation and inverse pre-conjugation of every
+        # instrument map leave all conditioned outputs unchanged.  Use this
+        # SU(2) gauge to align the total input Bloch vector with +z and the
+        # transverse part of rho_0 with +x.  Three coordinates can therefore
+        # be eliminated before forming the moment matrix.
+        state[0, 2] = Affine(0.0, ())
+        state[3, 1] = affine_sum(
+            [(-1.0, state[z, 1]) for z in range(3)]
+        )
+        state[3, 2] = affine_sum(
+            [(-1.0, state[z, 2]) for z in range(3)]
+        )
 
     choi: dict[tuple[int, int, int], Affine] = {}
     for y in range(3):
@@ -226,9 +264,22 @@ def solve_povm(
             <= (lower + upper) * first[index] - lower * upper
         )
 
-    # Bounds and quadratic interval localisers for the five eliminated
-    # logical coordinates.
-    add_logical_bounds(state[3, 0], 0.0, 1.0, first, second, constraints)
+    # Bounds and quadratic interval localisers for eliminated logical
+    # coordinates.
+    add_logical_bounds(
+        state[3, 0], *state_bounds[3, 0], first, second, constraints
+    )
+    if gauge_fix:
+        for z, mu in ((0, 2), (3, 1), (3, 2)):
+            add_logical_bounds(
+                state[z, mu], *state_bounds[z, mu], first, second, constraints
+            )
+        constraints.extend(
+            (
+                value(state[0, 1], first) >= 0.0,
+                sum(value(state[z, 3], first) for z in OUTCOMES) >= 0.0,
+            )
+        )
     for mu in range(4):
         bounds = (0.0, 2.0) if mu == 0 else (-2.0, 2.0)
         add_logical_bounds(choi[3, mu, 0], *bounds, first, second, constraints)
@@ -284,7 +335,7 @@ def solve_povm(
         for z in OUTCOMES:
             for y in OUTCOMES:
                 for mu in range(4):
-                    state_bounds = (0.0, 1.0) if mu == 0 else (-1.0, 1.0)
+                    coordinate_bounds = tuple(state_bounds[z, mu])
                     nus = range(4)
                     for nu in nus:
                         lifted = product(state[z, mu], choi[y, mu, nu], first, second)
@@ -293,14 +344,14 @@ def solve_povm(
                             state[z, mu],
                             choi[y, mu, nu],
                             lifted,
-                            state_bounds,
+                            coordinate_bounds,
                             choi_bounds,
                             first,
                             constraints,
                         )
                 if mccormick == "all":
                     for mu in range(4):
-                        state_bounds = (0.0, 1.0) if mu == 0 else (-1.0, 1.0)
+                        coordinate_bounds = tuple(state_bounds[z, mu])
                         for alpha in range(4):
                             if alpha == mu:
                                 continue
@@ -319,7 +370,7 @@ def solve_povm(
                                         first,
                                         second,
                                     ),
-                                    state_bounds,
+                                    coordinate_bounds,
                                     choi_bounds,
                                     first,
                                     constraints,
@@ -346,6 +397,56 @@ def solve_povm(
             )
             constraints.append(cp.SOC(scaled_state_scalar, scaled_state_vector))
 
+    if tensor_localizers in {"state-choi", "state-choi-ppt"}:
+        # At every physical rank-one moment point this matrix is exactly
+        # rho_z^T tensor J_y.  Positivity of the two factors therefore makes
+        # the 8-by-8 matrix positive semidefinite.  The scalar localisers
+        # above are only coarse marginals of this matrix-valued constraint;
+        # retaining the full tensor product couples *all* state--Choi cross
+        # moments and is a substantially stronger first-level condition.
+        triple_paulis = {
+            (mu, alpha, nu): np.kron(
+                PAULIS[mu], np.kron(PAULIS[alpha], PAULIS[nu])
+            )
+            for mu in range(4)
+            for alpha in range(4)
+            for nu in range(4)
+        }
+        for z in OUTCOMES:
+            for y in OUTCOMES:
+                tensor_product = sum(
+                    TRANSPOSE_SIGN[mu]
+                    * product(
+                        state[z, mu], choi[y, alpha, nu], first, second
+                    )
+                    * triple_paulis[mu, alpha, nu]
+                    for mu in range(4)
+                    for alpha in range(4)
+                    for nu in range(4)
+                ) / 8.0
+                constraints.append(cp.hermitian_wrap(tensor_product) >> 0)
+                if tensor_localizers == "state-choi-ppt":
+                    # The physical matrix is a product across the auxiliary
+                    # input-state / Choi split, hence it is separable across
+                    # 2 x 4 and must remain positive under partial transpose.
+                    # Removing TRANSPOSE_SIGN performs that transpose on the
+                    # first qubit factor.  This PPT constraint rejects lifted
+                    # state--instrument correlations that mere positivity
+                    # cannot see.
+                    partial_transpose = sum(
+                        product(
+                            state[z, mu],
+                            choi[y, alpha, nu],
+                            first,
+                            second,
+                        )
+                        * triple_paulis[mu, alpha, nu]
+                        for mu in range(4)
+                        for alpha in range(4)
+                        for nu in range(4)
+                    ) / 8.0
+                    constraints.append(cp.hermitian_wrap(partial_transpose) >> 0)
+
     probabilities: dict[tuple[int, int], cp.Expression] = {}
     output_vectors: dict[tuple[int, int], cp.Expression] = {}
     for z, y in PATHS:
@@ -367,12 +468,13 @@ def solve_povm(
         )
         constraints.append(cp.SOC(probabilities[z, y], output_vectors[z, y]))
 
-    witness_expression: cp.Expression | None = None
-    witness_upper: float | None = None
-    if witness_cut is not None:
-        if input_trace_radii is None or len(input_trace_radii) != 4:
+    witness_expressions: list[cp.Expression] = []
+    witness_uppers: list[float] = []
+    for witness_cut in witness_cuts:
+        input_trace_radii = np.asarray(witness_cut["input_trace_radii"], dtype=float)
+        if input_trace_radii.shape != (4,):
             raise ValueError("a witness cut requires four input trace radii")
-        if any(not np.isfinite(radius) or radius < 0.0 for radius in input_trace_radii):
+        if np.any(~np.isfinite(input_trace_radii)) or np.any(input_trace_radii < 0.0):
             raise ValueError("input trace radii must be finite and nonnegative")
         reference_bloch = np.asarray(witness_cut["reference_bloch"], dtype=float)
         witness_bloch = np.asarray(witness_cut["witness_bloch"], dtype=float)
@@ -381,22 +483,25 @@ def solve_povm(
             raise ValueError("invalid common-instrument witness dimensions")
         if lipschitz.shape != (4,):
             raise ValueError("invalid common-instrument Lipschitz constants")
-        for z in OUTCOMES:
-            scalar_difference = value(state[z, 0], first) - reference_bloch[z, 0]
-            vector_difference = cp.hstack(
-                [
-                    value(state[z, mu], first) - reference_bloch[z, mu]
-                    for mu in range(1, 4)
-                ]
-            )
-            radius = input_trace_radii[z]
-            constraints.extend(
-                (
-                    scalar_difference <= radius,
-                    scalar_difference >= -radius,
-                    cp.SOC(radius, vector_difference),
+        if bool(witness_cut.get("restrict_to_balls", False)):
+            for z in OUTCOMES:
+                scalar_difference = (
+                    value(state[z, 0], first) - reference_bloch[z, 0]
                 )
-            )
+                vector_difference = cp.hstack(
+                    [
+                        value(state[z, mu], first) - reference_bloch[z, mu]
+                        for mu in range(1, 4)
+                    ]
+                )
+                radius = input_trace_radii[z]
+                constraints.extend(
+                    (
+                        scalar_difference <= radius,
+                        scalar_difference >= -radius,
+                        cp.SOC(radius, vector_difference),
+                    )
+                )
         witness_expression = sum(
             0.5
             * (
@@ -406,12 +511,16 @@ def solve_povm(
             for z, y in PATHS
         )
         witness_upper = float(witness_cut["reference_support"]) + float(
-            np.dot(lipschitz, np.asarray(input_trace_radii))
+            np.dot(lipschitz, input_trace_radii)
         )
         constraints.append(witness_expression <= witness_upper)
+        witness_expressions.append(witness_expression)
+        witness_uppers.append(witness_upper)
 
-    if data_processing not in {"none", "prior", "quadratic"}:
-        raise ValueError("data_processing must be none, prior, or quadratic")
+    if data_processing not in {"none", "prior", "quadratic", "cell"}:
+        raise ValueError(
+            "data_processing must be none, prior, quadratic, or cell"
+        )
     if not data_processing_scales:
         raise ValueError("at least one data-processing scale is required")
     if any(not np.isfinite(scale) or scale < 0.0 for scale in data_processing_scales):
@@ -450,6 +559,34 @@ def solve_povm(
                             total_output_distance
                             <= value(state[first_z, 0], first)
                             + scale * value(state[second_z, 0], first)
+                        )
+                    elif data_processing == "cell":
+                        # On an axis-aligned state cell, interval arithmetic
+                        # gives a deterministic upper bound on the exact qubit
+                        # trace norm.  Unlike the quadratic moment surrogate,
+                        # this bound cannot borrow artificial variance and it
+                        # converges to the true input distance as the spatial
+                        # branch shrinks.
+                        lower = (
+                            state_bounds[first_z, :, 0]
+                            - scale * state_bounds[second_z, :, 1]
+                        )
+                        upper = (
+                            state_bounds[first_z, :, 1]
+                            - scale * state_bounds[second_z, :, 0]
+                        )
+                        absolute = np.maximum(np.abs(lower), np.abs(upper))
+                        input_distance_upper = max(
+                            float(absolute[0]),
+                            float(np.linalg.norm(absolute[1:])),
+                        )
+                        constraints.extend(
+                            (
+                                total_output_distance <= input_distance_upper,
+                                total_output_distance
+                                <= value(state[first_z, 0], first)
+                                + scale * value(state[second_z, 0], first),
+                            )
                         )
                     else:
                         # For X=(d I+v.sigma)/2,
@@ -520,9 +657,25 @@ def solve_povm(
         )
     constraints.append(audit == dual_trace)
 
-    returned = hellinger_hypograph(
-        [probabilities[z, y] for z, y in PATHS], constraints
-    )
+    if return_linear_weights is None:
+        returned = hellinger_hypograph(
+            [probabilities[z, y] for z, y in PATHS], constraints
+        )
+        return_mode = "hellinger"
+        linear_return_weights = None
+    else:
+        linear_return_weights = np.asarray(return_linear_weights, dtype=float)
+        if linear_return_weights.shape != (4, 4):
+            raise ValueError("return_linear_weights must have shape (4,4)")
+        if np.any(~np.isfinite(linear_return_weights)) or np.any(
+            linear_return_weights < 0.0
+        ):
+            raise ValueError("return linear weights must be finite and nonnegative")
+        returned = sum(
+            linear_return_weights[z, y] * probabilities[z, y]
+            for z, y in PATHS
+        )
+        return_mode = "linear-majorant"
     problem = cp.Problem(
         cp.Maximize(weight * audit + (1.0 - weight) * returned), constraints
     )
@@ -572,7 +725,8 @@ def solve_povm(
     )
     geometry = discrimination_geometry(terminal_states)
     audit_value = float(audit.value)
-    returned_value = float(np.sqrt(np.maximum(point, 0.0)).sum() ** 2 / 16.0)
+    hellinger_value = float(np.sqrt(np.maximum(point, 0.0)).sum() ** 2 / 16.0)
+    returned_value = float(returned.value)
     moment_value = np.asarray(moment.value)
     eigenvalues = np.linalg.eigvalsh(moment_value)
     choi_minimum = min(
@@ -626,6 +780,26 @@ def solve_povm(
                         "first_moment_slack": input_norm - output_norm,
                     }
                 )
+    witness_reports = [
+        {
+            "input_trace_radii": np.asarray(
+                witness_cut["input_trace_radii"], dtype=float
+            ).tolist(),
+            "reference_support": float(witness_cut["reference_support"]),
+            "lipschitz_constants": np.asarray(
+                witness_cut["lipschitz"], dtype=float
+            ).tolist(),
+            "restrict_to_balls": bool(
+                witness_cut.get("restrict_to_balls", False)
+            ),
+            "robust_upper": witness_uppers[index],
+            "value": float(witness_expressions[index].value),
+            "slack": float(
+                witness_uppers[index] - float(witness_expressions[index].value)
+            ),
+        }
+        for index, witness_cut in enumerate(witness_cuts)
+    ]
     return {
         "weight": weight,
         "terminal_effect_weights": traces.tolist(),
@@ -633,19 +807,17 @@ def solve_povm(
         "mccormick": mccormick,
         "data_processing": data_processing,
         "data_processing_scales": list(data_processing_scales),
+        "tensor_localizers": tensor_localizers,
+        "gauge_fix": gauge_fix,
+        "return_mode": return_mode,
+        "return_linear_weights": (
+            None if linear_return_weights is None else linear_return_weights.tolist()
+        ),
+        "state_coordinate_bounds": state_bounds.tolist(),
+        "common_instrument_witness_cuts": witness_reports,
+        # Backward-compatible singular field used by the first local audit.
         "common_instrument_witness_cut": (
-            None
-            if witness_cut is None
-            else {
-                "input_trace_radii": list(input_trace_radii or ()),
-                "reference_support": float(witness_cut["reference_support"]),
-                "lipschitz_constants": np.asarray(
-                    witness_cut["lipschitz"], dtype=float
-                ).tolist(),
-                "robust_upper": witness_upper,
-                "value": float(witness_expression.value),
-                "slack": float(witness_upper - float(witness_expression.value)),
-            }
+            witness_reports[0] if len(witness_reports) == 1 else None
         ),
         "solver": solver,
         "moment_size": size + 1,
@@ -653,6 +825,7 @@ def solve_povm(
         "objective_from_reported": weight * audit_value + (1.0 - weight) * returned_value,
         "audit": audit_value,
         "return": returned_value,
+        "hellinger_return_at_reported": hellinger_value,
         "normalisation": float(point.sum()),
         "prefix_priors": [float(item.value) for item in prefix],
         "syndrome_priors": terminal_prior_value.tolist(),
@@ -691,7 +864,7 @@ def main() -> None:
     parser.add_argument("--mccormick", choices=("none", "used", "all"), default="used")
     parser.add_argument(
         "--data-processing",
-        choices=("none", "prior", "quadratic"),
+        choices=("none", "prior", "quadratic", "cell"),
         default="quadratic",
     )
     parser.add_argument(
@@ -702,6 +875,22 @@ def main() -> None:
         help="repeatable t in ||Phi(rho)-t Phi(sigma)||_1 <= ||rho-t sigma||_1",
     )
     parser.add_argument("--solver", choices=("clarabel", "scs"), default="clarabel")
+    parser.add_argument(
+        "--tensor-localizers",
+        choices=("none", "state-choi", "state-choi-ppt"),
+        default="none",
+        help="matrix-valued degree-two positivity localizers",
+    )
+    parser.add_argument(
+        "--gauge-fix",
+        action="store_true",
+        help="quotient the global SU(2) input gauge before relaxation",
+    )
+    parser.add_argument(
+        "--return-tangent-from",
+        type=Path,
+        help="use the global Hellinger tangent at path probabilities in this JSON",
+    )
     parser.add_argument(
         "--common-instrument-audit",
         type=Path,
@@ -720,7 +909,7 @@ def main() -> None:
     if sorted(order) != list(OUTCOMES):
         raise ValueError("prefix order must be a permutation of 0,1,2,3")
     weights = np.asarray(args.fixed_three_povm_weights, dtype=float)
-    witness_cut = None
+    witness_cuts: tuple[dict[str, object], ...] = ()
     radii = None
     if args.common_instrument_audit is not None:
         if args.input_trace_radius is None:
@@ -754,18 +943,35 @@ def main() -> None:
             ]
         )
         projection_payload = audit_payload["choi_projection"]
-        witness_cut = {
-            "reference_bloch": reference_bloch,
-            "witness_bloch": witness_bloch,
-            "lipschitz": np.asarray(
-                projection_payload["input_lipschitz_constants"], dtype=float
-            ),
-            "reference_support": float(
-                projection_payload["compatible_support_value"]
-            ),
-        }
+        witness_cuts = (
+            {
+                "reference_bloch": reference_bloch,
+                "witness_bloch": witness_bloch,
+                "lipschitz": np.asarray(
+                    projection_payload["input_lipschitz_constants"], dtype=float
+                ),
+                "reference_support": float(
+                    projection_payload["compatible_support_value"]
+                ),
+                "input_trace_radii": np.asarray(radii, dtype=float),
+                "restrict_to_balls": True,
+            },
+        )
     elif args.input_trace_radius is not None:
         raise ValueError("--input-trace-radius requires --common-instrument-audit")
+    return_linear_weights = None
+    if args.return_tangent_from is not None:
+        tangent_payload = json.loads(
+            args.return_tangent_from.read_text(encoding="utf-8")
+        )
+        tangent_point = np.asarray(
+            tangent_payload["path_probabilities"], dtype=float
+        )
+        if tangent_point.shape != (4, 4) or np.any(tangent_point <= 0.0):
+            raise ValueError("return tangent requires sixteen positive probabilities")
+        root_sum = float(np.sqrt(tangent_point).sum())
+        return_linear_weights = root_sum / (16.0 * np.sqrt(tangent_point))
+
     payload = solve_povm(
         canonical_three_effect_povm(weights),
         args.weight,
@@ -777,10 +983,13 @@ def main() -> None:
             if args.data_processing_scale is None
             else args.data_processing_scale
         ),
-        witness_cut,
-        radii,
+        None,
+        witness_cuts,
         args.solver,
         args.verbose,
+        args.tensor_localizers,
+        args.gauge_fix,
+        return_linear_weights,
     )
     rendered = json.dumps(payload, indent=2) + "\n"
     print(rendered)

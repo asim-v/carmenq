@@ -47,6 +47,19 @@ The curated search chain is:
   first-moment family;
 - `validate_common_instrument_strengthening.py`: validates the multi-scale
   and branch-local common-instrument experiment at `lambda=0.55`;
+- `common_instrument_sparse_order2.py`: sparse second-order state--Choi
+  hierarchy with shared outcome and trace-preservation bridges;
+- `validate_common_instrument_hierarchy.py`: checks the multicolumn
+  obstruction, sparse Choi residuals, exact first-moment incompatibility, and
+  the independent deterministic formulations;
+- `common_instrument_branch_tree.py`: resumable state-cell cover using robust
+  Choi witnesses and deterministic cellwise trace-contraction bounds;
+- `behavior_disjunction_scip.py`: exact mixed-integer union of small-support
+  qubit-behaviour obstruction clauses;
+- `common_instrument_exact_scip.py`: nonconvex spatial model whose sixteen
+  outputs all use one literal collection of positive Choi matrices;
+- `validate_exact_common_instrument.py`: direct matrix audit and inward repair
+  of the exact model's archived physical strategy;
 - `active_readout_geometry_probe.py` and
   `four_active_geometry_support_probe.py`: exact Helstrom reconstruction,
   projective-comparison, polygon-closure, and prior-reserve helpers;
