@@ -1,0 +1,46 @@
+{
+  "weight": 0.55,
+  "archived_solver_level": 0.7568534,
+  "certified_projective_upper": 0.7573,
+  "explicit_projective_lower": 0.7568432934790399,
+  "projective_interval_width": 0.0004567065209600818,
+  "rescaling_factor": 0.9994102733394956,
+  "all_leaf_duals_at_most_one_after_rescaling": true,
+  "leaf_count": 128,
+  "maximum_rescaled_dual_upper": 0.9999892110586747,
+  "worst_leaf": {
+    "topology": "rank/rank",
+    "stage": "refined-angle-exact",
+    "name": "x9092_y0508_a00_r01",
+    "archived_dual_scaled": 1.0005792793356472,
+    "rescaled_dual_upper": 0.9999892110586747
+  },
+  "topologies": {
+    "endpoint/endpoint": {
+      "leaf_count": 1,
+      "maximum_rescaled_dual_upper": 0.9892059036569693,
+      "total_nodes": 43361,
+      "total_solving_time": 49.0
+    },
+    "endpoint/rank": {
+      "leaf_count": 1,
+      "maximum_rescaled_dual_upper": 0.9978687449176679,
+      "total_nodes": 110109,
+      "total_solving_time": 300.0
+    },
+    "rank/endpoint": {
+      "leaf_count": 1,
+      "maximum_rescaled_dual_upper": 0.9980939049312852,
+      "total_nodes": 98051,
+      "total_solving_time": 300.0
+    },
+    "rank/rank": {
+      "leaf_count": 125,
+      "maximum_rescaled_dual_upper": 0.9999892110586747,
+      "total_nodes": 2467727,
+      "total_solving_time": 8209.0
+    }
+  },
+  "certificate_class": "finite numerical SCIP cover with exact analytic monotonic post-processing; conditional on the recorded solver dual bounds",
+  "scope": "binary-projective terminal sector of the reduced one-way qubit problem at lambda=0.55"
+}

@@ -1,0 +1,68 @@
+{
+  "support_weight": 0.6,
+  "explicit_physical_lower": 0.7658988152646944,
+  "assembled_solver_conditional_upper": 0.7666099999999999,
+  "reported_outward_decimal_upper": 0.76662,
+  "reported_interval_width": 0.00072118473530558,
+  "relative_reported_interval_width": 0.0009416188156086112,
+  "sector_bounds": {
+    "projective": 0.76591,
+    "maximum_effect_at_most_0p88325": 0.7658931806287275,
+    "ternary": 0.76643,
+    "four_active_minimum_effect_at_least_0p0003": 0.7663946336432972,
+    "four_active_minimum_effect_below_0p0003_by_deletion": 0.7666099999999999
+  },
+  "ternary_cover": {
+    "leaf_count": 12008,
+    "maximum_leaf_bound": 0.7664281458427126,
+    "target": 0.76643,
+    "solved_nodes": 24002
+  },
+  "auxiliary_projective_line": {
+    "weight": 0.55,
+    "upper": 0.7573,
+    "leaf_count": 128
+  },
+  "artifacts": {
+    "physical_lower": {
+      "path": "reduced_four_effect_l060.json",
+      "canonical_json_sha256": "5db4c1725ead5fe3ee58bde759d14d7ea4dbf9d89322cfd4107ec453da5ddf60"
+    },
+    "projective_lambda_060": {
+      "path": "projective_cover_l060_summary.json",
+      "canonical_json_sha256": "82db2cf136528e39558eed56d0df709013cf2afb3714cfb7d7f71e0189c902cb"
+    },
+    "projective_lambda_055": {
+      "path": "projective_l055_cover_certificate.json",
+      "canonical_json_sha256": "e8ffadd92850a783cf6d11b9a75dd5f5e1f113f97b8202f099d868a235f90c5a"
+    },
+    "low_maximum_weight_cap": {
+      "path": "terminal_weight_cap_0p88325_l060.json",
+      "canonical_json_sha256": "53a51796f6c3afff29bb503498fdb1b8bdb33e4f22da51ec94a41caa44e37c7e"
+    },
+    "ternary_cover": {
+      "path": "continuous_terminal_projective_l055cert_complete.json.tar.gz",
+      "canonical_json_sha256": "fe26dffb8b0942235a9ffa443f12a15168140755774793b56a8987e44051a5e8"
+    },
+    "four_active_spatial_bound": {
+      "path": "four_active_projection_geometry_scip_60s.json",
+      "canonical_json_sha256": "f7ebaa44dc64a78d8affa23ffdaf7231a4807072746bcce62fb7bf5e83979f08"
+    }
+  },
+  "solver_environment": {
+    "numpy": "2.2.6",
+    "scipy": "1.15.3",
+    "cvxpy": "1.7.5",
+    "clarabel": "0.11.1",
+    "pyscipopt": "6.2.1",
+    "scip": "10.0.2"
+  },
+  "logical_exhaustion": [
+    "projective terminal readout",
+    "three-active terminal readout",
+    "four-active readout with small effect deleted",
+    "four-active readout with all effects above threshold"
+  ],
+  "certificate_class": "complete finite solver-conditional numerical enclosure at lambda=0.6; analytic arity reduction and Helstrom identities, CLARABEL box cover, and spatial SCIP duals",
+  "not_claimed": "formal interval arithmetic, an exact closed-form optimum, or equality of the explicit 4E protocol with the unrestricted maximum"
+}

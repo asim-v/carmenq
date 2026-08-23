@@ -18,9 +18,11 @@ from carmenq.order_sensitive import (
     full_rank_block_perfect_audit_return_bound,
     gf2_rank,
     grouped_frontier,
+    interleaved_best_known_lower_bound,
     interleaved_candidate_lower_bound,
     interleaved_candidate_scores,
     interleaved_compact_lower_bound,
+    interleaved_four_effect_lower_bound,
     interleaved_return_upper_bound,
     interleaved_support_upper_bound,
     ordered_check_perfect_audit_return_bound,
@@ -422,6 +424,23 @@ def test_compact_candidate_reaches_exact_interleaved_endpoint() -> None:
     assert isclose(point.audit_probability, 1.0, abs_tol=2e-12)
     assert isclose(point.return_fidelity, 0.25, abs_tol=2e-10)
     assert isclose(point.support_value, 1.0, abs_tol=2e-12)
+
+
+def test_four_effect_phase_improves_the_compact_branch() -> None:
+    compact = interleaved_compact_lower_bound(0.6)
+    point = interleaved_four_effect_lower_bound(0.6)
+    assert point.strategy == "four_effect_mps"
+    assert point.p is not None and isclose(point.p, 0.95234043, abs_tol=4e-7)
+    assert point.theta is not None and isclose(point.theta, 0.02234159, abs_tol=4e-7)
+    assert point.priors is not None
+    assert isclose(point.support_value, 0.765898815264694, abs_tol=3e-12)
+    assert point.support_value > compact.support_value + 0.01
+    assert point.support_is_globally_optimal is False
+
+
+def test_best_known_envelope_switches_physical_families() -> None:
+    assert interleaved_best_known_lower_bound(0.5).strategy == "three_effect_mps"
+    assert interleaved_best_known_lower_bound(0.6).strategy == "four_effect_mps"
 
 
 def test_four_slot_order_classification_has_both_connectivity_types() -> None:

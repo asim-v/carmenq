@@ -4,9 +4,9 @@ This module covers binary rank-two syndrome checks streamed through one
 persistent qubit and the finite-field temporal power law.  It exposes the
 grouped four-slot frontier, the exact perfect-AUDIT endpoint of its interleaved
 column permutation, and a rigorous approximate-AUDIT upper certificate based
-on causal list decoding.  Two exact achievable constructions are exposed as
-lower bounds.  The stronger one follows from a compact three-effect Choi-MPS
-family and matches unrestricted variational searches, but the still-unknown
+on causal list decoding.  Exact achievable three- and four-effect Choi-MPS
+families are exposed as lower bounds.  The four-effect phase strictly improves
+the earlier compact candidate in part of the interior, but the still-unknown
 global interleaved converse is never presented as solved.
 
 All ranks and cut profiles are over :math:`GF(2)`.  A cut index ``i`` means
@@ -489,6 +489,29 @@ class InterleavedCompactCandidatePoint:
     support_is_globally_optimal: bool = False
 
 
+@dataclass(frozen=True)
+class InterleavedFourEffectCandidatePoint:
+    """One exposed point of the symmetric four-effect MPS construction.
+
+    The construction is a complete physical streamed strategy after local
+    Pauli completion.  Its four scalar parameters describe a symmetric
+    rank-one qubit POVM and two pairs of pure middle-cut states.  Global
+    optimality is deliberately not asserted.
+    """
+
+    audit_weight: float
+    strategy: str
+    p: float | None
+    theta: float | None
+    u_small: float | None
+    u_large: float | None
+    priors: tuple[float, float, float, float] | None
+    audit_probability: float
+    return_fidelity: float
+    support_value: float
+    support_is_globally_optimal: bool = False
+
+
 INTERLEAVED_PERFECT_AUDIT_ENDPOINT: Final[PerfectAuditEndpoint] = (
     PerfectAuditEndpoint(
         check_matrix=INTERLEAVED_CHECK_MATRIX,
@@ -771,6 +794,184 @@ def interleaved_compact_lower_bound(
     )
 
 
+def _four_effect_candidate_evaluate(
+    p: float,
+    theta: float,
+    u_small: float,
+    u_large: float,
+    audit_weight: float,
+) -> tuple[float, float, float, tuple[float, float, float, float]]:
+    """Evaluate the symmetric four-effect family after prior optimisation."""
+
+    p_value = float(p)
+    theta_value = float(theta)
+    small_value = float(u_small)
+    large_value = float(u_large)
+    if not 0.5 <= p_value <= 1.0:
+        raise ValueError("p must lie in [1/2, 1]")
+    if not 0.0 <= theta_value <= np.pi / 2.0:
+        raise ValueError("theta must lie in [0, pi/2]")
+    if not 0.0 <= small_value <= 1.0:
+        raise ValueError("u_small must lie in [0, 1]")
+    if not 0.0 <= large_value <= 1.0:
+        raise ValueError("u_large must lie in [0, 1]")
+    weight = _audit_weight(audit_weight)
+
+    root_p = sqrt(p_value)
+    root_one_p = sqrt(max(0.0, 1.0 - p_value))
+    sine = float(np.sin(theta_value))
+    cosine = float(np.cos(theta_value))
+    q_small = (1.0 - p_value) + (2.0 * p_value - 1.0) * small_value
+    q_large = (1.0 - p_value) + (2.0 * p_value - 1.0) * large_value
+    d_small = (
+        root_p * sine * sqrt(small_value)
+        + root_one_p * cosine * sqrt(max(0.0, 1.0 - small_value))
+    ) ** 2
+    d_large = (
+        root_p * cosine * sqrt(large_value)
+        + root_one_p * sine * sqrt(max(0.0, 1.0 - large_value))
+    ) ** 2
+    c_small = sqrt(max(0.0, q_small)) + sqrt(max(0.0, 1.0 - q_small))
+    c_large = sqrt(max(0.0, q_large)) + sqrt(max(0.0, 1.0 - q_large))
+
+    hellinger = np.asarray((c_small, c_large), dtype=float)
+    matrix = weight * np.diag((d_small, d_large))
+    matrix += (1.0 - weight) * np.outer(hellinger, hellinger) / 4.0
+    _, eigenvectors = np.linalg.eigh(matrix)
+    eigenvector = np.abs(eigenvectors[:, -1])
+    eigenvector /= np.linalg.norm(eigenvector)
+    small_total = float(eigenvector[0] ** 2)
+    large_total = float(eigenvector[1] ** 2)
+    priors = (
+        small_total / 2.0,
+        large_total / 2.0,
+        large_total / 2.0,
+        small_total / 2.0,
+    )
+    audit_probability = small_total * d_small + large_total * d_large
+    return_fidelity = (
+        eigenvector[0] * c_small + eigenvector[1] * c_large
+    ) ** 2 / 4.0
+    support_value = (
+        weight * audit_probability + (1.0 - weight) * return_fidelity
+    )
+    return support_value, audit_probability, return_fidelity, priors
+
+
+def interleaved_four_effect_lower_bound(
+    audit_weight: float = 0.6,
+) -> InterleavedFourEffectCandidatePoint:
+    """Optimise the symmetric four-effect interleaved MPS construction.
+
+    The coarse effect is ``diag(p, 1-p)``.  Each of its two binary groups is
+    split by congruence with a rank-one projector, and the second group is the
+    bit-flip image of the first.  Two symmetry-related pairs of pure prefix
+    states are sufficient; their total priors are optimised by a two-by-two
+    Perron eigenproblem.
+
+    Every returned point is physically attainable by a bond-two Choi MPS.
+    The numerical four-variable optimisation only selects a point within this
+    explicit family and is not an unrestricted upper certificate.
+    """
+
+    weight = _audit_weight(audit_weight)
+    no_record_score = 1.0 - weight / 2.0
+    endpoint_scale = 1.0 - weight
+
+    def negative_score(point: np.ndarray) -> float:
+        p_value = min(1.0, max(0.5, float(point[0])))
+        angle = min(1.0, max(0.0, float(point[1]))) * np.pi / 2.0
+        small_value = min(1.0, max(0.0, float(point[2])))
+        large_value = min(1.0, max(0.0, float(point[3])))
+        score, _, _, _ = _four_effect_candidate_evaluate(
+            p_value, angle, small_value, large_value, weight
+        )
+        return -score
+
+    starts = (
+        (0.50, 0.00, 0.50, 0.50),
+        (0.82, 0.11, 0.40, 0.97),
+        (0.87, 0.07, 0.43, 0.983),
+        (0.90, 0.05, 0.45, 0.99),
+        (0.95, 0.014, 0.477, 0.998),
+        (0.99, 0.003, 0.49, 0.9997),
+        (0.999, 0.0001, 0.50, 1.0),
+        (0.99914, 0.000032, 0.49958, 0.9999993),
+        (
+            max(0.5, 1.0 - endpoint_scale**2 / 16.0),
+            0.0,
+            0.5,
+            1.0,
+        ),
+    )
+    results = (
+        minimize(
+            negative_score,
+            np.asarray(start, dtype=float),
+            method="Nelder-Mead",
+            bounds=((0.5, 1.0), (0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
+            options={"xatol": 2e-12, "fatol": 2e-14, "maxiter": 30000},
+        )
+        for start in starts
+    )
+    best_result = min(results, key=lambda result: float(result.fun))
+    p_value, angle_coordinate, small_value, large_value = map(
+        float, best_result.x
+    )
+    theta_value = angle_coordinate * np.pi / 2.0
+    score, audit_probability, return_fidelity, priors = (
+        _four_effect_candidate_evaluate(
+            p_value,
+            theta_value,
+            small_value,
+            large_value,
+            weight,
+        )
+    )
+    if no_record_score >= score - 5e-12:
+        return InterleavedFourEffectCandidatePoint(
+            audit_weight=weight,
+            strategy="no_record",
+            p=None,
+            theta=None,
+            u_small=None,
+            u_large=None,
+            priors=None,
+            audit_probability=0.5,
+            return_fidelity=1.0,
+            support_value=no_record_score,
+        )
+    return InterleavedFourEffectCandidatePoint(
+        audit_weight=weight,
+        strategy="four_effect_mps",
+        p=p_value,
+        theta=theta_value,
+        u_small=small_value,
+        u_large=large_value,
+        priors=priors,
+        audit_probability=audit_probability,
+        return_fidelity=return_fidelity,
+        support_value=score,
+    )
+
+
+def interleaved_best_known_lower_bound(
+    audit_weight: float = 0.5,
+) -> InterleavedCompactCandidatePoint | InterleavedFourEffectCandidatePoint:
+    """Return the stronger of the verified three- and four-effect families.
+
+    This convenience envelope is an achievable lower bound.  Its result type
+    and ``strategy`` field identify the active construction, and both result
+    classes permanently mark ``support_is_globally_optimal=False``.
+    """
+
+    compact = interleaved_compact_lower_bound(audit_weight)
+    four_effect = interleaved_four_effect_lower_bound(audit_weight)
+    if four_effect.support_value > compact.support_value + 5e-13:
+        return four_effect
+    return compact
+
+
 __all__ = [
     "GROUPED_CHECK_MATRIX",
     "INTERLEAVED_CHECK_MATRIX",
@@ -780,6 +981,7 @@ __all__ = [
     "GroupedFrontierPoint",
     "InterleavedCandidatePoint",
     "InterleavedCompactCandidatePoint",
+    "InterleavedFourEffectCandidatePoint",
     "PerfectAuditEndpoint",
     "StoredCounterexamplePoint",
     "full_crossing_cuts",
@@ -791,7 +993,9 @@ __all__ = [
     "grouped_frontier",
     "interleaved_candidate_lower_bound",
     "interleaved_candidate_scores",
+    "interleaved_best_known_lower_bound",
     "interleaved_compact_lower_bound",
+    "interleaved_four_effect_lower_bound",
     "interleaved_return_upper_bound",
     "interleaved_support_upper_bound",
     "ordered_check_perfect_audit_return_bound",

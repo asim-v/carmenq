@@ -37,10 +37,18 @@ classifiers = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
+frontier = [
+  "cvxpy>=1.7,<1.8",
+  "clarabel>=0.11,<0.12",
+  "pyscipopt>=6.2,<7",
+]
 reproducibility = [
   "numpy==2.2.6",
   "scipy==1.15.3",
   "matplotlib==3.10.9",
+  "cvxpy==1.7.5",
+  "clarabel==0.11.1",
+  "pyscipopt==6.2.1",
   "pytest==9.1.1",
 ]
 

@@ -15,8 +15,10 @@ from carmenq import (
     full_rank_block_packing_number,
     full_rank_block_perfect_audit_return_bound,
     grouped_frontier,
+    interleaved_best_known_lower_bound,
     interleaved_candidate_lower_bound,
     interleaved_compact_lower_bound,
+    interleaved_four_effect_lower_bound,
     interleaved_return_upper_bound,
     interleaved_support_upper_bound,
     ordered_check_perfect_audit_return_bound,
@@ -56,3 +58,7 @@ def test_order_sensitive_exact_results_are_public() -> None:
     compact = interleaved_compact_lower_bound(0.5)
     assert compact.support_value > counterexample.support_value + 0.0003
     assert compact.support_is_globally_optimal is False
+    four_effect = interleaved_four_effect_lower_bound(0.6)
+    assert four_effect.support_value > interleaved_compact_lower_bound(0.6).support_value
+    assert four_effect.support_is_globally_optimal is False
+    assert interleaved_best_known_lower_bound(0.6).strategy == "four_effect_mps"
