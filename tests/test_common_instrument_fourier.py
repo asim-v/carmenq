@@ -12,7 +12,8 @@ if str(FRONTIER) not in sys.path:
     sys.path.insert(0, str(FRONTIER))
 
 from fourier_behavior_cap_cover import cube_face_caps, plane_caps  # noqa: E402
-from fourier_behavior_upper import CHARACTERS  # noqa: E402
+from fourier_behavior_upper import CHARACTERS, solve_behavior_outer  # noqa: E402
+from fourier_branch_upper import PRIOR_BOX  # noqa: E402
 
 
 def trace_norm(matrix: np.ndarray) -> float:
@@ -99,3 +100,19 @@ def test_proved_plane_and_cube_face_caps_cover_sampled_directions() -> None:
         vector = rng.normal(size=3)
         vector /= np.linalg.norm(vector)
         assert max(normal @ vector / cosine for normal, cosine in spherical) >= 1.0 - 1e-12
+
+
+def test_behavior_outer_accepts_a_general_multicolumn_contraction() -> None:
+    built = solve_behavior_outer(
+        ("bloch", "bloch", "bloch"),
+        PRIOR_BOX,
+        build_only=True,
+        pairwise_contractions=(
+            {
+                "coefficients": [0.25, 0.30, -0.68, 0.61],
+                "branch": "bloch",
+                "cap": [0.0, -0.75, 0.6614378277661477, 0.9],
+            },
+        ),
+    )
+    assert len(built["pairwise_flagged_expressions"]) == 1

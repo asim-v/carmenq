@@ -107,8 +107,12 @@ an explicit columnwise-positive but CP-incompatible family are in
 The complementary harmonic-analysis route derives flagged Fourier
 contractions for one common instrument, turns their qubit trace norms into a
 finite conic cap cover, and records both the closed scalar spectral sector and
-the still-open fully vectorial sector in
+the remaining fully vectorial sector in
 [`notes/common_instrument_fourier_contraction.md`](notes/common_instrument_fourier_contraction.md).
+An adaptive extension now excludes the single worst Fourier/pair base cell at
+target `0.758` with a fully recorded 4,657-leaf solver-conditional tree; its
+scope, audit command, and remaining global queue are stated in
+[`notes/adaptive_multicolumn_contraction_certificate.md`](notes/adaptive_multicolumn_contraction_certificate.md).
 
 ## Explore the order-sensitive theorem
 

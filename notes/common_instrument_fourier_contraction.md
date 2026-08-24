@@ -4,7 +4,7 @@
 
 This note records a rigorous necessary condition for the fixed interior
 frontier and the numerical attempt to turn it into a complete certificate. It
-does **not** close the target value \(0.758\). Its main value is that it
+does **not** yet close the full regular interior at target \(0.758\). Its main value is that it
 replaces the vague requirement that all conditioned states “come from one
 instrument” by explicit trace-norm inequalities and identifies exactly why
 the three canonical inequalities are not sufficient.
@@ -146,11 +146,22 @@ orientation-reversing symmetry, so only one sign and the singular stratum need
 independent treatment. A physical constrained seesaw establishes both sign
 branches at score \(0.72288131\).
 
-The remaining mathematical task is to exploit the polynomial matrix
-inequality with a strong matrix localizer or verified spatial cover and to
-handle the singular input stratum separately. Unassisted scalar coefficient
-tests cannot certify complete positivity; their failure is now diagnosed,
-not merely observed.
+The singular input stratum has since been closed by the normalized null-chart
+certificate in `singular_common_instrument_stratum.md`.  In the regular
+stratum, arbitrary real multicolumn contractions strengthen the three fixed
+characters.  An adaptive exhaustive tree closes the single worst
+Fourier/pair base cell at \(0.758\): 48 expansions, 4,657 terminal leaves, and
+maximum finite terminal bound \(0.7579901084\).  The theorem, auditable branch
+table, and exact scope boundary are in
+`adaptive_multicolumn_contraction_certificate.md`.  The other open base
+branches still require their own exhaustive trees; this one-cell result does
+not close the regular frontier.
+
+If the all-coefficient contraction relaxation stalls on those cells, the
+remaining mathematical task is to exploit the polynomial matrix inequality
+with a strong matrix localizer or verified spatial cover. Trace-norm
+contraction enforces positivity shadows of the interpolating map, not complete
+positivity by itself.
 
 ## Reproducibility map
 

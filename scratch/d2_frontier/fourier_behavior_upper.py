@@ -181,25 +181,39 @@ def solve_behavior_outer(
 
     pairwise_flagged: list[cp.Expression] = []
     for contraction in pairwise_contractions:
-        first_z, second_z = tuple(contraction["pair"])
-        scale = float(contraction["scale"])
+        if "coefficients" in contraction:
+            coefficients = np.asarray(contraction["coefficients"], dtype=float)
+            if coefficients.shape != (4,) or np.linalg.norm(coefficients) <= 1e-14:
+                raise ValueError("invalid general contraction coefficients")
+        else:
+            first_z, second_z = tuple(contraction["pair"])
+            scale = float(contraction["scale"])
+            if (
+                first_z not in OUTCOMES
+                or second_z not in OUTCOMES
+                or first_z == second_z
+                or not np.isfinite(scale)
+                or scale < 0.0
+            ):
+                raise ValueError("invalid pairwise contraction")
+            coefficients = np.zeros(4)
+            coefficients[first_z] = 1.0
+            coefficients[second_z] = -scale
         branch = str(contraction["branch"])
-        if (
-            first_z not in OUTCOMES
-            or second_z not in OUTCOMES
-            or first_z == second_z
-            or not np.isfinite(scale)
-            or scale < 0.0
-        ):
-            raise ValueError("invalid pairwise contraction")
-        scalar = prior[first_z] - scale * prior[second_z]
-        vector = input_vector[first_z] - scale * input_vector[second_z]
+        scalar = sum(float(coefficients[z]) * prior[z] for z in OUTCOMES)
+        vector = sum(
+            (float(coefficients[z]) * input_vector[z] for z in OUTCOMES),
+            cp.Constant(np.zeros(3)),
+        )
         block_norms = []
         for y in OUTCOMES:
-            block_scalar = (
-                probability[first_z, y] - scale * probability[second_z, y]
+            block_scalar = sum(
+                float(coefficients[z]) * probability[z, y] for z in OUTCOMES
             )
-            block_vector = output[first_z][y] - scale * output[second_z][y]
+            block_vector = sum(
+                (float(coefficients[z]) * output[z][y] for z in OUTCOMES),
+                cp.Constant(np.zeros(3)),
+            )
             block_norm = cp.Variable(nonneg=True)
             constraints.extend(
                 (
