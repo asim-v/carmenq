@@ -28,6 +28,7 @@ def fixed_base_data(
     face_grid: int,
     sphere_index: int,
     pair_cap_index: int,
+    pair_branch: str = "bloch",
 ) -> tuple[tuple[object | None, ...], dict[str, object]]:
     plane = plane_caps(plane_cells)[plane_index]
     sphere = cube_face_caps(face_grid)[sphere_index]
@@ -37,14 +38,17 @@ def fixed_base_data(
         for sign in (-1.0, 1.0)
         for normal in [np.eye(3)[axis] * sign]
     ]
-    pair = pair_axes[pair_cap_index]
     caps = (None, (*plane[0], plane[1]), (*sphere[0], sphere[1]))
     base_cut = {
         "pair": (2, 3),
         "scale": 1.0,
-        "branch": "bloch",
-        "cap": (*pair[0], pair[1]),
+        "branch": pair_branch,
     }
+    if pair_branch == "bloch":
+        pair = pair_axes[pair_cap_index]
+        base_cut["cap"] = (*pair[0], pair[1])
+    elif pair_branch != "scalar-positive":
+        raise ValueError("the base pair branch must be scalar-positive or bloch")
     return caps, base_cut
 
 
@@ -77,7 +81,7 @@ def child_contraction(
 
 
 def run_tree(
-    initial_coefficients: np.ndarray,
+    initial_coefficients: np.ndarray | None,
     target: float,
     max_expansions: int,
     separator_samples: int,
@@ -91,6 +95,7 @@ def run_tree(
     contraction_grid: int,
     checkpoint: Path | None,
     resume: bool,
+    pair_branch: str = "bloch",
 ) -> dict[str, object]:
     settings = {
         "target": target,
@@ -102,11 +107,16 @@ def run_tree(
         "face_grid": face_grid,
         "sphere_index": sphere_index,
         "pair_cap_index": pair_cap_index,
+        "pair_branch": pair_branch,
         "contraction_grid": contraction_grid,
         "initial_coefficients": (
-            np.asarray(initial_coefficients, dtype=float)
-            / np.linalg.norm(initial_coefficients)
-        ).tolist(),
+            None
+            if initial_coefficients is None
+            else (
+                np.asarray(initial_coefficients, dtype=float)
+                / np.linalg.norm(initial_coefficients)
+            ).tolist()
+        ),
     }
     if resume:
         if checkpoint is None or not checkpoint.exists():
@@ -133,7 +143,12 @@ def run_tree(
         next_identifier = 1
 
     caps, base_cut = fixed_base_data(
-        plane_cells, plane_index, face_grid, sphere_index, pair_cap_index
+        plane_cells,
+        plane_index,
+        face_grid,
+        sphere_index,
+        pair_cap_index,
+        pair_branch,
     )
     queue = [(-float(item["bound"]), int(item["id"]), item) for item in pending]
     heapq.heapify(queue)
@@ -191,6 +206,7 @@ def run_tree(
             contraction_grid,
             contractions,
             target=target,
+            pair_branch=pair_branch,
         )
         open_rows = [
             row for row in cover["branches"] if float(row["bound"]) >= target
@@ -258,7 +274,7 @@ def run_tree(
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("initial_separator", type=Path)
+    parser.add_argument("initial_separator", type=Path, nargs="?")
     parser.add_argument("--target", type=float, default=0.758)
     parser.add_argument("--max-expansions", type=int, default=20)
     parser.add_argument("--separator-samples", type=int, default=20_000)
@@ -269,13 +285,19 @@ def main() -> None:
     parser.add_argument("--face-grid", type=int, default=4)
     parser.add_argument("--sphere-index", type=int, default=18)
     parser.add_argument("--pair-cap-index", type=int, default=3)
+    parser.add_argument(
+        "--pair-branch", choices=("scalar-positive", "bloch"), default="bloch"
+    )
     parser.add_argument("--contraction-grid", type=int, default=4)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
-    separator = json.loads(args.initial_separator.read_text(encoding="utf-8"))
+    initial_coefficients = None
+    if args.initial_separator is not None:
+        separator = json.loads(args.initial_separator.read_text(encoding="utf-8"))
+        initial_coefficients = np.asarray(separator["coefficients"], dtype=float)
     result = run_tree(
-        np.asarray(separator["coefficients"], dtype=float),
+        initial_coefficients,
         args.target,
         args.max_expansions,
         args.separator_samples,
@@ -289,6 +311,7 @@ def main() -> None:
         args.contraction_grid,
         args.output,
         args.resume,
+        args.pair_branch,
     )
     print(
         json.dumps(

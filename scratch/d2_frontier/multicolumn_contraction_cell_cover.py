@@ -40,6 +40,7 @@ def run_cover(
     contraction_grid: int,
     parent_contractions: tuple[dict[str, object], ...] = (),
     target: float = 0.758,
+    pair_branch: str = "bloch",
 ) -> dict[str, object]:
     coefficients = np.asarray(coefficients, dtype=float)
     if coefficients.shape != (4,) or np.linalg.norm(coefficients) <= 1e-14:
@@ -53,7 +54,6 @@ def run_cover(
         for sign in (-1.0, 1.0)
         for normal in [np.eye(3)[axis] * sign]
     ]
-    pair_cap = pair_axes[pair_cap_index]
     common_caps = (
         None,
         (*plane[0], plane[1]),
@@ -62,9 +62,13 @@ def run_cover(
     base_cut = {
         "pair": (2, 3),
         "scale": 1.0,
-        "branch": "bloch",
-        "cap": (*pair_cap[0], pair_cap[1]),
+        "branch": pair_branch,
     }
+    if pair_branch == "bloch":
+        pair_cap = pair_axes[pair_cap_index]
+        base_cut["cap"] = (*pair_cap[0], pair_cap[1])
+    elif pair_branch != "scalar-positive":
+        raise ValueError("the base pair branch must be scalar-positive or bloch")
     base_cuts = (base_cut, *parent_contractions)
 
     scalar_models = []
@@ -128,6 +132,7 @@ def run_cover(
             "plane_index": plane_index,
             "face_grid": face_grid,
             "sphere_index": sphere_index,
+            "pair_branch": pair_branch,
             "pair_cap_index": pair_cap_index,
         },
         "contraction_grid": contraction_grid,

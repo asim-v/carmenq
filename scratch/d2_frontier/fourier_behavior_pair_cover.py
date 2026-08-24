@@ -93,6 +93,20 @@ def main() -> None:
                 "status": status,
                 "pair_branch": pair_branch,
                 "pair_cap": pair_index,
+                "branches": [
+                    {
+                        "bound": candidate_bound,
+                        "status": candidate_status,
+                        "pair_branch": candidate_branch,
+                        "pair_cap": candidate_cap,
+                    }
+                    for (
+                        candidate_bound,
+                        candidate_status,
+                        candidate_branch,
+                        candidate_cap,
+                    ) in candidates
+                ],
             }
             rows.append(row)
             if bound > maximum:

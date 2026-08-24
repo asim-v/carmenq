@@ -149,6 +149,7 @@ def replay_certificate(payload: dict[str, object], tolerance: float = 5e-6) -> N
             int(payload["contraction_grid"]),
             paths[identifier],
             target=float(payload["target"]),
+            pair_branch=str(payload.get("pair_branch", "bloch")),
         )
         stored = {
             (str(row["branch"]), row["cap"]): row for row in record["branches"]

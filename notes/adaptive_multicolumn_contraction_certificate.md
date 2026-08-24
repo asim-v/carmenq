@@ -120,10 +120,14 @@ subproblems before comparing their bounds with the stored certificate.
 ## What remains
 
 The earlier Fourier/pair cover has 306 Fourier cells whose maximum pair
-branch is at or above \(0.758\).  The present tree closes the single largest
-base branch within that collection.  A full regular-interior certificate must
-enumerate every still-open pair branch in those cells and run the same
-adaptive process until the global queue is empty.  If arbitrary
+branch is at or above \(0.758\).  Retaining all seven spectral branches reveals
+706 open base branches; the scalar-positive pair branch is already closed
+everywhere, so all 706 are Bloch branches.  Complex conjugation reflects the
+Bloch \(y\)-coordinate, preserves the real planar terminal problem, and pairs
+these branches into 353 exact symmetry orbits.  The first three and hardest
+orbits have been closed by trees with 48, 39, and 32 expansions.  A full
+fixed-benchmark certificate must run the same adaptive process until all 353
+representatives are closed.  If arbitrary
 multicolumn trace-norm contraction stalls at a positive-map relaxation, the
 remaining regular case will require the determinant-scaled Choi positivity
 condition rather than more scalar coefficient cuts.
