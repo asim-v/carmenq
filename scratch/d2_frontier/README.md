@@ -68,6 +68,12 @@ The curated search chain is:
 - `general_two_block_leaf.py` and `analyze_two_block_leaf.py`: unrestricted
   two-block relaxation and gauge-invariant diagnostics, including exact
   terminal qubit discrimination as a weighted smallest-ball SOCP;
+- `verify_schmidt_norm_reduction.py`: reconstructs one two-block checkpoint as
+  a single Schmidt-rank-two vector and checks the rank-one RETURN identity;
+- `convexification_barrier.py`: exact diagonal-plus-rank-one obstruction to
+  mixed Schmidt-number relaxations that retain concave Hellinger RETURN;
+- `coherence_polar_program.py`: optimal path-pair polar contractions for the
+  block-coherence extension that preserves the pure-leaf optimum;
 - `qubit_discrimination_geometry.py`: lightweight implementation of that
   weighted-ball Helstrom dual, shared by the analyzer and Choi seesaw;
 - `two_block_choi_seesaw.py`: finite common-instrument formulation with four

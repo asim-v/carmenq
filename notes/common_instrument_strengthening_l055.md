@@ -441,3 +441,84 @@ state-cell certificate, a new finite-level flatness criterion tailored to a
 shared instrument, or a nontrivial theorem connecting minimum multicolumn
 behaviour obstructions to branch complexity.  The current work supplies the
 diagnosis and machinery for such a result, but does not yet claim one.
+
+## 14. Exact obstruction to the naive mixed-state hierarchy
+
+The two-block vectorization makes the one-qubit middle bond equivalent to a
+Schmidt-rank-two pure state. It is tempting to replace that state by the
+convex cone of mixed states of Schmidt number at most two and evaluate RETURN
+from its path probabilities. That route has an exact obstruction.
+
+For a fixed terminal POVM with effect norms \(w_s\), repeated \(m\) times
+among \(N\) paths, the relaxed value is
+
+\[
+\lambda_{\max}\!\left[
+\lambda\operatorname{diag}(\widetilde w)
++\frac{1-\lambda}{N}\mathbf1\mathbf1^{\mathsf T}
+\right].
+\]
+
+It is attained by a path-diagonal separable state. At the fixed interior
+instance \(\lambda=0.55\), \(w=(0.92,0.64,0.44,0)\), and \(m=4\), its value
+is
+
+\[
+0.790265609741724\ldots,
+\]
+
+well above \(0.758\). Consequently, partial-transpose, realignment, symmetric
+extensions, or even exact membership in the mixed Schmidt-number-two cone
+cannot close this gap while the concave path-probability RETURN expression is
+retained. The failure is not a weak hierarchy level; it is the wrong
+mixed-state extension. The proof and reproducible specialization are in
+[`convexification_barrier.md`](convexification_barrier.md).
+
+## 15. Coherence-preserving convexification
+
+Let \(\Pi_i\) denote the path projectors. The corrected extension is
+
+\[
+\mathcal R_{\rm coh}(\rho)=\frac1N\left[
+\operatorname{Tr}\rho
++\sum_{i\ne j}\lVert\Pi_i\rho\Pi_j\rVert_1
+\right].
+\]
+
+It equals pinched RETURN on every pure state and is convex. Maximizing the
+combined AUDIT--RETURN score over the mixed Schmidt-number-two cone therefore
+has exactly the same optimum as maximizing the original score over pure
+Schmidt-rank-two leaves. This removes the artificial \(0.7902656\) classical
+mixture without reintroducing state--instrument bilinearity.
+
+Using independent polar contractions \(U_{ij}\) for the off-diagonal blocks
+gives the exact support program
+
+\[
+\max_{\lVert U_{ij}\rVert_\infty\leq1}
+h_2\!\left(
+\lambda D+\frac{1-\lambda}{N}[I+W(U)]
+\right),
+\]
+
+where \(h_2\) is the maximum Hermitian expectation over Schmidt-rank-two
+vectors. This is now the clean interior frontier. It is an exact
+reformulation, not yet a certificate below \(0.758\). The proof, literature
+boundary, polar construction, and tests are documented in
+[`coherence_preserving_convexification.md`](coherence_preserving_convexification.md).
+
+## 16. Updated contribution boundary
+
+The work now contains two exact results beyond solver engineering: a no-go
+theorem for the obvious mixed-state hierarchy and a coherence-preserving
+convexification with an equivalent polar \(S(2)\) support program. Their
+mathematical ingredients—block coherence, trace-norm polarity, and
+Schmidt-number cones—are established. The candidate contribution is their
+specific synthesis for deterministic temporal RETURN.
+
+This is meaningful progress, but the main quantitative theorem remains open.
+A publishable frontier result still requires either a rigorous global bound
+for the polar program, a counterexample above \(0.758\), or a nontrivial
+analytic subfamily in which the maximum can be solved exactly. The repository
+therefore labels the present result as an exact reformulation and obstruction,
+not as a completed unrestricted separation theorem.

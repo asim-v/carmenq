@@ -78,6 +78,10 @@ print(min(cut.slack for cut in cuts), projection.separation_gap)
 The validated `lambda=0.55` strengthening experiment and its explicit local
 versus global boundary are documented in
 [`notes/common_instrument_strengthening_l055.md`](notes/common_instrument_strengthening_l055.md).
+The latest exact theory isolates why a naive mixed-state hierarchy stalls and
+replaces its concave RETURN extension by a block-coherence functional with the
+same optimum as the deterministic pure-leaf problem; see
+[`notes/coherence_preserving_convexification.md`](notes/coherence_preserving_convexification.md).
 
 ## Explore the order-sensitive theorem
 
