@@ -24,6 +24,7 @@ from carmenq import (
     ordered_check_perfect_audit_return_bound,
     plan,
     plan_experiment,
+    reconstruct_common_instrument_from_basis,
     streaming_bound,
 )
 
@@ -34,6 +35,7 @@ def test_concise_aliases_match_scientific_api() -> None:
     assert certify is certify_classical_memory
     assert plan is plan_experiment
     assert __version__ == "2.2.0"
+    assert callable(reconstruct_common_instrument_from_basis)
 
 
 def test_order_sensitive_exact_results_are_public() -> None:

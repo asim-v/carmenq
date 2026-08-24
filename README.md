@@ -68,12 +68,23 @@ uses the optional solver stack and returns a separating witness when the
 family is incompatible.
 
 ```python
-from carmenq import project_to_common_instrument, scan_flagged_trace_norm_cuts
+from carmenq import (
+    project_to_common_instrument,
+    reconstruct_common_instrument_from_basis,
+    scan_flagged_trace_norm_cuts,
+)
 
 cuts = scan_flagged_trace_norm_cuts(prefix_states, conditioned_outputs)
 projection = project_to_common_instrument(prefix_states, conditioned_outputs)
-print(min(cut.slack for cut in cuts), projection.separation_gap)
+basis = reconstruct_common_instrument_from_basis(prefix_states, conditioned_outputs)
+print(min(cut.slack for cut in cuts), projection.separation_gap, basis.minimum_choi_eigenvalue)
 ```
+
+The algebraic reconstruction applies when the four prefix states form an
+operator basis; it is exact up to floating-point linear algebra and does not
+require the optional solver stack. Its derivation, prior-art boundary, and
+determinant-scaled polynomial form are documented in
+[`notes/operator_basis_instrument_criterion.md`](notes/operator_basis_instrument_criterion.md).
 
 The validated `lambda=0.55` strengthening experiment and its explicit local
 versus global boundary are documented in

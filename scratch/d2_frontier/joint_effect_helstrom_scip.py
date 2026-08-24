@@ -18,6 +18,7 @@ description is exactly equivalent to a shared qubit instrument for the score.
 from __future__ import annotations
 
 import argparse
+import itertools
 import json
 import math
 from pathlib import Path
@@ -69,6 +70,69 @@ def bloch(matrix: np.ndarray) -> np.ndarray:
             *(float(np.trace(matrix @ pauli).real) for pauli in PAULIS),
         ]
     )
+
+
+def rotate_common_instrument_input_gauge(
+    states: np.ndarray, choi: np.ndarray
+) -> tuple[np.ndarray, np.ndarray]:
+    """Rotate input states and the Choi input legs into the model gauge."""
+
+    state_coefficients = np.asarray([bloch(item) for item in states])
+    first = state_coefficients[0, 1:]
+    second = state_coefficients[1, 1:]
+    first_norm = float(np.linalg.norm(first))
+    if first_norm <= 1e-12:
+        return np.asarray(states), np.asarray(choi)
+    x_axis = first / first_norm
+    transverse = second - float(np.dot(second, x_axis)) * x_axis
+    transverse_norm = float(np.linalg.norm(transverse))
+    if transverse_norm <= 1e-12:
+        trial = np.asarray([0.0, 0.0, 1.0])
+        if abs(float(np.dot(trial, x_axis))) > 0.9:
+            trial = np.asarray([0.0, 1.0, 0.0])
+        transverse = trial - float(np.dot(trial, x_axis)) * x_axis
+        transverse_norm = float(np.linalg.norm(transverse))
+    y_axis = transverse / transverse_norm
+    z_axis = np.cross(x_axis, y_axis)
+    rotation = np.vstack([x_axis, y_axis, z_axis])
+
+    state_coefficients[:, 1:] = state_coefficients[:, 1:] @ rotation.T
+    choi_coefficients = np.asarray(
+        [
+            [
+                [
+                    float(np.trace(item @ CHOI_BASIS[mu, nu]).real)
+                    for nu in OUTCOMES
+                ]
+                for mu in OUTCOMES
+            ]
+            for item in choi
+        ]
+    )
+    transpose_sign = np.diag([1.0, -1.0, 1.0])
+    choi_rotation = transpose_sign @ rotation @ transpose_sign
+    choi_coefficients[:, 1:, :] = np.einsum(
+        "ab,ybn->yan", choi_rotation, choi_coefficients[:, 1:, :]
+    )
+    rotated_states = np.asarray(
+        [
+            sum(state_coefficients[z, mu] * FULL_PAULIS[mu] for mu in OUTCOMES)
+            / 2.0
+            for z in OUTCOMES
+        ]
+    )
+    rotated_choi = np.asarray(
+        [
+            sum(
+                choi_coefficients[y, mu, nu] * CHOI_BASIS[mu, nu]
+                for mu in OUTCOMES
+                for nu in OUTCOMES
+            )
+            / 4.0
+            for y in OUTCOMES
+        ]
+    )
+    return rotated_states, rotated_choi
 
 
 def add_lorentz(
@@ -141,6 +205,75 @@ def add_complex_cholesky(
     return factor
 
 
+def lower_psd_factor(matrix: np.ndarray, tolerance: float = 1e-10) -> np.ndarray:
+    """Return a lower-triangular ``L`` with ``matrix = L L*``.
+
+    Unlike ``numpy.linalg.cholesky``, this construction also accepts
+    rank-deficient positive-semidefinite matrices.  The unpivoted QR step
+    triangularises a square-root factor without changing its Gram matrix.
+    """
+
+    hermitian = 0.5 * (np.asarray(matrix) + np.asarray(matrix).conj().T)
+    eigenvalues, eigenvectors = np.linalg.eigh(hermitian)
+    scale = max(1.0, float(np.linalg.norm(hermitian, ord=2)))
+    if float(eigenvalues.min()) < -tolerance * scale:
+        raise np.linalg.LinAlgError("matrix is not positive semidefinite")
+    square_root = eigenvectors @ np.diag(np.sqrt(np.maximum(eigenvalues, 0.0)))
+    _, upper = np.linalg.qr(square_root.conj().T)
+    lower = upper.conj().T
+    for column in range(lower.shape[1]):
+        diagonal = lower[column, column]
+        if abs(diagonal) > tolerance:
+            lower[:, column] *= np.exp(-1j * np.angle(diagonal))
+    return lower
+
+
+def polynomial_determinant(matrix: list[list[object]]) -> object:
+    """Leibniz determinant for a small matrix of SCIP expressions."""
+
+    dimension = len(matrix)
+    if dimension < 1 or any(len(row) != dimension for row in matrix):
+        raise ValueError("a square expression matrix is required")
+    terms = []
+    for permutation in itertools.permutations(range(dimension)):
+        inversions = sum(
+            permutation[first] > permutation[second]
+            for first in range(dimension)
+            for second in range(first + 1, dimension)
+        )
+        term: object = -1.0 if inversions % 2 else 1.0
+        for row, column in enumerate(permutation):
+            term = term * matrix[row][column]
+        terms.append(term)
+    return quicksum(terms)
+
+
+def polynomial_adjugate(matrix: list[list[object]]) -> list[list[object]]:
+    """Adjugate by complementary minors, with no division."""
+
+    dimension = len(matrix)
+    if dimension < 2 or any(len(row) != dimension for row in matrix):
+        raise ValueError("a square expression matrix of dimension at least two is required")
+    result: list[list[object]] = []
+    for row in range(dimension):
+        result_row = []
+        for column in range(dimension):
+            # adj(A)[row,column] is cofactor(A)[column,row].
+            minor = [
+                [
+                    matrix[source_row][source_column]
+                    for source_column in range(dimension)
+                    if source_column != row
+                ]
+                for source_row in range(dimension)
+                if source_row != column
+            ]
+            sign = -1.0 if (row + column) % 2 else 1.0
+            result_row.append(sign * polynomial_determinant(minor))
+        result.append(result_row)
+    return result
+
+
 def fibonacci_sphere(count: int) -> np.ndarray:
     """Return deterministic pure-state Bloch directions for Ando cuts."""
 
@@ -169,9 +302,28 @@ def build(
     ando_direction_count: int = 0,
     fourier_trace_branches: tuple[str, str, str] | None = None,
     prefix_prior_bounds: np.ndarray | None = None,
+    basis_determinant_sign: int = 0,
+    basis_determinant_floor: float = 0.0,
+    basis_choi_witnesses: np.ndarray | None = None,
 ) -> tuple[Model, dict[str, object]]:
     if ando_direction_count < 0:
         raise ValueError("ando_direction_count must be nonnegative")
+    if basis_determinant_sign not in {-1, 0, 1}:
+        raise ValueError("basis_determinant_sign must be -1, 0, or 1")
+    if not np.isfinite(basis_determinant_floor) or basis_determinant_floor < 0.0:
+        raise ValueError("basis_determinant_floor must be finite and nonnegative")
+    if basis_determinant_sign and not require_cp_completion:
+        raise ValueError("basis determinant completion requires CP completion")
+    if basis_choi_witnesses is not None:
+        basis_choi_witnesses = np.asarray(basis_choi_witnesses, dtype=complex)
+        if (
+            basis_choi_witnesses.ndim != 3
+            or basis_choi_witnesses.shape[0] != 4
+            or basis_choi_witnesses.shape[2] != 4
+        ):
+            raise ValueError("basis Choi witnesses must have shape (4,cuts,4)")
+        if not basis_determinant_sign:
+            raise ValueError("basis Choi witnesses require a determinant-sign branch")
     branch_choices = {"scalar-positive", "scalar-negative", "bloch"}
     if fourier_trace_branches is not None and (
         len(fourier_trace_branches) != 3
@@ -366,6 +518,7 @@ def build(
     probability: dict[tuple[int, int], object] = {}
     correct: dict[tuple[int, int], object] = {}
     path_output_planar: dict[tuple[int, int, int], object] = {}
+    path_output_full: dict[tuple[int, int, int], object] = {}
     for z, y in PATHS:
         p = model.addVar(lb=0.0, ub=1.0, name=f"p_{z}_{y}")
         model.addCons(
@@ -403,14 +556,98 @@ def build(
             for row in range(3)
         )
         model.addCons(reconstructed_output[0] == p)
-        add_lorentz(model, reconstructed_output[0], list(reconstructed_output[1:]))
+        if require_cp_completion:
+            missing_output = 0.5 * (
+                state_scalar[z] * cp_missing_pullback[y, 0]
+                + quicksum(
+                    state_vector[z][axis] * cp_missing_pullback[y, axis + 1]
+                    for axis in range(3)
+                )
+            )
+            add_lorentz(
+                model,
+                reconstructed_output[0],
+                [reconstructed_output[1], reconstructed_output[2], missing_output],
+            )
+            full_output = (*reconstructed_output, missing_output)
+        else:
+            add_lorentz(model, reconstructed_output[0], list(reconstructed_output[1:]))
+            full_output = (*reconstructed_output, 0.0)
         for domain, item in enumerate(reconstructed_output):
             path_output_planar[z, y, domain] = item
+        for domain, item in enumerate(full_output):
+            path_output_full[z, y, domain] = item
         s = z ^ y
         d = statistics[z, y, s] if s in active else 0.0
         probability[z, y] = p
         correct[z, y] = d
         variables[f"p_{z}_{y}"] = p
+
+    if basis_determinant_sign:
+        input_basis = [
+            [state_scalar[z], *state_vector[z]] for z in OUTCOMES
+        ]
+        determinant = polynomial_determinant(input_basis)
+        signed_determinant = float(basis_determinant_sign) * determinant
+        model.addCons(signed_determinant >= basis_determinant_floor)
+        # L_y = Q_y^T adj(R^T) / det(R).  Twice its numerator gives the
+        # Pauli coefficients expected by add_complex_cholesky, whose /4 Choi
+        # convention then constructs sign(det(R))*det(R)*J_y = |det(R)|J_y.
+        input_transpose = [
+            [input_basis[column][row] for column in OUTCOMES]
+            for row in OUTCOMES
+        ]
+        adjugate_transpose = polynomial_adjugate(input_transpose)
+        basis_factors = {}
+        for y in OUTCOMES:
+            coefficients: dict[tuple[int, int], object] = {}
+            for mu in OUTCOMES:
+                for nu in OUTCOMES:
+                    transfer_numerator = quicksum(
+                        path_output_full[z, y, nu]
+                        * adjugate_transpose[z][mu]
+                        for z in OUTCOMES
+                    )
+                    coefficients[mu, nu] = (
+                        2.0 * basis_determinant_sign * transfer_numerator
+                    )
+            # The helper transposes the domain Y internally through the sign
+            # convention already used for adjoint-map CP completion.
+            coefficients[2, 0] = -coefficients[2, 0]
+            coefficients[2, 1] = -coefficients[2, 1]
+            coefficients[2, 2] = -coefficients[2, 2]
+            coefficients[2, 3] = -coefficients[2, 3]
+            if basis_choi_witnesses is not None:
+                for witness_index, witness in enumerate(basis_choi_witnesses[y]):
+                    norm = float(np.linalg.norm(witness))
+                    if norm <= 1e-14:
+                        raise ValueError("basis Choi witnesses must be nonzero")
+                    direction = witness / norm
+                    expectation = quicksum(
+                        float(
+                            np.vdot(
+                                direction,
+                                CHOI_BASIS[mu, nu] @ direction,
+                            ).real
+                        )
+                        * coefficients[mu, nu]
+                        / 4.0
+                        for mu in OUTCOMES
+                        for nu in OUTCOMES
+                    )
+                    # The determinant numerator is naturally small on the
+                    # target prior box. Scaling improves feasibility checks
+                    # without changing the mathematical half-space.
+                    model.addCons(
+                        1000.0 * expectation >= 0.0,
+                        name=f"basis_witness_{y}_{witness_index}",
+                    )
+            basis_factors[y] = add_complex_cholesky(
+                model, coefficients, f"basis_choi_{y}"
+            )
+        variables["basis_determinant"] = determinant
+        variables["basis_determinant_sign"] = int(basis_determinant_sign)
+        variables["basis_cholesky_factors"] = basis_factors
 
     for name in sorted(linked):
         parts = name.split("_")
@@ -557,6 +794,7 @@ def build(
     fourier_norm_square = []
     fourier_input_energy = []
     fourier_flagged_sum = []
+    fourier_flagged_norm_variables: dict[tuple[int, int], object] = {}
     for character in range(1, 4):
         signs = tuple(
             -1.0 if (character & label).bit_count() % 2 else 1.0 for label in OUTCOMES
@@ -605,6 +843,7 @@ def build(
             model.addCons(flagged_norm >= -output_scalar)
             add_lorentz(model, flagged_norm, [*output_planar, 0.0])
             flagged_norms.append(flagged_norm)
+            fourier_flagged_norm_variables[character, y] = flagged_norm
         flagged_sum = quicksum(flagged_norms)
         fourier_flagged_sum.append(flagged_sum)
         model.addCons(flagged_sum * flagged_sum <= input_energy)
@@ -659,6 +898,7 @@ def build(
         )
     variables["fourier_terminal_norm_square"] = tuple(fourier_norm_square)
     variables["fourier_input_energy"] = tuple(fourier_input_energy)
+    variables["fourier_flagged_norms"] = fourier_flagged_norm_variables
 
     flat = [probability[z, y] for z, y in PATHS]
     hellinger = []
@@ -687,6 +927,7 @@ def build(
             "cp_missing_pullback": cp_missing_pullback,
             "planar_pullback": planar_pullback,
             "ando_direction_count": ando_direction_count,
+            "rotation_gauge_fixed": bool(fix_rotation_gauge),
         }
     )
     return model, variables
@@ -781,6 +1022,15 @@ def seed_from_common_instrument(
     choi = np.asarray(arrays["choi"], dtype=complex)
     if states.shape != (4, 2, 2) or choi.shape != (4, 4, 4):
         raise ValueError("common-instrument seed must contain states and choi")
+    if variables.get("rotation_gauge_fixed", False):
+        states, choi = rotate_common_instrument_input_gauge(states, choi)
+
+    input_basis = np.asarray([bloch(state) for state in states])
+    input_determinant = float(np.linalg.det(input_basis))
+    if "basis_determinant_sign" in variables:
+        required_sign = int(variables["basis_determinant_sign"])
+        if required_sign * input_determinant <= 0.0:
+            return False
 
     joint = np.asarray(
         [[apply_choi_adjoint(choi[y], effects[s]) for s in OUTCOMES] for y in OUTCOMES]
@@ -808,6 +1058,9 @@ def seed_from_common_instrument(
     dual = bloch(dual_matrix)
     flat = probabilities.reshape(16)
     returned = float(np.sqrt(np.maximum(flat, 0.0)).sum() ** 2 / 16.0)
+    conditioned = np.asarray(
+        [[apply_choi(choi[y], states[z]) for y in OUTCOMES] for z in OUTCOMES]
+    )
 
     solution = model.createSol()
     for z in OUTCOMES:
@@ -842,6 +1095,38 @@ def seed_from_common_instrument(
                 variables[f"h_{first}_{second}"],
                 float(math.sqrt(max(0.0, flat[first] * flat[second]))),
             )
+
+    terminal_norms = variables["fourier_terminal_norm_square"]
+    flagged_norms = variables["fourier_flagged_norms"]
+    for character in range(1, 4):
+        signs = np.asarray(
+            [
+                -1.0 if (character & label).bit_count() % 2 else 1.0
+                for label in OUTCOMES
+            ]
+        )
+        terminal_fourier = bloch(np.einsum("s,sij->ij", signs, terminal_states))
+        terminal_norm_square = max(
+            terminal_fourier[0] ** 2,
+            float(np.dot(terminal_fourier[1:], terminal_fourier[1:])),
+        )
+        model.setSolVal(
+            solution,
+            terminal_norms[character - 1],
+            float(terminal_norm_square),
+        )
+        for y in OUTCOMES:
+            output_fourier = bloch(
+                np.einsum("z,zij->ij", signs, conditioned[:, y])
+            )
+            planar_norm = math.sqrt(
+                float(output_fourier[1] ** 2 + output_fourier[2] ** 2)
+            )
+            model.setSolVal(
+                solution,
+                flagged_norms[character, y],
+                max(abs(float(output_fourier[0])), planar_norm),
+            )
     model.setSolVal(
         solution,
         variables["score"],
@@ -875,6 +1160,33 @@ def seed_from_common_instrument(
                         factors[y][row, column, "imag"],
                         float(factor[row, column].imag),
                     )
+
+    if "basis_cholesky_factors" in variables:
+        basis_factors = variables["basis_cholesky_factors"]
+        for y in OUTCOMES:
+            # The operator-basis constraint factors |det(R)| J_y.  Since this
+            # seed already supplies literal Choi matrices, it can populate the
+            # redundant determinant-numerator factor without an inverse.
+            signed_numerator = abs(input_determinant) * choi[y]
+            factor = lower_psd_factor(signed_numerator)
+            for row in OUTCOMES:
+                for column in range(row + 1):
+                    model.setSolVal(
+                        solution,
+                        basis_factors[y][row, column, "real"],
+                        float(factor[row, column].real),
+                    )
+                    if row != column:
+                        model.setSolVal(
+                            solution,
+                            basis_factors[y][row, column, "imag"],
+                            float(factor[row, column].imag),
+                        )
+    seed_feasible = bool(
+        model.checkSol(solution, printreason=False, completely=True)
+    )
+    if not seed_feasible:
+        return False
     return bool(model.addSol(solution, free=True))
 
 
@@ -987,6 +1299,12 @@ def main() -> None:
     parser.add_argument("--solution-npz", type=Path)
     parser.add_argument("--seconds", type=float, default=300.0)
     parser.add_argument("--gap", type=float, default=1e-5)
+    parser.add_argument(
+        "--feasibility-tolerance",
+        type=float,
+        default=1e-9,
+        help="SCIP primal feasibility tolerance, set before checking warm starts",
+    )
     parser.add_argument("--target", type=float)
     parser.add_argument("--no-rotation-gauge", action="store_true")
     parser.add_argument(
@@ -1022,6 +1340,24 @@ def main() -> None:
         metavar=("L0", "U0", "L1", "U1", "L2", "U2", "L3", "U3"),
         help="optional four prior intervals used for spatial secant cuts",
     )
+    parser.add_argument(
+        "--basis-determinant-sign",
+        type=int,
+        choices=(-1, 0, 1),
+        default=0,
+        help="add redundant operator-basis Choi positivity on one determinant-sign branch",
+    )
+    parser.add_argument(
+        "--basis-determinant-floor",
+        type=float,
+        default=0.0,
+        help="minimum absolute input-basis determinant on the selected sign branch",
+    )
+    parser.add_argument(
+        "--basis-choi-witnesses-npz",
+        type=Path,
+        help="NPZ containing witnesses with shape (4,cuts,4)",
+    )
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     weights = np.asarray(args.fixed_three_povm_weights, dtype=float)
@@ -1044,7 +1380,18 @@ def main() -> None:
         None
         if args.prefix_prior_bounds is None
         else np.asarray(args.prefix_prior_bounds, dtype=float).reshape(4, 2),
+        args.basis_determinant_sign,
+        args.basis_determinant_floor,
+        None
+        if args.basis_choi_witnesses_npz is None
+        else np.load(args.basis_choi_witnesses_npz)["witnesses"],
     )
+    if not 1e-9 <= args.feasibility_tolerance <= 1e-3:
+        raise ValueError("feasibility tolerance must lie in [1e-9,1e-3]")
+    model.setRealParam("limits/time", args.seconds)
+    model.setRealParam("limits/gap", args.gap)
+    model.setRealParam("numerics/feastol", args.feasibility_tolerance)
+    model.setRealParam("numerics/dualfeastol", args.feasibility_tolerance)
     if args.seed_npz is not None and args.common_instrument_seed_npz is not None:
         raise ValueError("choose only one seed format")
     seed_accepted = None
@@ -1064,10 +1411,6 @@ def main() -> None:
             effects,
             args.weight,
         )
-    model.setRealParam("limits/time", args.seconds)
-    model.setRealParam("limits/gap", args.gap)
-    model.setRealParam("numerics/feastol", 1e-9)
-    model.setRealParam("numerics/dualfeastol", 1e-9)
     model.setIntParam("display/verblevel", 2)
     model.optimize()
 
@@ -1086,6 +1429,14 @@ def main() -> None:
             else np.asarray(args.prefix_prior_bounds, dtype=float)
             .reshape(4, 2)
             .tolist()
+        ),
+        "basis_determinant_sign": args.basis_determinant_sign,
+        "basis_determinant_floor": args.basis_determinant_floor,
+        "feasibility_tolerance": args.feasibility_tolerance,
+        "basis_choi_witnesses": (
+            None
+            if args.basis_choi_witnesses_npz is None
+            else str(args.basis_choi_witnesses_npz)
         ),
         "common_instrument_seed": (
             None

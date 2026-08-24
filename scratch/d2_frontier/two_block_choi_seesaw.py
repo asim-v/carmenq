@@ -328,12 +328,29 @@ def optimise_states(
     effects: np.ndarray,
     weight: float,
     require_optimal_povm: bool = False,
+    prefix_prior_bounds: np.ndarray | None = None,
+    prefix_order: tuple[int, int, int, int] | None = None,
 ) -> np.ndarray:
     variables = [cp.Variable((2, 2), hermitian=True) for _ in OUTCOMES]
     constraints: list[cp.Constraint] = [item >> 0 for item in variables]
     constraints.append(
         cp.sum(cp.hstack([cp.real(cp.trace(item)) for item in variables])) == 1.0
     )
+    if prefix_prior_bounds is not None:
+        for z in OUTCOMES:
+            prior = cp.real(cp.trace(variables[z]))
+            constraints.extend(
+                (
+                    prior >= float(prefix_prior_bounds[z, 0]),
+                    prior <= float(prefix_prior_bounds[z, 1]),
+                )
+            )
+    if prefix_order is not None:
+        for rank in range(3):
+            constraints.append(
+                cp.real(cp.trace(variables[prefix_order[rank]]))
+                >= cp.real(cp.trace(variables[prefix_order[rank + 1]]))
+            )
     coarse = [choi_effect(item) for item in choi]
     pulled = {
         (y, s): pulled_effect(choi[y], effects[s])
@@ -400,6 +417,8 @@ def optimise_seed(
     random_povm_arity: int,
     fixed_three_weights: np.ndarray | None,
     require_optimal_fixed_povm: bool,
+    prefix_prior_bounds: np.ndarray | None,
+    prefix_order: tuple[int, int, int, int] | None,
 ) -> tuple[dict[str, object], tuple[np.ndarray, np.ndarray, np.ndarray]]:
     if checkpoint is not None and seed == 0:
         states, choi, effects = extract_checkpoint(checkpoint)
@@ -428,7 +447,12 @@ def optimise_seed(
             states, effects, weight, require_optimal_fixed_povm
         )
         states = optimise_states(
-            choi, effects, weight, require_optimal_fixed_povm
+            choi,
+            effects,
+            weight,
+            require_optimal_fixed_povm,
+            prefix_prior_bounds,
+            prefix_order,
         )
         if not freeze_povm:
             effects = optimise_povm(states, choi, trace_floor)
@@ -451,6 +475,10 @@ def optimise_seed(
             None if fixed_three_weights is None else fixed_three_weights.tolist()
         ),
         "optimal_fixed_povm_required": require_optimal_fixed_povm,
+        "prefix_prior_bounds": (
+            None if prefix_prior_bounds is None else prefix_prior_bounds.tolist()
+        ),
+        "prefix_order": None if prefix_order is None else list(prefix_order),
         **best,
         "state_ranks": [matrix_rank(item) for item in states],
         "choi_ranks": [matrix_rank(item) for item in choi],
@@ -479,6 +507,13 @@ def main() -> None:
     )
     parser.add_argument("--fixed-three-povm-weights", type=float, nargs=3)
     parser.add_argument("--require-optimal-fixed-povm", action="store_true")
+    parser.add_argument(
+        "--prefix-prior-bounds",
+        type=float,
+        nargs=8,
+        metavar=("L0", "U0", "L1", "U1", "L2", "U2", "L3", "U3"),
+    )
+    parser.add_argument("--prefix-order", type=int, nargs=4)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     if not 0.0 <= args.povm_trace_floor <= 0.5:
@@ -502,6 +537,23 @@ def main() -> None:
             raise ValueError("fixed three-effect weights cannot seed a checkpoint")
     if args.require_optimal_fixed_povm and not args.freeze_povm:
         raise ValueError("optimal-fixed-POVM constraints require --freeze-povm")
+    prefix_prior_bounds = (
+        None
+        if args.prefix_prior_bounds is None
+        else np.asarray(args.prefix_prior_bounds, dtype=float).reshape(4, 2)
+    )
+    if prefix_prior_bounds is not None:
+        if np.any(prefix_prior_bounds[:, 0] < 0.0) or np.any(
+            prefix_prior_bounds[:, 1] > 1.0
+        ):
+            raise ValueError("prefix prior bounds must lie in [0,1]")
+        if np.any(prefix_prior_bounds[:, 0] > prefix_prior_bounds[:, 1]):
+            raise ValueError("prefix prior lower bounds exceed upper bounds")
+    prefix_order = (
+        None if args.prefix_order is None else tuple(int(z) for z in args.prefix_order)
+    )
+    if prefix_order is not None and sorted(prefix_order) != list(OUTCOMES):
+        raise ValueError("prefix order must be a permutation of 0,1,2,3")
 
     results = [
         optimise_seed(
@@ -514,6 +566,8 @@ def main() -> None:
             args.random_povm_arity,
             fixed_three_weights,
             args.require_optimal_fixed_povm,
+            prefix_prior_bounds,
+            prefix_order,
         )
         for seed in range(args.seed_offset, args.seed_offset + args.restarts)
     ]

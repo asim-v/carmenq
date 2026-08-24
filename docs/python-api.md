@@ -23,6 +23,7 @@ CARMEN-Q exposes a compact top-level API for the common audit-return workflow. T
 | Verified balanced counterexample | `INTERLEAVED_BALANCED_COUNTEREXAMPLE` | same |
 | Flagged common-instrument cuts | `scan_flagged_trace_norm_cuts(states, outputs, scales=None)` | same |
 | Exact fixed-input instrument projection | `project_to_common_instrument(states, outputs)` | same |
+| Exact four-input basis reconstruction | `reconstruct_common_instrument_from_basis(states, outputs)` | same |
 
 ```python
 from carmenq import BenchmarkCounts, certify, streaming_bound
@@ -48,6 +49,15 @@ the exact Choi-compatible set and, when the distance is nonzero, verifies a
 linear separating witness with a second support SDP. The projection requires
 the optional `frontier` dependencies. Its numerical witness is
 solver-conditional rather than an interval-arithmetic certificate.
+
+When exactly four prefix states span the Hermitian qubit operators,
+`reconstruct_common_instrument_from_basis` needs no optimizer. It reconstructs
+the unique Pauli-transfer and Choi matrices compatible with all sixteen
+conditioned outputs. The family comes from one instrument precisely when the
+four Choi matrices are positive semidefinite and their sum is trace preserving.
+The result also contains determinant-scaled Choi numerators, which expose the
+criterion as polynomial matrix inequalities for global-optimization work.
+Singular input families should continue to use `project_to_common_instrument`.
 
 The `carmenq.order_sensitive` module contains the separate syndrome-order result. `GROUPED_CHECK_MATRIX` and `INTERLEAVED_CHECK_MATRIX` define the canonical coordinate orders. `grouped_frontier` evaluates the exact attainable grouped boundary, while `INTERLEAVED_PERFECT_AUDIT_ENDPOINT` records the proved and attained interleaved endpoint. `full_rank_block_perfect_audit_return_bound` evaluates the finite-field theorem `F_R <= min(1,(d/q**r)**m)` for `m` consecutive full-rank blocks; `full_crossing_perfect_audit_return_bound` is its two-block specialization, and `q` must be a prime power. The robust function `full_rank_block_approximate_audit_return_bound` applies the causal-list/Ky-Fan theorem when `P_A < 1`. For the canonical interleaved matrix, `interleaved_return_upper_bound` and `interleaved_support_upper_bound` give its RETURN and support certificates; the latter is strictly below the grouped/static support for `3/7 < audit_weight < 1`. For a supplied binary matrix, `full_rank_block_packing_number` computes the maximum valid exponent `mu(H)` and `ordered_check_perfect_audit_return_bound` evaluates the resulting matrix-level endpoint bound. These are upper bounds and do not assert attainability for every matrix.
 

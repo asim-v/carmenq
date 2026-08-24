@@ -26,6 +26,14 @@
     "plane_covering_cosine": 0.9951847266721969,
     "sphere_covering_cosine": 0.984375,
     "maximum_bound": 0.762937061350879,
+    "maximum_cell": {
+      "plane_index": 8,
+      "sphere_index": 68,
+      "plane_normal": [0.9951847266721969, 0.0, 0.09801714032956071],
+      "plane_cosine": 0.9951847266721969,
+      "sphere_normal": [0.7492686492653552, -0.6556100681071858, 0.0936585811581694],
+      "sphere_cosine": 0.984375
+    },
     "closed_below_target": false,
     "reproducer": "fourier_behavior_cap_cover.py --plane-cells 16 --face-grid 8"
   },
@@ -35,6 +43,40 @@
     "flagged_output_trace_norm": 0.3230418346704891,
     "violation": 0.09327347048710238,
     "interpretation": "the three group characters are necessary but not sufficient for one common instrument"
+  },
+  "operator_basis_reconstruction": {
+    "input_determinant": 0.008466503751329593,
+    "input_condition_number": 3.5481964248564712,
+    "minimum_choi_eigenvalues": [
+      -0.20592183911287543,
+      -0.21787172293084658,
+      -0.27110599249147066,
+      -0.2748688238850713
+    ],
+    "output_residual": 5.155332877162404e-17,
+    "trace_preservation_residual": 1.722188176232883e-16,
+    "interpretation": "the unique interpolating maps are trace preserving in sum but all four fail complete positivity"
+  },
+  "exact_nondegenerate_criterion": {
+    "statement": "sign(det(R)) times the determinant-scaled reconstructed Choi numerator is positive semidefinite for every outcome",
+    "polynomial_degree": 4,
+    "planar_sign_symmetry": "complex conjugation on each input and X-conjugated complex conjugation on each output preserve the score and reverse det(R)",
+    "independent_nondegenerate_sign_branches": 1,
+    "remaining_independent_stratum": "det(R)=0",
+    "scip_positive_branch_primal_90s": 0.7228814116506673,
+    "scip_positive_branch_root_dual_90s": 0.7634017479766129,
+    "scip_feasibility_tolerance": 1e-6,
+    "closed_below_target": false,
+    "interpretation": "the criterion is exact, but the current scalar spatial relaxation is too weak to exploit the degree-four matrix constraint"
+  },
+  "physical_box_strategy": {
+    "score": 0.7228813076069284,
+    "audit": 0.5034750008785154,
+    "return": 0.9910445713860998,
+    "input_determinant": 0.006575092755678216,
+    "reflected_input_determinant": -0.006575092755678216,
+    "sign_symmetry_score_residual": 0.0,
+    "interpretation": "both nondegenerate sign branches are physically nonempty inside the benchmark prior box"
   },
   "epistemic_status": "solver-conditional conic diagnostics; no interval-verified upper certificate"
 }

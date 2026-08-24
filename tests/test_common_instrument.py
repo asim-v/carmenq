@@ -10,12 +10,16 @@ from carmenq.common_instrument import (
     conditioned_outputs,
     flagged_trace_norm_cut,
     project_to_common_instrument,
+    reconstruct_common_instrument_from_basis,
     robust_common_instrument_witness_bound,
     scan_flagged_trace_norm_cuts,
 )
 
 
 IDENTITY = np.eye(2, dtype=complex)
+X = np.array([[0.0, 1.0], [1.0, 0.0]], dtype=complex)
+Y = np.array([[0.0, -1j], [1j, 0.0]], dtype=complex)
+Z = np.diag([1.0, -1.0]).astype(complex)
 
 
 def random_prefix_states(seed: int = 20260823) -> np.ndarray:
@@ -26,6 +30,17 @@ def random_prefix_states(seed: int = 20260823) -> np.ndarray:
     states = np.einsum("zai,zaj->zij", roots.conj(), roots)
     states /= np.trace(states, axis1=1, axis2=2).real.sum()
     return states
+
+
+def basis_prefix_states() -> np.ndarray:
+    return np.asarray(
+        [
+            0.125 * (IDENTITY + 0.6 * Z),
+            0.125 * (IDENTITY - 0.6 * Z),
+            0.125 * (IDENTITY + 0.6 * X),
+            0.125 * (IDENTITY + 0.6 * Y),
+        ]
+    )
 
 
 def test_identity_choi_convention() -> None:
@@ -121,3 +136,46 @@ def test_projection_witness_extends_to_perturbed_prefix_states() -> None:
         perturbed,
     )
     assert physical_witness_value <= upper + 2e-7
+
+
+def test_basis_reconstruction_recovers_unique_physical_instrument() -> None:
+    states = basis_prefix_states()
+    probabilities = np.asarray([0.1, 0.2, 0.3, 0.4])
+    choi = np.asarray(
+        [choi_from_kraus((np.sqrt(probability) * IDENTITY,)) for probability in probabilities]
+    )
+    outputs = conditioned_outputs(states, choi)
+    reconstruction = reconstruct_common_instrument_from_basis(states, outputs)
+    assert reconstruction.is_compatible(2e-12)
+    assert reconstruction.choi_matrices == pytest.approx(choi, abs=2e-12)
+    assert reconstruction.output_residual <= 2e-15
+    assert reconstruction.trace_preservation_residual <= 2e-15
+    assert reconstruction.input_condition_number < 10.0
+    assert reconstruction.signed_choi_numerators == pytest.approx(
+        abs(reconstruction.input_determinant) * reconstruction.choi_matrices,
+        abs=2e-14,
+    )
+
+
+def test_basis_reconstruction_detects_positive_but_incompatible_outputs() -> None:
+    states = basis_prefix_states()
+    probabilities = np.full(4, 0.25)
+    choi = np.asarray(
+        [choi_from_kraus((0.5 * IDENTITY,)) for _ in range(4)]
+    )
+    outputs = conditioned_outputs(states, choi)
+    outputs[3, 0] += 0.004 * Z
+    outputs[3, 1] -= 0.004 * Z
+    assert min(np.linalg.eigvalsh(item).min() for row in outputs for item in row) >= -1e-12
+    reconstruction = reconstruct_common_instrument_from_basis(states, outputs)
+    assert reconstruction.output_residual <= 2e-15
+    assert reconstruction.trace_preservation_residual <= 2e-15
+    assert reconstruction.minimum_choi_eigenvalue < -1e-3
+    assert not reconstruction.is_compatible()
+
+
+def test_basis_reconstruction_rejects_singular_input_family() -> None:
+    states = np.repeat((IDENTITY / 8.0)[None, :, :], 4, axis=0)
+    outputs = np.zeros((4, 2, 2, 2), dtype=complex)
+    with pytest.raises(np.linalg.LinAlgError, match="do not span"):
+        reconstruct_common_instrument_from_basis(states, outputs)

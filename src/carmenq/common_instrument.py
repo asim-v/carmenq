@@ -92,8 +92,86 @@ class CommonInstrumentProjection:
         return max(0.0, self.separation_gap) / denominator
 
 
+@dataclass(frozen=True)
+class BasisInstrumentReconstruction:
+    """Exact linear reconstruction from four independent qubit inputs.
+
+    ``transfer_matrices[y, nu, mu]`` is the Pauli-transfer coefficient in
+    ``Phi_y(sigma_mu) = sum_nu L[y,nu,mu] sigma_nu``.  The reconstruction is
+    algebraic; only the reported floating-point residuals are numerical.
+    """
+
+    input_pauli_matrix: Array
+    input_determinant: float
+    input_condition_number: float
+    transfer_matrices: Array
+    choi_matrices: Array
+    signed_choi_numerators: Array
+    minimum_choi_eigenvalues: Array
+    output_residual: float
+    trace_preservation_residual: float
+
+    @property
+    def minimum_choi_eigenvalue(self) -> float:
+        return float(np.min(self.minimum_choi_eigenvalues))
+
+    def is_compatible(self, tolerance: float = 1e-8) -> bool:
+        """Return whether the unique reconstructed maps form an instrument."""
+
+        return (
+            self.minimum_choi_eigenvalue >= -tolerance
+            and self.output_residual <= tolerance
+            and self.trace_preservation_residual <= tolerance
+        )
+
+
 def _hermitian(matrix: Array) -> Array:
     return 0.5 * (matrix + matrix.conj().T)
+
+
+_PAULIS = np.asarray(
+    [
+        [[1.0, 0.0], [0.0, 1.0]],
+        [[0.0, 1.0], [1.0, 0.0]],
+        [[0.0, -1j], [1j, 0.0]],
+        [[1.0, 0.0], [0.0, -1.0]],
+    ],
+    dtype=complex,
+)
+
+
+def _pauli_coefficients(matrix: Array) -> Array:
+    return np.asarray(
+        [float(np.trace(matrix @ pauli).real) for pauli in _PAULIS]
+    )
+
+
+def _adjugate(matrix: Array) -> Array:
+    """Return the adjugate using minors, without calling an inverse."""
+
+    value = np.asarray(matrix)
+    if value.shape != (4, 4):
+        raise ValueError("the qubit operator-basis matrix must be 4 by 4")
+    cofactors = np.empty((4, 4), dtype=value.dtype)
+    for row in range(4):
+        for column in range(4):
+            minor = np.delete(np.delete(value, row, axis=0), column, axis=1)
+            cofactors[row, column] = (-1.0) ** (row + column) * np.linalg.det(minor)
+    return cofactors.T
+
+
+def _choi_from_pauli_transfer(transfer: Array) -> Array:
+    value = np.asarray(transfer, dtype=float)
+    if value.shape != (4, 4):
+        raise ValueError("a qubit Pauli-transfer matrix must be 4 by 4")
+    choi = sum(
+        0.5
+        * value[nu, mu]
+        * np.kron(_PAULIS[mu].T, _PAULIS[nu])
+        for mu in range(4)
+        for nu in range(4)
+    )
+    return _hermitian(choi)
 
 
 def _validate_families(prefix_states: Array, conditioned_outputs: Array) -> tuple[Array, Array]:
@@ -209,6 +287,88 @@ def conditioned_outputs(prefix_states: Array, choi_matrices: Array) -> Array:
         raise ValueError("choi_matrices must have shape (outcomes, 4, 4)")
     return np.asarray(
         [[apply_choi(item, state) for item in choi] for state in states]
+    )
+
+
+def reconstruct_common_instrument_from_basis(
+    prefix_states: Array,
+    conditioned_output_states: Array,
+    rank_tolerance: float = 1e-10,
+) -> BasisInstrumentReconstruction:
+    r"""Reconstruct the unique instrument maps fixed by four qubit inputs.
+
+    Four linearly independent Hermitian qubit operators form a basis of the
+    real vector space of Hermitian matrices.  Their images therefore determine
+    each Hermiticity-preserving map uniquely.  The supplied family comes from
+    one quantum instrument exactly when every reconstructed Choi matrix is
+    positive semidefinite and their sum is trace preserving.
+
+    The polynomial numerator reported in the result avoids division by the
+    basis determinant.  If ``delta`` is that determinant and ``K_y`` the
+    numerator, then
+
+    .. math::
+
+       |\delta| J_y = \operatorname{sign}(\delta) K_y.
+
+    This form is useful for branch-and-bound or sum-of-squares models.  Singular
+    input families require the general fixed-input SDP instead.
+    """
+
+    if not math.isfinite(rank_tolerance) or rank_tolerance <= 0.0:
+        raise ValueError("rank_tolerance must be finite and positive")
+    states, outputs = _validate_families(
+        prefix_states, conditioned_output_states
+    )
+    if states.shape[0] != 4:
+        raise ValueError("basis reconstruction requires exactly four inputs")
+    input_pauli = np.asarray([_pauli_coefficients(state) for state in states])
+    singular_values = np.linalg.svd(input_pauli, compute_uv=False)
+    if singular_values[-1] <= rank_tolerance * singular_values[0]:
+        raise np.linalg.LinAlgError(
+            "the four prefix states do not span the Hermitian qubit operators"
+        )
+    determinant = float(np.linalg.det(input_pauli))
+    condition_number = float(singular_values[0] / singular_values[-1])
+    output_pauli = np.asarray(
+        [
+            [_pauli_coefficients(outputs[z, y]) for z in range(4)]
+            for y in range(outputs.shape[1])
+        ]
+    )
+    transfer = np.asarray(
+        [np.linalg.solve(input_pauli, output_pauli[y]).T for y in range(outputs.shape[1])]
+    )
+    choi = np.asarray([_choi_from_pauli_transfer(item) for item in transfer])
+
+    # L_y = Q_y^T adj(R^T) / det(R).  Forming the numerator by minors makes
+    # the exact polynomial matrix inequality visible to symbolic optimizers.
+    adjugate_transpose = _adjugate(input_pauli.T)
+    transfer_numerators = np.asarray(
+        [output_pauli[y].T @ adjugate_transpose for y in range(outputs.shape[1])]
+    )
+    choi_numerators = np.asarray(
+        [_choi_from_pauli_transfer(item) for item in transfer_numerators]
+    )
+    signed_numerators = np.sign(determinant) * choi_numerators
+    reconstructed = conditioned_outputs(states, choi)
+    output_residual = float(np.linalg.norm(reconstructed - outputs))
+    total_choi = choi.sum(axis=0).reshape(2, 2, 2, 2)
+    partial_trace = np.einsum("iaja->ij", total_choi)
+    trace_residual = float(np.linalg.norm(partial_trace - np.eye(2)))
+    minimum_eigenvalues = np.asarray(
+        [float(np.linalg.eigvalsh(item).min()) for item in choi]
+    )
+    return BasisInstrumentReconstruction(
+        input_pauli_matrix=input_pauli,
+        input_determinant=determinant,
+        input_condition_number=condition_number,
+        transfer_matrices=transfer,
+        choi_matrices=choi,
+        signed_choi_numerators=signed_numerators,
+        minimum_choi_eigenvalues=minimum_eigenvalues,
+        output_residual=output_residual,
+        trace_preservation_residual=trace_residual,
     )
 
 
