@@ -93,6 +93,12 @@ handled separately as a lower-dimensional operator-system extension problem;
 the fixed-input Choi projection already implemented in the package remains
 the correct general test there.
 
+That separate treatment is now explicit. A maximum-entry-normalized left-null
+vector gives four compact coefficient charts, and a complete adaptive cover
+excludes the singular stratum at score \(0.758\) for the fixed interior
+benchmark. The construction and its solver-conditional status are documented
+in `singular_common_instrument_stratum.md`.
+
 ## Planar determinant-sign symmetry
 
 For the fixed terminal problem, the three nonzero effects lie in the \(XY\)

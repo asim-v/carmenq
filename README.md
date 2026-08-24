@@ -85,6 +85,13 @@ operator basis; it is exact up to floating-point linear algebra and does not
 require the optional solver stack. Its derivation, prior-art boundary, and
 determinant-scaled polynomial form are documented in
 [`notes/operator_basis_instrument_criterion.md`](notes/operator_basis_instrument_criterion.md).
+The complementary singular case is covered by four compact normalized
+left-null-vector charts. For the fixed `lambda=0.55` interior benchmark, an
+adaptive exact partition closes all four charts at target `0.758` (294 solved
+nodes, 149 infeasible leaves, zero open volume), conditional on SCIP's
+numerical infeasibility decisions. The theorem, limitations, and reproduction
+commands are in
+[`notes/singular_common_instrument_stratum.md`](notes/singular_common_instrument_stratum.md).
 
 The validated `lambda=0.55` strengthening experiment and its explicit local
 versus global boundary are documented in

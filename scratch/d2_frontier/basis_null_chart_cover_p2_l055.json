@@ -1,0 +1,2883 @@
+{
+  "weight": 0.55,
+  "terminal_effect_weights": [
+    0.92,
+    0.64,
+    0.44
+  ],
+  "target": 0.758,
+  "prefix_order": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "prefix_prior_bounds": [
+    [
+      0.296875,
+      0.42596435546875
+    ],
+    [
+      0.224609375,
+      0.34832000732421875
+    ],
+    [
+      0.15234375,
+      0.258392333984375
+    ],
+    [
+      0.1083984375,
+      0.201324462890625
+    ]
+  ],
+  "seconds_per_node": 10.0,
+  "gap": 1e-06,
+  "feasibility_tolerance": 1e-09,
+  "max_depth": 12,
+  "pivots": [
+    2
+  ],
+  "max_nodes": 128,
+  "solver_conditional": true,
+  "certificate_complete": true,
+  "nodes": [
+    {
+      "id": 0,
+      "parent": null,
+      "pivot": 2,
+      "depth": 0,
+      "bounds": [
+        [
+          -1.0,
+          1.0
+        ],
+        [
+          -1.0,
+          1.0
+        ],
+        [
+          -1.0,
+          1.0
+        ]
+      ],
+      "volume": 8.0,
+      "inherited_upper": Infinity,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7633975935219829,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 1,
+      "parent": 0,
+      "pivot": 2,
+      "depth": 1,
+      "bounds": [
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          -1.0,
+          1.0
+        ],
+        [
+          -1.0,
+          1.0
+        ]
+      ],
+      "volume": 4.0,
+      "inherited_upper": 0.7633975935219829,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7634010013025333,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 2,
+      "parent": 0,
+      "pivot": 2,
+      "depth": 1,
+      "bounds": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          -1.0,
+          1.0
+        ],
+        [
+          -1.0,
+          1.0
+        ]
+      ],
+      "volume": 4.0,
+      "inherited_upper": 0.7633975935219829,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7630961100039579,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 3,
+      "parent": 1,
+      "pivot": 2,
+      "depth": 2,
+      "bounds": [
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          -1.0,
+          1.0
+        ]
+      ],
+      "volume": 2.0,
+      "inherited_upper": 0.7633975935219829,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7633876466088516,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 4,
+      "parent": 1,
+      "pivot": 2,
+      "depth": 2,
+      "bounds": [
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          -1.0,
+          1.0
+        ]
+      ],
+      "volume": 2.0,
+      "inherited_upper": 0.7633975935219829,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7631983274923316,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 7,
+      "parent": 3,
+      "pivot": 2,
+      "depth": 3,
+      "bounds": [
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          -1.0,
+          0.0
+        ]
+      ],
+      "volume": 1.0,
+      "inherited_upper": 0.7633876466088516,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7634318402652572,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 8,
+      "parent": 3,
+      "pivot": 2,
+      "depth": 3,
+      "bounds": [
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "volume": 1.0,
+      "inherited_upper": 0.7633876466088516,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7633981350426875,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 11,
+      "parent": 7,
+      "pivot": 2,
+      "depth": 4,
+      "bounds": [
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          -1.0,
+          0.0
+        ]
+      ],
+      "volume": 0.5,
+      "inherited_upper": 0.7633876466088516,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 12,
+      "parent": 7,
+      "pivot": 2,
+      "depth": 4,
+      "bounds": [
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          -1.0,
+          0.0
+        ]
+      ],
+      "volume": 0.5,
+      "inherited_upper": 0.7633876466088516,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7633681493235277,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 13,
+      "parent": 8,
+      "pivot": 2,
+      "depth": 4,
+      "bounds": [
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "volume": 0.5,
+      "inherited_upper": 0.7633876466088516,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7625606356233702,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 14,
+      "parent": 8,
+      "pivot": 2,
+      "depth": 4,
+      "bounds": [
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "volume": 0.5,
+      "inherited_upper": 0.7633876466088516,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7631833889721794,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 15,
+      "parent": 12,
+      "pivot": 2,
+      "depth": 5,
+      "bounds": [
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -1.0,
+          0.0
+        ]
+      ],
+      "volume": 0.25,
+      "inherited_upper": 0.7633681493235277,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.759219252499395,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 16,
+      "parent": 12,
+      "pivot": 2,
+      "depth": 5,
+      "bounds": [
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -1.0,
+          0.0
+        ]
+      ],
+      "volume": 0.25,
+      "inherited_upper": 0.7633681493235277,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7633638912300799,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 23,
+      "parent": 16,
+      "pivot": 2,
+      "depth": 6,
+      "bounds": [
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5
+        ]
+      ],
+      "volume": 0.125,
+      "inherited_upper": 0.7633638912300799,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7609909563725255,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 24,
+      "parent": 16,
+      "pivot": 2,
+      "depth": 6,
+      "bounds": [
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.125,
+      "inherited_upper": 0.7633638912300799,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7629532122334566,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 9,
+      "parent": 4,
+      "pivot": 2,
+      "depth": 3,
+      "bounds": [
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          -1.0,
+          0.0
+        ]
+      ],
+      "volume": 1.0,
+      "inherited_upper": 0.7631983274923316,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7631825382744757,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 10,
+      "parent": 4,
+      "pivot": 2,
+      "depth": 3,
+      "bounds": [
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "volume": 1.0,
+      "inherited_upper": 0.7631983274923316,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 4.0,
+      "closed": true
+    },
+    {
+      "id": 19,
+      "parent": 14,
+      "pivot": 2,
+      "depth": 5,
+      "bounds": [
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "volume": 0.25,
+      "inherited_upper": 0.7631833889721794,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7619126916772903,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 20,
+      "parent": 14,
+      "pivot": 2,
+      "depth": 5,
+      "bounds": [
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "volume": 0.25,
+      "inherited_upper": 0.7631833889721794,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7608645736733133,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 29,
+      "parent": 9,
+      "pivot": 2,
+      "depth": 4,
+      "bounds": [
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          -1.0,
+          0.0
+        ]
+      ],
+      "volume": 0.5,
+      "inherited_upper": 0.7631825382744757,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7604633239173094,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 30,
+      "parent": 9,
+      "pivot": 2,
+      "depth": 4,
+      "bounds": [
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          -1.0,
+          0.0
+        ]
+      ],
+      "volume": 0.5,
+      "inherited_upper": 0.7631825382744757,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 6.0,
+      "closed": true
+    },
+    {
+      "id": 5,
+      "parent": 2,
+      "pivot": 2,
+      "depth": 2,
+      "bounds": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          -1.0,
+          1.0
+        ]
+      ],
+      "volume": 2.0,
+      "inherited_upper": 0.7630961100039579,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7630898579956722,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 6,
+      "parent": 2,
+      "pivot": 2,
+      "depth": 2,
+      "bounds": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          -1.0,
+          1.0
+        ]
+      ],
+      "volume": 2.0,
+      "inherited_upper": 0.7630961100039579,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 37,
+      "parent": 5,
+      "pivot": 2,
+      "depth": 3,
+      "bounds": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          -1.0,
+          0.0
+        ]
+      ],
+      "volume": 1.0,
+      "inherited_upper": 0.7630898579956722,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7631035516348106,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 38,
+      "parent": 5,
+      "pivot": 2,
+      "depth": 3,
+      "bounds": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "volume": 1.0,
+      "inherited_upper": 0.7630898579956722,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.760712226087635,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 39,
+      "parent": 37,
+      "pivot": 2,
+      "depth": 4,
+      "bounds": [
+        [
+          0.0,
+          0.5
+        ],
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          -1.0,
+          0.0
+        ]
+      ],
+      "volume": 0.5,
+      "inherited_upper": 0.7630898579956722,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7630998506114735,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 40,
+      "parent": 37,
+      "pivot": 2,
+      "depth": 4,
+      "bounds": [
+        [
+          0.5,
+          1.0
+        ],
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          -1.0,
+          0.0
+        ]
+      ],
+      "volume": 0.5,
+      "inherited_upper": 0.7630898579956722,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 43,
+      "parent": 39,
+      "pivot": 2,
+      "depth": 5,
+      "bounds": [
+        [
+          0.0,
+          0.5
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -1.0,
+          0.0
+        ]
+      ],
+      "volume": 0.25,
+      "inherited_upper": 0.7630898579956722,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7602690308270679,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 44,
+      "parent": 39,
+      "pivot": 2,
+      "depth": 5,
+      "bounds": [
+        [
+          0.0,
+          0.5
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -1.0,
+          0.0
+        ]
+      ],
+      "volume": 0.25,
+      "inherited_upper": 0.7630898579956722,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7606416205028654,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 27,
+      "parent": 24,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7629532122334566,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7598469996431769,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 28,
+      "parent": 24,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7629532122334566,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7601325526778435,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 17,
+      "parent": 13,
+      "pivot": 2,
+      "depth": 5,
+      "bounds": [
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "volume": 0.25,
+      "inherited_upper": 0.7625606356233702,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 18,
+      "parent": 13,
+      "pivot": 2,
+      "depth": 5,
+      "bounds": [
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "volume": 0.25,
+      "inherited_upper": 0.7625606356233702,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7611986101842501,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 31,
+      "parent": 19,
+      "pivot": 2,
+      "depth": 6,
+      "bounds": [
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          0.0,
+          0.5
+        ]
+      ],
+      "volume": 0.125,
+      "inherited_upper": 0.7619126916772903,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7603497355880741,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 32,
+      "parent": 19,
+      "pivot": 2,
+      "depth": 6,
+      "bounds": [
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          0.5,
+          1.0
+        ]
+      ],
+      "volume": 0.125,
+      "inherited_upper": 0.7619126916772903,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7607173927242221,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 53,
+      "parent": 18,
+      "pivot": 2,
+      "depth": 6,
+      "bounds": [
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          0.0,
+          0.5
+        ]
+      ],
+      "volume": 0.125,
+      "inherited_upper": 0.7611986101842501,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 5.0,
+      "closed": true
+    },
+    {
+      "id": 54,
+      "parent": 18,
+      "pivot": 2,
+      "depth": 6,
+      "bounds": [
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          0.5,
+          1.0
+        ]
+      ],
+      "volume": 0.125,
+      "inherited_upper": 0.7611986101842501,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7601677444783553,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 25,
+      "parent": 23,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7609909563725255,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 26,
+      "parent": 23,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7609909563725255,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7594408903206314,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 33,
+      "parent": 20,
+      "pivot": 2,
+      "depth": 6,
+      "bounds": [
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          0.0,
+          0.5
+        ]
+      ],
+      "volume": 0.125,
+      "inherited_upper": 0.7608645736733133,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7608721103860546,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 34,
+      "parent": 20,
+      "pivot": 2,
+      "depth": 6,
+      "bounds": [
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          0.5,
+          1.0
+        ]
+      ],
+      "volume": 0.125,
+      "inherited_upper": 0.7608645736733133,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 5.0,
+      "closed": true
+    },
+    {
+      "id": 63,
+      "parent": 33,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          0.0,
+          0.5
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7608645736733133,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7598798868638006,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 64,
+      "parent": 33,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          0.0,
+          0.5
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7608645736733133,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 57,
+      "parent": 32,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          0.5,
+          1.0
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7607173927242221,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7586591858132773,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 58,
+      "parent": 32,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          0.5,
+          1.0
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7607173927242221,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 41,
+      "parent": 38,
+      "pivot": 2,
+      "depth": 4,
+      "bounds": [
+        [
+          0.0,
+          0.5
+        ],
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "volume": 0.5,
+      "inherited_upper": 0.760712226087635,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.760715478607981,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 42,
+      "parent": 38,
+      "pivot": 2,
+      "depth": 4,
+      "bounds": [
+        [
+          0.5,
+          1.0
+        ],
+        [
+          -1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "volume": 0.5,
+      "inherited_upper": 0.760712226087635,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 4.0,
+      "closed": true
+    },
+    {
+      "id": 69,
+      "parent": 41,
+      "pivot": 2,
+      "depth": 5,
+      "bounds": [
+        [
+          0.0,
+          0.5
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "volume": 0.25,
+      "inherited_upper": 0.760712226087635,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7607335582213821,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 70,
+      "parent": 41,
+      "pivot": 2,
+      "depth": 5,
+      "bounds": [
+        [
+          0.0,
+          0.5
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "volume": 0.25,
+      "inherited_upper": 0.760712226087635,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 4.0,
+      "closed": true
+    },
+    {
+      "id": 71,
+      "parent": 69,
+      "pivot": 2,
+      "depth": 6,
+      "bounds": [
+        [
+          0.0,
+          0.5
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          0.0,
+          0.5
+        ]
+      ],
+      "volume": 0.125,
+      "inherited_upper": 0.760712226087635,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7605093634912884,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 72,
+      "parent": 69,
+      "pivot": 2,
+      "depth": 6,
+      "bounds": [
+        [
+          0.0,
+          0.5
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          0.5,
+          1.0
+        ]
+      ],
+      "volume": 0.125,
+      "inherited_upper": 0.760712226087635,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 47,
+      "parent": 44,
+      "pivot": 2,
+      "depth": 6,
+      "bounds": [
+        [
+          0.0,
+          0.5
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5
+        ]
+      ],
+      "volume": 0.125,
+      "inherited_upper": 0.7606416205028654,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7605909308289142,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 48,
+      "parent": 44,
+      "pivot": 2,
+      "depth": 6,
+      "bounds": [
+        [
+          0.0,
+          0.5
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.125,
+      "inherited_upper": 0.7606416205028654,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 75,
+      "parent": 47,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          0.0,
+          0.25
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7605909308289142,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7600342432510754,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 76,
+      "parent": 47,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          0.25,
+          0.5
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7605909308289142,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 4.0,
+      "closed": true
+    },
+    {
+      "id": 73,
+      "parent": 71,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          0.0,
+          0.25
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          0.0,
+          0.5
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7605093634912884,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.759938058116027,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 74,
+      "parent": 71,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          0.25,
+          0.5
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          0.0,
+          0.5
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7605093634912884,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 7.0,
+      "closed": true
+    },
+    {
+      "id": 35,
+      "parent": 29,
+      "pivot": 2,
+      "depth": 5,
+      "bounds": [
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          0.0,
+          0.5
+        ],
+        [
+          -1.0,
+          0.0
+        ]
+      ],
+      "volume": 0.25,
+      "inherited_upper": 0.7604633239173094,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 4.0,
+      "closed": true
+    },
+    {
+      "id": 36,
+      "parent": 29,
+      "pivot": 2,
+      "depth": 5,
+      "bounds": [
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          0.5,
+          1.0
+        ],
+        [
+          -1.0,
+          0.0
+        ]
+      ],
+      "volume": 0.25,
+      "inherited_upper": 0.7604633239173094,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 55,
+      "parent": 31,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          0.0,
+          0.5
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7603497355880741,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 4.0,
+      "closed": true
+    },
+    {
+      "id": 56,
+      "parent": 31,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          0.0,
+          0.5
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7603497355880741,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.759717228070511,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 45,
+      "parent": 43,
+      "pivot": 2,
+      "depth": 6,
+      "bounds": [
+        [
+          0.0,
+          0.5
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -1.0,
+          -0.5
+        ]
+      ],
+      "volume": 0.125,
+      "inherited_upper": 0.7602690308270679,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7585286667942964,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 46,
+      "parent": 43,
+      "pivot": 2,
+      "depth": 6,
+      "bounds": [
+        [
+          0.0,
+          0.5
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.125,
+      "inherited_upper": 0.7602690308270679,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7596258095119626,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 59,
+      "parent": 54,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          -1.0,
+          -0.75
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          0.5,
+          1.0
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7601677444783553,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 5.0,
+      "closed": true
+    },
+    {
+      "id": 60,
+      "parent": 54,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          -0.75,
+          -0.5
+        ],
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          0.5,
+          1.0
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7601677444783553,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 4.0,
+      "closed": true
+    },
+    {
+      "id": 51,
+      "parent": 28,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.7601325526778435,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.759986191922237,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 52,
+      "parent": 28,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.7601325526778435,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 77,
+      "parent": 75,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          0.0,
+          0.25
+        ],
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -1.0,
+          -0.5
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.7600342432510754,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 5.0,
+      "closed": true
+    },
+    {
+      "id": 78,
+      "parent": 75,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          0.0,
+          0.25
+        ],
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.7600342432510754,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 87,
+      "parent": 51,
+      "pivot": 2,
+      "depth": 9,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -0.5,
+          -0.25
+        ]
+      ],
+      "volume": 0.015625,
+      "inherited_upper": 0.759986191922237,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7580240897163586,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 88,
+      "parent": 51,
+      "pivot": 2,
+      "depth": 9,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -0.25,
+          0.0
+        ]
+      ],
+      "volume": 0.015625,
+      "inherited_upper": 0.759986191922237,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 4.0,
+      "closed": true
+    },
+    {
+      "id": 79,
+      "parent": 73,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          0.0,
+          0.25
+        ],
+        [
+          -1.0,
+          -0.75
+        ],
+        [
+          0.0,
+          0.5
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.759938058116027,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 4.0,
+      "closed": true
+    },
+    {
+      "id": 80,
+      "parent": 73,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          0.0,
+          0.25
+        ],
+        [
+          -0.75,
+          -0.5
+        ],
+        [
+          0.0,
+          0.5
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.759938058116027,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 8.0,
+      "closed": true
+    },
+    {
+      "id": 65,
+      "parent": 63,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          0.0,
+          0.5
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.7598798868638006,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.758842182912367,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 66,
+      "parent": 63,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          0.0,
+          0.5
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.7598798868638006,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 49,
+      "parent": 27,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.7598469996431769,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 4.0,
+      "closed": true
+    },
+    {
+      "id": 50,
+      "parent": 27,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.7598469996431769,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 4.0,
+      "closed": true
+    },
+    {
+      "id": 81,
+      "parent": 56,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.75
+        ],
+        [
+          0.0,
+          0.5
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.759717228070511,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 4.0,
+      "closed": true
+    },
+    {
+      "id": 82,
+      "parent": 56,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -0.75,
+          -0.5
+        ],
+        [
+          0.0,
+          0.5
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.759717228070511,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 7.0,
+      "closed": true
+    },
+    {
+      "id": 85,
+      "parent": 46,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          0.0,
+          0.25
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7596258095119626,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7585696272579191,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 86,
+      "parent": 46,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          0.25,
+          0.5
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7596258095119626,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 6.0,
+      "closed": true
+    },
+    {
+      "id": 61,
+      "parent": 26,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -1.0,
+          -0.5
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.7594408903206314,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 62,
+      "parent": 26,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.7594408903206314,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 4.0,
+      "closed": true
+    },
+    {
+      "id": 21,
+      "parent": 15,
+      "pivot": 2,
+      "depth": 6,
+      "bounds": [
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -1.0,
+          -0.5
+        ]
+      ],
+      "volume": 0.125,
+      "inherited_upper": 0.759219252499395,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 22,
+      "parent": 15,
+      "pivot": 2,
+      "depth": 6,
+      "bounds": [
+        [
+          -0.5,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.125,
+      "inherited_upper": 0.759219252499395,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7591813432859805,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 95,
+      "parent": 22,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7591813432859805,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 96,
+      "parent": 22,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7591813432859805,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7587537244553964,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 91,
+      "parent": 65,
+      "pivot": 2,
+      "depth": 9,
+      "bounds": [
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          0.0,
+          0.25
+        ]
+      ],
+      "volume": 0.015625,
+      "inherited_upper": 0.758842182912367,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 5.0,
+      "closed": true
+    },
+    {
+      "id": 92,
+      "parent": 65,
+      "pivot": 2,
+      "depth": 9,
+      "bounds": [
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          0.25,
+          0.5
+        ]
+      ],
+      "volume": 0.015625,
+      "inherited_upper": 0.758842182912367,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 6.0,
+      "closed": true
+    },
+    {
+      "id": 97,
+      "parent": 96,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.75
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.7587537244553964,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 4.0,
+      "closed": true
+    },
+    {
+      "id": 98,
+      "parent": 96,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -0.75,
+          -0.5
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.7587537244553964,
+      "status": "timelimit",
+      "primal_bound": -1e+20,
+      "dual_bound": 0.7580960511819803,
+      "nodes": 1,
+      "solving_time": 10.0,
+      "closed": false
+    },
+    {
+      "id": 67,
+      "parent": 57,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -1.0,
+          -0.75
+        ],
+        [
+          0.5,
+          1.0
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.7586591858132773,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 5.0,
+      "closed": true
+    },
+    {
+      "id": 68,
+      "parent": 57,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -0.75,
+          -0.5
+        ],
+        [
+          0.5,
+          1.0
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.7586591858132773,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 93,
+      "parent": 85,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          0.0,
+          0.25
+        ],
+        [
+          -1.0,
+          -0.75
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.7585696272579191,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 6.0,
+      "closed": true
+    },
+    {
+      "id": 94,
+      "parent": 85,
+      "pivot": 2,
+      "depth": 8,
+      "bounds": [
+        [
+          0.0,
+          0.25
+        ],
+        [
+          -0.75,
+          -0.5
+        ],
+        [
+          -0.5,
+          0.0
+        ]
+      ],
+      "volume": 0.03125,
+      "inherited_upper": 0.7585696272579191,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 5.0,
+      "closed": true
+    },
+    {
+      "id": 83,
+      "parent": 45,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          0.0,
+          0.25
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -1.0,
+          -0.5
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7585286667942964,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 84,
+      "parent": 45,
+      "pivot": 2,
+      "depth": 7,
+      "bounds": [
+        [
+          0.25,
+          0.5
+        ],
+        [
+          -1.0,
+          -0.5
+        ],
+        [
+          -1.0,
+          -0.5
+        ]
+      ],
+      "volume": 0.0625,
+      "inherited_upper": 0.7585286667942964,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 3.0,
+      "closed": true
+    },
+    {
+      "id": 99,
+      "parent": 98,
+      "pivot": 2,
+      "depth": 9,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -0.75,
+          -0.5
+        ],
+        [
+          -0.5,
+          -0.25
+        ]
+      ],
+      "volume": 0.015625,
+      "inherited_upper": 0.7580960511819803,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 7.0,
+      "closed": true
+    },
+    {
+      "id": 100,
+      "parent": 98,
+      "pivot": 2,
+      "depth": 9,
+      "bounds": [
+        [
+          -0.25,
+          0.0
+        ],
+        [
+          -0.75,
+          -0.5
+        ],
+        [
+          -0.25,
+          0.0
+        ]
+      ],
+      "volume": 0.015625,
+      "inherited_upper": 0.7580960511819803,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 4.0,
+      "closed": true
+    },
+    {
+      "id": 89,
+      "parent": 87,
+      "pivot": 2,
+      "depth": 10,
+      "bounds": [
+        [
+          -0.25,
+          -0.125
+        ],
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -0.5,
+          -0.25
+        ]
+      ],
+      "volume": 0.0078125,
+      "inherited_upper": 0.7580240897163586,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 5.0,
+      "closed": true
+    },
+    {
+      "id": 90,
+      "parent": 87,
+      "pivot": 2,
+      "depth": 10,
+      "bounds": [
+        [
+          -0.125,
+          0.0
+        ],
+        [
+          -0.5,
+          -0.25
+        ],
+        [
+          -0.5,
+          -0.25
+        ]
+      ],
+      "volume": 0.0078125,
+      "inherited_upper": 0.7580240897163586,
+      "status": "infeasible",
+      "primal_bound": -1e+20,
+      "dual_bound": -1e+20,
+      "nodes": 1,
+      "solving_time": 7.0,
+      "closed": true
+    }
+  ],
+  "pending": [],
+  "summary_by_pivot": {
+    "2": {
+      "solved_nodes": 101,
+      "closed_nodes": 51,
+      "open_leaves": 0,
+      "open_volume": 0,
+      "maximum_inherited_upper": null
+    }
+  }
+}

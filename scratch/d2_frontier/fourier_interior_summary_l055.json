@@ -62,12 +62,26 @@
     "polynomial_degree": 4,
     "planar_sign_symmetry": "complex conjugation on each input and X-conjugated complex conjugation on each output preserve the score and reverse det(R)",
     "independent_nondegenerate_sign_branches": 1,
-    "remaining_independent_stratum": "det(R)=0",
+    "remaining_independent_stratum": "none: det(R)=0 is covered separately by four normalized left-null charts",
     "scip_positive_branch_primal_90s": 0.7228814116506673,
     "scip_positive_branch_root_dual_90s": 0.7634017479766129,
     "scip_feasibility_tolerance": 1e-6,
     "closed_below_target": false,
     "interpretation": "the criterion is exact, but the current scalar spatial relaxation is too weak to exploit the degree-four matrix constraint"
+  },
+  "singular_stratum_cover": {
+    "chart_count": 4,
+    "solved_nodes": 294,
+    "closed_nodes": 149,
+    "maximum_depth": 11,
+    "solver_time_seconds": 2121.0,
+    "open_volume": 0.0,
+    "target_feasible_incumbents": 0,
+    "scip_feasibility_tolerance": 1e-9,
+    "closed_below_target": true,
+    "solver_conditional": true,
+    "reproducer": "basis_null_chart_cover.py",
+    "interpretation": "all four compact charts covering det(R)=0 are infeasible at target 0.758 inside the benchmark box"
   },
   "physical_box_strategy": {
     "score": 0.7228813076069284,

@@ -274,6 +274,25 @@ def polynomial_adjugate(matrix: list[list[object]]) -> list[list[object]]:
     return result
 
 
+def normalized_left_null_chart(
+    matrix: np.ndarray, tolerance: float = 1e-9
+) -> tuple[int, np.ndarray]:
+    """Return a max-entry-normalized left-null vector for a singular matrix."""
+
+    value = np.asarray(matrix, dtype=float)
+    if value.shape != (4, 4):
+        raise ValueError("the operator-basis matrix must be 4 by 4")
+    _, singular_values, right_vectors = np.linalg.svd(value.T)
+    scale = max(1.0, float(singular_values[0]))
+    if float(singular_values[-1]) > tolerance * scale:
+        raise np.linalg.LinAlgError("the operator-basis matrix is nonsingular")
+    coefficients = np.asarray(right_vectors[-1], dtype=float)
+    pivot = int(np.argmax(np.abs(coefficients)))
+    coefficients /= coefficients[pivot]
+    coefficients[pivot] = 1.0
+    return pivot, coefficients
+
+
 def fibonacci_sphere(count: int) -> np.ndarray:
     """Return deterministic pure-state Bloch directions for Ando cuts."""
 
@@ -304,7 +323,16 @@ def build(
     prefix_prior_bounds: np.ndarray | None = None,
     basis_determinant_sign: int = 0,
     basis_determinant_floor: float = 0.0,
+    basis_determinant_ceiling: float | None = None,
+    basis_null_pivot: int | None = None,
+    basis_null_bounds: np.ndarray | None = None,
     basis_choi_witnesses: np.ndarray | None = None,
+    basis_inverse_bound: float | None = None,
+    basis_lifted_adjugate: bool = False,
+    flagged_contraction_coefficients: np.ndarray | None = None,
+    flagged_contraction_branch: str | None = None,
+    flagged_bloch_cap: np.ndarray | None = None,
+    flagged_l1_signs: np.ndarray | None = None,
 ) -> tuple[Model, dict[str, object]]:
     if ando_direction_count < 0:
         raise ValueError("ando_direction_count must be nonnegative")
@@ -312,8 +340,33 @@ def build(
         raise ValueError("basis_determinant_sign must be -1, 0, or 1")
     if not np.isfinite(basis_determinant_floor) or basis_determinant_floor < 0.0:
         raise ValueError("basis_determinant_floor must be finite and nonnegative")
-    if basis_determinant_sign and not require_cp_completion:
-        raise ValueError("basis determinant completion requires CP completion")
+    if basis_determinant_ceiling is not None and (
+        not np.isfinite(basis_determinant_ceiling)
+        or basis_determinant_ceiling < 0.0
+    ):
+        raise ValueError("basis determinant ceiling must be finite and nonnegative")
+    if (
+        basis_determinant_ceiling is not None
+        and basis_determinant_sign
+        and basis_determinant_floor > basis_determinant_ceiling
+    ):
+        raise ValueError("basis determinant floor exceeds its ceiling")
+    if basis_null_pivot is not None and basis_null_pivot not in OUTCOMES:
+        raise ValueError("basis null pivot must be 0, 1, 2, or 3")
+    if basis_null_pivot is not None and basis_determinant_sign:
+        raise ValueError("a singular null chart cannot use a determinant-sign branch")
+    if basis_null_bounds is not None:
+        basis_null_bounds = np.asarray(basis_null_bounds, dtype=float)
+        if basis_null_pivot is None:
+            raise ValueError("basis null bounds require a null pivot")
+        if basis_null_bounds.shape != (3, 2):
+            raise ValueError("basis null bounds must have shape (3,2)")
+        if np.any(basis_null_bounds[:, 0] < -1.0) or np.any(
+            basis_null_bounds[:, 1] > 1.0
+        ):
+            raise ValueError("basis null bounds must lie in [-1,1]")
+        if np.any(basis_null_bounds[:, 0] > basis_null_bounds[:, 1]):
+            raise ValueError("basis null lower bounds exceed upper bounds")
     if basis_choi_witnesses is not None:
         basis_choi_witnesses = np.asarray(basis_choi_witnesses, dtype=complex)
         if (
@@ -324,7 +377,51 @@ def build(
             raise ValueError("basis Choi witnesses must have shape (4,cuts,4)")
         if not basis_determinant_sign:
             raise ValueError("basis Choi witnesses require a determinant-sign branch")
+    if basis_inverse_bound is not None:
+        if not np.isfinite(basis_inverse_bound) or basis_inverse_bound <= 0.0:
+            raise ValueError("basis inverse bound must be finite and positive")
+        if not require_cp_completion:
+            raise ValueError("basis inverse completion requires CP completion")
+        if not basis_determinant_sign or basis_determinant_floor <= 0.0:
+            raise ValueError(
+                "basis inverse completion requires a nonzero determinant branch"
+            )
+    if basis_lifted_adjugate and not basis_determinant_sign:
+        raise ValueError("a lifted adjugate requires a determinant-sign branch")
     branch_choices = {"scalar-positive", "scalar-negative", "bloch"}
+    if flagged_contraction_coefficients is not None:
+        flagged_contraction_coefficients = np.asarray(
+            flagged_contraction_coefficients, dtype=float
+        )
+        if flagged_contraction_coefficients.shape != (4,):
+            raise ValueError("flagged contraction requires four coefficients")
+        if np.linalg.norm(flagged_contraction_coefficients) <= 1e-14:
+            raise ValueError("flagged contraction coefficients must be nonzero")
+        if flagged_contraction_branch not in branch_choices | {"l1-upper"}:
+            raise ValueError("flagged contraction requires one trace-norm branch")
+    elif flagged_contraction_branch is not None:
+        raise ValueError("flagged contraction branch requires coefficients")
+    if flagged_bloch_cap is not None:
+        flagged_bloch_cap = np.asarray(flagged_bloch_cap, dtype=float)
+        if flagged_bloch_cap.shape != (4,):
+            raise ValueError("flagged Bloch cap must contain a direction and cosine")
+        direction_norm = float(np.linalg.norm(flagged_bloch_cap[:3]))
+        if abs(direction_norm - 1.0) > 1e-8:
+            raise ValueError("flagged Bloch cap direction must be normalized")
+        if not 0.0 < flagged_bloch_cap[3] <= 1.0:
+            raise ValueError("flagged Bloch cap cosine must lie in (0,1]")
+        if flagged_contraction_branch != "bloch":
+            raise ValueError("a flagged Bloch cap requires the Bloch branch")
+    if flagged_l1_signs is not None:
+        flagged_l1_signs = np.asarray(flagged_l1_signs, dtype=float)
+        if flagged_l1_signs.shape != (4,) or np.any(
+            ~np.isin(flagged_l1_signs, (-1.0, 1.0))
+        ):
+            raise ValueError("flagged L1 signs must contain four signs")
+        if flagged_contraction_branch != "l1-upper":
+            raise ValueError("flagged L1 signs require the L1-upper branch")
+    elif flagged_contraction_branch == "l1-upper":
+        raise ValueError("the L1-upper branch requires four orthant signs")
     if fourier_trace_branches is not None and (
         len(fourier_trace_branches) != 3
         or any(choice not in branch_choices for choice in fourier_trace_branches)
@@ -570,6 +667,23 @@ def build(
                 [reconstructed_output[1], reconstructed_output[2], missing_output],
             )
             full_output = (*reconstructed_output, missing_output)
+        elif basis_determinant_sign:
+            # In the nondegenerate operator-basis formulation the unobserved
+            # output-Z coordinate can be a direct variable. Choi positivity
+            # of the uniquely reconstructed map then supplies the common CP
+            # completion, so no second generic channel factor is required.
+            missing_output = model.addVar(
+                lb=-1.0,
+                ub=1.0,
+                name=f"basis_output_z_{z}_{y}",
+            )
+            add_lorentz(
+                model,
+                reconstructed_output[0],
+                [reconstructed_output[1], reconstructed_output[2], missing_output],
+            )
+            full_output = (*reconstructed_output, missing_output)
+            variables[f"basis_output_z_{z}_{y}"] = missing_output
         else:
             add_lorentz(model, reconstructed_output[0], list(reconstructed_output[1:]))
             full_output = (*reconstructed_output, 0.0)
@@ -583,11 +697,132 @@ def build(
         correct[z, y] = d
         variables[f"p_{z}_{y}"] = p
 
-    if basis_determinant_sign:
+    if basis_null_pivot is not None:
+        # Four charts cover det(R)=0 exactly.  Given a nonzero left-null
+        # vector, choose an entry of maximum magnitude and divide by it.  The
+        # pivot coefficient becomes one and all other coefficients lie in
+        # [-1,1].  A common linear instrument preserves the same relation in
+        # every conditioned output.  Stating the planar output relations as
+        # bilinear equalities materially strengthens the singular model.
+        nonpivot = tuple(z for z in OUTCOMES if z != basis_null_pivot)
+        null_coefficients = {}
+        for index, z in enumerate(nonpivot):
+            lower, upper = (
+                (-1.0, 1.0)
+                if basis_null_bounds is None
+                else tuple(basis_null_bounds[index])
+            )
+            null_coefficients[z] = model.addVar(
+                lb=float(lower),
+                ub=float(upper),
+                name=f"null_{basis_null_pivot}_{z}",
+            )
+        input_coordinates = [
+            [state_scalar[z], *state_vector[z]] for z in OUTCOMES
+        ]
+        for mu in OUTCOMES:
+            model.addCons(
+                input_coordinates[basis_null_pivot][mu]
+                + quicksum(
+                    null_coefficients[z] * input_coordinates[z][mu]
+                    for z in null_coefficients
+                )
+                == 0.0
+            )
+        for y in OUTCOMES:
+            for domain in range(3):
+                model.addCons(
+                    path_output_planar[basis_null_pivot, y, domain]
+                    + quicksum(
+                        null_coefficients[z] * path_output_planar[z, y, domain]
+                        for z in null_coefficients
+                    )
+                    == 0.0
+                )
+        variables["basis_null_pivot"] = int(basis_null_pivot)
+        variables["basis_null_coefficients"] = null_coefficients
+
+    lifted_adjugate = None
+    lifted_numerator_bound = None
+    if basis_determinant_sign or basis_determinant_ceiling is not None:
         input_basis = [
             [state_scalar[z], *state_vector[z]] for z in OUTCOMES
         ]
-        determinant = polynomial_determinant(input_basis)
+        determinant_expression = polynomial_determinant(input_basis)
+        determinant = determinant_expression
+        if basis_lifted_adjugate:
+            input_transpose = [
+                [input_basis[column][row] for column in OUTCOMES]
+                for row in OUTCOMES
+            ]
+            adjugate_expressions = polynomial_adjugate(input_transpose)
+            if prefix_prior_bounds is None:
+                trace_uppers = np.ones(4)
+            else:
+                trace_uppers = np.asarray(prefix_prior_bounds)[:, 1]
+            cofactor_bound = float(
+                2.0
+                * math.sqrt(2.0)
+                * max(
+                    np.prod(np.delete(trace_uppers, row))
+                    for row in OUTCOMES
+                )
+            )
+            lifted_adjugate = [
+                [
+                    model.addVar(
+                        lb=-cofactor_bound,
+                        ub=cofactor_bound,
+                        name=f"basis_adjugate_{row}_{column}",
+                    )
+                    for column in OUTCOMES
+                ]
+                for row in OUTCOMES
+            ]
+            for row in OUTCOMES:
+                for column in OUTCOMES:
+                    model.addCons(
+                        lifted_adjugate[row][column]
+                        == adjugate_expressions[row][column]
+                    )
+            determinant_bound = float(
+                4.0 * np.prod(trace_uppers)
+            )
+            determinant = model.addVar(
+                lb=-determinant_bound,
+                ub=determinant_bound,
+                name="basis_determinant_lifted",
+            )
+            model.addCons(determinant == determinant_expression)
+            # Both adjugate identities are redundant in exact arithmetic but
+            # materially expose the determinant to the bilinear relaxation.
+            for row in OUTCOMES:
+                for column in OUTCOMES:
+                    model.addCons(
+                        quicksum(
+                            input_transpose[row][inner]
+                            * lifted_adjugate[inner][column]
+                            for inner in OUTCOMES
+                        )
+                        == (determinant if row == column else 0.0)
+                    )
+                    model.addCons(
+                        quicksum(
+                            lifted_adjugate[row][inner]
+                            * input_transpose[inner][column]
+                            for inner in OUTCOMES
+                        )
+                        == (determinant if row == column else 0.0)
+                    )
+            lifted_numerator_bound = 4.0 * cofactor_bound
+            variables["basis_lifted_adjugate"] = lifted_adjugate
+            variables["basis_adjugate_bound"] = cofactor_bound
+        variables["basis_determinant"] = determinant
+        if basis_determinant_ceiling is not None:
+            model.addCons(determinant <= basis_determinant_ceiling)
+            model.addCons(determinant >= -basis_determinant_ceiling)
+
+    if basis_determinant_sign:
         signed_determinant = float(basis_determinant_sign) * determinant
         model.addCons(signed_determinant >= basis_determinant_floor)
         # L_y = Q_y^T adj(R^T) / det(R).  Twice its numerator gives the
@@ -597,17 +832,32 @@ def build(
             [input_basis[column][row] for column in OUTCOMES]
             for row in OUTCOMES
         ]
-        adjugate_transpose = polynomial_adjugate(input_transpose)
+        adjugate_transpose = (
+            lifted_adjugate
+            if lifted_adjugate is not None
+            else polynomial_adjugate(input_transpose)
+        )
         basis_factors = {}
+        lifted_numerators = {}
         for y in OUTCOMES:
             coefficients: dict[tuple[int, int], object] = {}
             for mu in OUTCOMES:
                 for nu in OUTCOMES:
-                    transfer_numerator = quicksum(
+                    transfer_expression = quicksum(
                         path_output_full[z, y, nu]
                         * adjugate_transpose[z][mu]
                         for z in OUTCOMES
                     )
+                    if lifted_adjugate is not None:
+                        transfer_numerator = model.addVar(
+                            lb=-float(lifted_numerator_bound),
+                            ub=float(lifted_numerator_bound),
+                            name=f"basis_numerator_{y}_{mu}_{nu}",
+                        )
+                        model.addCons(transfer_numerator == transfer_expression)
+                        lifted_numerators[y, mu, nu] = transfer_numerator
+                    else:
+                        transfer_numerator = transfer_expression
                     coefficients[mu, nu] = (
                         2.0 * basis_determinant_sign * transfer_numerator
                     )
@@ -645,9 +895,91 @@ def build(
             basis_factors[y] = add_complex_cholesky(
                 model, coefficients, f"basis_choi_{y}"
             )
-        variables["basis_determinant"] = determinant
         variables["basis_determinant_sign"] = int(basis_determinant_sign)
         variables["basis_cholesky_factors"] = basis_factors
+        if lifted_numerators:
+            variables["basis_lifted_numerators"] = lifted_numerators
+
+    if basis_inverse_bound is not None:
+        # A lower determinant bound makes the inverse chart compact. This is
+        # an exact but redundant degree-two formulation of the same unique
+        # interpolating maps used by the adjugate criterion above. It avoids
+        # asking the spatial relaxation to infer inverse identities from the
+        # degree-four determinant-scaled Choi equations alone.
+        input_basis = [
+            [state_scalar[z], *state_vector[z]] for z in OUTCOMES
+        ]
+        inverse = [
+            [
+                model.addVar(
+                    lb=-basis_inverse_bound,
+                    ub=basis_inverse_bound,
+                    name=f"basis_inverse_{mu}_{z}",
+                )
+                for z in OUTCOMES
+            ]
+            for mu in OUTCOMES
+        ]
+        for mu in OUTCOMES:
+            for kappa in OUTCOMES:
+                model.addCons(
+                    quicksum(
+                        inverse[mu][z] * input_basis[z][kappa]
+                        for z in OUTCOMES
+                    )
+                    == float(mu == kappa)
+                )
+        for z in OUTCOMES:
+            for zp in OUTCOMES:
+                model.addCons(
+                    quicksum(
+                        input_basis[z][mu] * inverse[mu][zp]
+                        for mu in OUTCOMES
+                    )
+                    == float(z == zp)
+                )
+
+        transfer: dict[tuple[int, int, int], object] = {}
+        for y in OUTCOMES:
+            for mu in OUTCOMES:
+                pullbacks = (
+                    planar_pullback[y, 0, mu],
+                    planar_pullback[y, 1, mu],
+                    planar_pullback[y, 2, mu],
+                    cp_missing_pullback[y, mu],
+                )
+                for nu in OUTCOMES:
+                    item = model.addVar(
+                        lb=-1.0,
+                        ub=1.0,
+                        name=f"basis_transfer_{y}_{mu}_{nu}",
+                    )
+                    model.addCons(2.0 * item == pullbacks[nu])
+                    transfer[y, mu, nu] = item
+        for y in OUTCOMES:
+            for mu in OUTCOMES:
+                for nu in OUTCOMES:
+                    # T_y = R^{-1} Q_y.
+                    model.addCons(
+                        transfer[y, mu, nu]
+                        == quicksum(
+                            inverse[mu][z] * path_output_full[z, y, nu]
+                            for z in OUTCOMES
+                        )
+                    )
+            for z in OUTCOMES:
+                for nu in OUTCOMES:
+                    # Q_y = R T_y, included redundantly in both directions.
+                    model.addCons(
+                        path_output_full[z, y, nu]
+                        == quicksum(
+                            input_basis[z][mu] * transfer[y, mu, nu]
+                            for mu in OUTCOMES
+                        )
+                    )
+        variables["basis_inverse"] = inverse
+        variables["basis_transfer"] = transfer
+        variables["basis_inverse_bound"] = float(basis_inverse_bound)
 
     for name in sorted(linked):
         parts = name.split("_")
@@ -900,6 +1232,85 @@ def build(
     variables["fourier_input_energy"] = tuple(fourier_input_energy)
     variables["fourier_flagged_norms"] = fourier_flagged_norm_variables
 
+    if flagged_contraction_coefficients is not None:
+        coefficients = flagged_contraction_coefficients
+        input_scalar = quicksum(
+            float(coefficients[z]) * state_scalar[z] for z in OUTCOMES
+        )
+        input_vector = tuple(
+            quicksum(
+                float(coefficients[z]) * state_vector[z][axis]
+                for z in OUTCOMES
+            )
+            for axis in range(3)
+        )
+        norm_upper = float(np.sum(np.abs(coefficients)))
+        if flagged_contraction_branch == "scalar-positive":
+            add_lorentz(model, input_scalar, input_vector)
+            input_norm = input_scalar
+        elif flagged_contraction_branch == "scalar-negative":
+            add_lorentz(model, -input_scalar, input_vector)
+            input_norm = -input_scalar
+        elif flagged_contraction_branch == "bloch" and flagged_bloch_cap is None:
+            input_norm = model.addVar(
+                lb=0.0,
+                ub=norm_upper,
+                name="flagged_contraction_input_norm",
+            )
+            model.addCons(
+                input_norm * input_norm
+                == quicksum(component * component for component in input_vector)
+            )
+            model.addCons(input_norm >= input_scalar)
+            model.addCons(input_norm >= -input_scalar)
+        elif flagged_contraction_branch == "bloch":
+            direction = flagged_bloch_cap[:3]
+            cosine = float(flagged_bloch_cap[3])
+            projection = quicksum(
+                float(direction[axis]) * input_vector[axis] for axis in range(3)
+            )
+            input_norm = projection / cosine
+            # This is both cap membership and the cellwise upper bound
+            # ||v|| <= u.v/cos(theta). It replaces the nonconvex norm equality
+            # by one second-order-cone condition on this direction cell.
+            add_lorentz(model, input_norm, input_vector)
+            model.addCons(input_norm >= input_scalar)
+            model.addCons(input_norm >= -input_scalar)
+        else:
+            components = (input_scalar, *input_vector)
+            signed_components = tuple(
+                float(flagged_l1_signs[index]) * components[index]
+                for index in OUTCOMES
+            )
+            for component in signed_components:
+                model.addCons(component >= 0.0)
+            input_norm = quicksum(signed_components)
+
+        output_norms = []
+        for y in OUTCOMES:
+            output = tuple(
+                quicksum(
+                    float(coefficients[z]) * path_output_full[z, y, domain]
+                    for z in OUTCOMES
+                )
+                for domain in OUTCOMES
+            )
+            norm = model.addVar(
+                lb=0.0,
+                ub=norm_upper,
+                name=f"flagged_contraction_output_norm_{y}",
+            )
+            model.addCons(norm >= output[0])
+            model.addCons(norm >= -output[0])
+            add_lorentz(model, norm, output[1:])
+            output_norms.append(norm)
+        model.addCons(quicksum(output_norms) <= input_norm)
+        variables["flagged_contraction_coefficients"] = coefficients
+        variables["flagged_contraction_branch"] = flagged_contraction_branch
+        variables["flagged_bloch_cap"] = flagged_bloch_cap
+        variables["flagged_l1_signs"] = flagged_l1_signs
+        variables["flagged_contraction_output_norms"] = tuple(output_norms)
+
     flat = [probability[z, y] for z, y in PATHS]
     hellinger = []
     for first in range(16):
@@ -1031,6 +1442,10 @@ def seed_from_common_instrument(
         required_sign = int(variables["basis_determinant_sign"])
         if required_sign * input_determinant <= 0.0:
             return False
+    if "basis_null_pivot" in variables:
+        pivot, null_coefficients = normalized_left_null_chart(input_basis)
+        if pivot != int(variables["basis_null_pivot"]):
+            return False
 
     joint = np.asarray(
         [[apply_choi_adjoint(choi[y], effects[s]) for s in OUTCOMES] for y in OUTCOMES]
@@ -1063,6 +1478,9 @@ def seed_from_common_instrument(
     )
 
     solution = model.createSol()
+    if "basis_null_coefficients" in variables:
+        for z, variable in variables["basis_null_coefficients"].items():
+            model.setSolVal(solution, variable, float(null_coefficients[z]))
     for z in OUTCOMES:
         state_vector = bloch(states[z])
         model.setSolVal(solution, variables[f"a_{z}"], float(state_vector[0]))
@@ -1354,9 +1772,65 @@ def main() -> None:
         help="minimum absolute input-basis determinant on the selected sign branch",
     )
     parser.add_argument(
+        "--basis-determinant-ceiling",
+        type=float,
+        help="maximum absolute input-basis determinant, including zero for the singular stratum",
+    )
+    parser.add_argument(
+        "--basis-null-pivot",
+        type=int,
+        choices=(0, 1, 2, 3),
+        help="one exact normalized left-null-vector chart for det(R)=0",
+    )
+    parser.add_argument(
+        "--basis-null-bounds",
+        type=float,
+        nargs=6,
+        metavar=("L0", "U0", "L1", "U1", "L2", "U2"),
+        help="three coefficient intervals for the nonpivot labels in sorted order",
+    )
+    parser.add_argument(
         "--basis-choi-witnesses-npz",
         type=Path,
         help="NPZ containing witnesses with shape (4,cuts,4)",
+    )
+    parser.add_argument(
+        "--basis-inverse-bound",
+        type=float,
+        help=(
+            "absolute entry bound for a redundant inverse-basis chart; "
+            "requires a strictly positive determinant floor"
+        ),
+    )
+    parser.add_argument(
+        "--basis-lifted-adjugate",
+        action="store_true",
+        help="lift adjugate and Choi-numerator products into bounded variables",
+    )
+    parser.add_argument(
+        "--flagged-contraction-coefficients",
+        type=float,
+        nargs=4,
+        help="four real coefficients for one exact flagged trace-norm contraction",
+    )
+    parser.add_argument(
+        "--flagged-contraction-branch",
+        choices=("scalar-positive", "scalar-negative", "bloch", "l1-upper"),
+        help="exact input trace-norm branch for the flagged contraction",
+    )
+    parser.add_argument(
+        "--flagged-bloch-cap",
+        type=float,
+        nargs=4,
+        metavar=("UX", "UY", "UZ", "COSINE"),
+        help="normalized direction and covering cosine for a Bloch-branch cell",
+    )
+    parser.add_argument(
+        "--flagged-l1-signs",
+        type=float,
+        nargs=4,
+        metavar=("S0", "SX", "SY", "SZ"),
+        help="four +/-1 orthant signs for the linear L1 input upper bound",
     )
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
@@ -1382,9 +1856,26 @@ def main() -> None:
         else np.asarray(args.prefix_prior_bounds, dtype=float).reshape(4, 2),
         args.basis_determinant_sign,
         args.basis_determinant_floor,
+        args.basis_determinant_ceiling,
+        args.basis_null_pivot,
+        None
+        if args.basis_null_bounds is None
+        else np.asarray(args.basis_null_bounds, dtype=float).reshape(3, 2),
         None
         if args.basis_choi_witnesses_npz is None
         else np.load(args.basis_choi_witnesses_npz)["witnesses"],
+        args.basis_inverse_bound,
+        args.basis_lifted_adjugate,
+        None
+        if args.flagged_contraction_coefficients is None
+        else np.asarray(args.flagged_contraction_coefficients, dtype=float),
+        args.flagged_contraction_branch,
+        None
+        if args.flagged_bloch_cap is None
+        else np.asarray(args.flagged_bloch_cap, dtype=float),
+        None
+        if args.flagged_l1_signs is None
+        else np.asarray(args.flagged_l1_signs, dtype=float),
     )
     if not 1e-9 <= args.feasibility_tolerance <= 1e-3:
         raise ValueError("feasibility tolerance must lie in [1e-9,1e-3]")
@@ -1432,12 +1923,27 @@ def main() -> None:
         ),
         "basis_determinant_sign": args.basis_determinant_sign,
         "basis_determinant_floor": args.basis_determinant_floor,
+        "basis_determinant_ceiling": args.basis_determinant_ceiling,
+        "basis_null_pivot": args.basis_null_pivot,
+        "basis_null_bounds": (
+            None
+            if args.basis_null_bounds is None
+            else np.asarray(args.basis_null_bounds, dtype=float)
+            .reshape(3, 2)
+            .tolist()
+        ),
         "feasibility_tolerance": args.feasibility_tolerance,
         "basis_choi_witnesses": (
             None
             if args.basis_choi_witnesses_npz is None
             else str(args.basis_choi_witnesses_npz)
         ),
+        "basis_inverse_bound": args.basis_inverse_bound,
+        "basis_lifted_adjugate": args.basis_lifted_adjugate,
+        "flagged_contraction_coefficients": args.flagged_contraction_coefficients,
+        "flagged_contraction_branch": args.flagged_contraction_branch,
+        "flagged_bloch_cap": args.flagged_bloch_cap,
+        "flagged_l1_signs": args.flagged_l1_signs,
         "common_instrument_seed": (
             None
             if args.common_instrument_seed_npz is None
