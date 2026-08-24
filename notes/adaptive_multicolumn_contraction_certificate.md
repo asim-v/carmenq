@@ -49,6 +49,54 @@ inequality itself is standard trace-distance data processing; the substantive
 work here is its adaptive use inside a finite, reproducible outer
 certificate, not a claim that data processing is new.
 
+### Positive-map completeness on an operator basis
+
+Suppose the four inputs \(\{A_z\}_{z=0}^3\) form a real basis of the Hermitian
+qubit operators.  The conditioned outputs then define a unique
+Hermiticity-preserving linear interpolation
+
+\[
+ \Gamma(A_z)=\bigoplus_y\sigma_{zy}.
+\]
+
+If the behaviour constraints preserve trace on the four basis elements, the
+extension is trace preserving everywhere.  In this regular case, the family
+of inequalities (1) for every real \(c\) is equivalent to positivity of
+\(\Gamma\).
+
+One direction is the usual trace-norm contraction of a positive
+trace-preserving map on Hermitian inputs.  Conversely, take any \(X\succeq0\)
+and expand it in the input basis.  Contractivity and trace preservation imply
+
+\[
+ \lVert\Gamma(X)\rVert_1
+ \leq \lVert X\rVert_1
+ =\operatorname{Tr}X
+ =\operatorname{Tr}\Gamma(X).
+\]
+
+For every Hermitian operator \(Y\),
+\(\lVert Y\rVert_1\geq|\operatorname{Tr}Y|\), with equality at positive
+trace only when \(Y\succeq0\).  Hence \(\Gamma(X)\succeq0\), proving the
+converse.
+
+Accordingly, an exhaustive all-coefficient tree imposes one common *positive*
+flagged instrument exactly at the level of the interpolating input-output
+data.  It does not impose complete positivity.  The latter remains the
+degree-four Choi matrix condition described in
+`operator_basis_instrument_criterion.md`.  This theorem both explains why the
+multicolumn hierarchy is substantially stronger than a few pairwise cuts and
+gives a sharp kill criterion: if the tree converges to a positive but non-CP
+point above target, scalar trace-norm directions cannot remove it.
+
+The gap is concrete.  Put the four input states at tetrahedral Bloch vectors
+and send them through matrix transposition into one flag.  Transposition is
+positive and trace preserving, so every real-coefficient contraction is
+saturated.  Its Choi matrix is the swap operator and has a negative
+eigenvalue, so the map is not completely positive.  The regression test
+`test_all_contractions_deliberately_retain_the_positive_non_cp_transpose`
+keeps this limitation visible in the implementation.
+
 For a Hermitian qubit operator
 \(X=(dI+\mathbf r\cdot\boldsymbol\sigma)/2\),
 

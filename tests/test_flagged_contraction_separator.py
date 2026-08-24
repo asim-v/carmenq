@@ -46,3 +46,21 @@ def test_nonphysical_output_amplification_is_separated() -> None:
     report = contraction_report(prefix, conditioned, np.asarray([1.0, -1.0, 0.0, 0.0]))
     assert report["input_trace_norm"] == pytest.approx(0.0)
     assert report["violation"] == pytest.approx(0.4 / np.sqrt(2.0))
+
+
+def test_all_contractions_deliberately_retain_the_positive_non_cp_transpose() -> None:
+    tetrahedron = np.asarray(
+        [
+            [1.0, 1.0, 1.0],
+            [1.0, -1.0, -1.0],
+            [-1.0, 1.0, -1.0],
+            [-1.0, -1.0, 1.0],
+        ]
+    ) / np.sqrt(3.0)
+    prefix = np.column_stack((np.full(4, 0.25), 0.25 * tetrahedron))
+    conditioned = np.zeros((4, 4, 4))
+    conditioned[:, 0, :] = prefix * np.asarray([1.0, 1.0, -1.0, 1.0])
+    rng = np.random.default_rng(19)
+    for _ in range(30):
+        report = contraction_report(prefix, conditioned, rng.normal(size=4))
+        assert report["violation"] == pytest.approx(0.0, abs=2e-15)
