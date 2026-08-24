@@ -3,11 +3,11 @@
 ## Status
 
 This note records a rigorous necessary condition for the fixed interior
-frontier and the numerical attempt to turn it into a complete certificate. It
-does **not** yet close the full regular interior at target \(0.758\). Its main value is that it
-replaces the vague requirement that all conditioned states “come from one
-instrument” by explicit trace-norm inequalities and identifies exactly why
-the three canonical inequalities are not sufficient.
+benchmark and its conversion into a complete solver-conditional certificate
+at target \(0.758\).  It replaces the vague requirement that all conditioned
+states “come from one instrument” by explicit trace-norm inequalities.  The
+result closes the fixed terminal-POVM/prior-box benchmark, not the unrestricted
+terminal-measurement geometry or a continuum of \(\lambda\) values.
 
 ## Harmonic contraction theorem
 
@@ -115,9 +115,9 @@ a_3&\in[0.1083984375,0.201324462890625].
 
 Order makes the scalar parts of the first two nontrivial characters
 nonnegative, so the exact spectral cover has twelve regimes rather than
-twenty-seven. In the scalar–vector–vector regime, the facially reduced Choi
-moment outer gives \(0.75115255\); an independent SCS run gives
-\(0.75116220\). Both are below \(0.758\), but they cover only that regime.
+twenty-seven.  Eleven regimes are already below \(0.758\); the largest is the
+scalar–vector–vector regime, where the facially reduced Choi moment outer gives
+\(0.75115255\) and an independent SCS run gives \(0.75116220\).
 
 The fully vector-active regime remains the obstruction. A reduced SOCP with
 16 planar sectors and 384 proved spherical caps solved 6,144 cells and
@@ -146,22 +146,22 @@ orientation-reversing symmetry, so only one sign and the singular stratum need
 independent treatment. A physical constrained seesaw establishes both sign
 branches at score \(0.72288131\).
 
-The singular input stratum has since been closed by the normalized null-chart
-certificate in `singular_common_instrument_stratum.md`.  In the regular
-stratum, arbitrary real multicolumn contractions strengthen the three fixed
-characters.  An adaptive exhaustive tree closes the single worst
-Fourier/pair base cell at \(0.758\): 48 expansions, 4,657 terminal leaves, and
-maximum finite terminal bound \(0.7579901084\).  The theorem, auditable branch
-table, and exact scope boundary are in
-`adaptive_multicolumn_contraction_certificate.md`.  The other open base
-branches still require their own exhaustive trees; this one-cell result does
-not close the regular frontier.
+The singular input stratum has also been closed by the normalized null-chart
+certificate in `singular_common_instrument_stratum.md`.  For the fully
+vectorial regime, arbitrary real multicolumn contractions strengthen the three
+fixed characters.  The global adaptive forest closes all 353 conjugation
+orbits representing the 706 formerly open Fourier/pair branches: 2,698
+expansions, 262,059 terminal leaves, maximum depth 7, and maximum finite
+terminal bound \(0.7579983961\).  The theorem, auditable component trees, global
+manifest, and exact scope boundary are in
+`adaptive_multicolumn_contraction_certificate.md`.
 
-If the all-coefficient contraction relaxation stalls on those cells, the
-remaining mathematical task is to exploit the polynomial matrix inequality
-with a strong matrix localizer or verified spatial cover. Trace-norm
-contraction enforces positivity shadows of the interpolating map, not complete
-positivity by itself.
+All-coefficient contraction imposes positivity of the interpolating flagged
+map on an operator basis, not complete positivity.  Positivity is nevertheless
+a valid outer relaxation, so excluding it excludes every physical common
+instrument in this fixed benchmark.  The determinant-scaled Choi condition
+remains relevant for tighter extensions, but is no longer needed to close this
+particular terminal/prior-box cell family.
 
 ## Reproducibility map
 
@@ -172,7 +172,7 @@ driver is `scratch/d2_frontier/fourier_behavior_cap_cover.py`. The exact basis
 audit is reproduced by `reproduce_operator_basis_obstruction.py`, and
 `make_planar_conjugate_seed.py` constructs the opposite determinant-sign
 strategy. The compact canonical result is
-`scratch/d2_frontier/fourier_interior_summary_l055.json`; the full 6,144-cell
-JSON is deliberately regenerated rather than committed. These files report
-solver-conditional conic bounds. No claim of interval-verified numerics is
-made.
+`scratch/d2_frontier/fourier_interior_summary_l055.json`.  The base pair cover,
+all 353 adaptive certificates, four disjoint manifests, and audited global
+aggregate are committed.  These files report solver-conditional conic bounds.
+No claim of interval-verified numerics is made.

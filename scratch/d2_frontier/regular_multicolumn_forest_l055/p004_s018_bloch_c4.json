@@ -1,0 +1,828 @@
+{
+  "target": 0.758,
+  "separator_samples": 8000,
+  "separator_starts": 8,
+  "seed": 497946,
+  "plane_cells": 8,
+  "plane_index": 4,
+  "face_grid": 4,
+  "sphere_index": 18,
+  "pair_cap_index": 4,
+  "pair_branch": "bloch",
+  "contraction_grid": 4,
+  "initial_coefficients": null,
+  "max_expansions": 768,
+  "solver_conditional": true,
+  "expanded_nodes": [
+    {
+      "id": 0,
+      "parent": null,
+      "depth": 0,
+      "source_bound": 0.7598049091133032,
+      "separator_coefficients": [
+        0.26379944372784025,
+        0.38437589595106875,
+        0.3186476596839078,
+        -0.8253052120753048
+      ],
+      "separator_violation": 0.11260032794515556,
+      "maximum_child_bound": 0.7531701730670953,
+      "closed_children": 98,
+      "open_children": 0,
+      "branches": [
+        {
+          "branch": "scalar-positive",
+          "cap": null,
+          "bound": 0.751969231338282,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "scalar-negative",
+          "cap": null,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 0,
+          "bound": 0.7485955846113022,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 1,
+          "bound": 0.7474347405400014,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 2,
+          "bound": 0.7440845528253446,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 3,
+          "bound": 0.7380940222374663,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 4,
+          "bound": 0.7454241474206291,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 5,
+          "bound": 0.7436272058764143,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 6,
+          "bound": 0.738598885960214,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 7,
+          "bound": 0.7228504930025016,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 8,
+          "bound": 0.6925799048750486,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 9,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 10,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 11,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 12,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 13,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 14,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 15,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 16,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 17,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 18,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 19,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 20,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 21,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 22,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 23,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 24,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 25,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 26,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 27,
+          "bound": 0.7245722700913793,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 28,
+          "bound": 0.7211122430472517,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 29,
+          "bound": 0.7287006911558193,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 30,
+          "bound": 0.7369370903302004,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 31,
+          "bound": 0.7453114869395763,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 32,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 33,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 34,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 35,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 36,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 37,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 38,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 39,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 40,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 41,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 42,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 43,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 44,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 45,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 46,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 47,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 48,
+          "bound": 0.7422682100622844,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 49,
+          "bound": 0.748491651902691,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 50,
+          "bound": 0.7509156667183072,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 51,
+          "bound": 0.751228017285657,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 52,
+          "bound": 0.7433441572024941,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 53,
+          "bound": 0.7509144469083009,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 54,
+          "bound": 0.7531701730670953,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 55,
+          "bound": 0.7529448264127296,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 56,
+          "bound": 0.7390125096328286,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 57,
+          "bound": 0.7493770058998754,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 58,
+          "bound": 0.7527281682447847,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 59,
+          "bound": 0.7525769636751523,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 60,
+          "bound": 0.7320916744710804,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 61,
+          "bound": 0.7404791575782523,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 62,
+          "bound": 0.7472339947249571,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 63,
+          "bound": 0.750090474603695,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 64,
+          "bound": 0.7192226868019398,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 65,
+          "bound": 0.692319979829399,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 66,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 67,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 68,
+          "bound": 0.7234521299362813,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 69,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 70,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 71,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 72,
+          "bound": 0.7295247823286728,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 73,
+          "bound": 0.6937069922210453,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 74,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 75,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 76,
+          "bound": 0.7339887432326455,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 77,
+          "bound": 0.7048260580552325,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 78,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 79,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 80,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 81,
+          "bound": 0.716906331945192,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 82,
+          "bound": 0.747464889548149,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 83,
+          "bound": 0.750248251252665,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 84,
+          "bound": 0.613642689751748,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 85,
+          "bound": 0.728152235347397,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 86,
+          "bound": 0.7498438914047321,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 87,
+          "bound": 0.752016713966159,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 88,
+          "bound": 0.6135898645625738,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 89,
+          "bound": 0.725923745498591,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 90,
+          "bound": 0.7491259504063208,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 91,
+          "bound": 0.7515215401429889,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 92,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 93,
+          "bound": 0.6952073141611708,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 94,
+          "bound": 0.7434400272898788,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 95,
+          "bound": 0.7490781492144578,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        }
+      ]
+    }
+  ],
+  "source_closed_nodes": [],
+  "pending_nodes": [],
+  "next_identifier": 1,
+  "expansion_count": 1,
+  "closed_leaf_count": 98,
+  "open_leaf_count": 0,
+  "maximum_open_bound": null,
+  "certificate_complete": true
+}

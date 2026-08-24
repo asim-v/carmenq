@@ -1,0 +1,828 @@
+{
+  "target": 0.758,
+  "separator_samples": 8000,
+  "separator_starts": 8,
+  "seed": 474739,
+  "plane_cells": 8,
+  "plane_index": 5,
+  "face_grid": 4,
+  "sphere_index": 88,
+  "pair_cap_index": 4,
+  "pair_branch": "bloch",
+  "contraction_grid": 4,
+  "initial_coefficients": null,
+  "max_expansions": 768,
+  "solver_conditional": true,
+  "expanded_nodes": [
+    {
+      "id": 0,
+      "parent": null,
+      "depth": 0,
+      "source_bound": 0.7601523898444995,
+      "separator_coefficients": [
+        -0.23838323465397604,
+        0.5830828482982455,
+        -0.4844027530580529,
+        -0.607076435291382
+      ],
+      "separator_violation": 0.16502388364446074,
+      "maximum_child_bound": 0.7547762961317961,
+      "closed_children": 98,
+      "open_children": 0,
+      "branches": [
+        {
+          "branch": "scalar-positive",
+          "cap": null,
+          "bound": null,
+          "status": "infeasible",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "scalar-negative",
+          "cap": null,
+          "bound": 0.7527351640452189,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 0,
+          "bound": 0.7531351606085748,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 1,
+          "bound": 0.7546287467971851,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 2,
+          "bound": 0.7547762961317961,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 3,
+          "bound": 0.7530783247887463,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 4,
+          "bound": 0.7508314518474015,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 5,
+          "bound": 0.7530065408365435,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 6,
+          "bound": 0.7529662961560281,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 7,
+          "bound": 0.7504108869743529,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 8,
+          "bound": 0.7438295868654631,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 9,
+          "bound": 0.7455622422146362,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 10,
+          "bound": 0.7463400587051684,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 11,
+          "bound": 0.7448957873473706,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 12,
+          "bound": 0.7358032381704835,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 13,
+          "bound": 0.7355418239716146,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 14,
+          "bound": 0.7370600241581953,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 15,
+          "bound": 0.7382176566423347,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 16,
+          "bound": 0.70374796151175,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 17,
+          "bound": 0.6923055502840623,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 18,
+          "bound": 0.6896835286721358,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 19,
+          "bound": 0.6957255256206696,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 20,
+          "bound": 0.712751380804251,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 21,
+          "bound": 0.6983326868743593,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 22,
+          "bound": 0.6958334247675393,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 23,
+          "bound": 0.7024248760906675,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 24,
+          "bound": 0.7219105041976358,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 25,
+          "bound": 0.7114628158756136,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 26,
+          "bound": 0.7084743384213038,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 27,
+          "bound": 0.7122025098658032,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 28,
+          "bound": 0.7276784549269095,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 29,
+          "bound": 0.7224796099570132,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 30,
+          "bound": 0.7200769025689631,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 31,
+          "bound": 0.7206093998431622,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 32,
+          "bound": 0.6954449348480569,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 33,
+          "bound": 0.689440529595928,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 34,
+          "bound": 0.6927371748912603,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 35,
+          "bound": 0.7040715381224968,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 36,
+          "bound": 0.7028684521924886,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 37,
+          "bound": 0.6950574408345354,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 38,
+          "bound": 0.6992674577528171,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 39,
+          "bound": 0.7137685139761464,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 40,
+          "bound": 0.7160656234282898,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 41,
+          "bound": 0.7099652845035366,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 42,
+          "bound": 0.7134042268774782,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 43,
+          "bound": 0.7245078754253897,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 44,
+          "bound": 0.7277394257354615,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 45,
+          "bound": 0.72638428755999,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 46,
+          "bound": 0.729373791309471,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 47,
+          "bound": 0.7325331529390049,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 48,
+          "bound": 0.7528495215405007,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 49,
+          "bound": 0.7544944973352021,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 50,
+          "bound": 0.7542592326472897,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 51,
+          "bound": 0.7526023587713342,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 52,
+          "bound": 0.7485938047635122,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 53,
+          "bound": 0.7506168830038209,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 54,
+          "bound": 0.749869983645781,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 55,
+          "bound": 0.7477692595344438,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 56,
+          "bound": 0.7414786869229693,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 57,
+          "bound": 0.7384464642901413,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 58,
+          "bound": 0.7384792141007868,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 59,
+          "bound": 0.7384093265088091,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 60,
+          "bound": 0.7344038401345531,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 61,
+          "bound": 0.7294367133386974,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 62,
+          "bound": 0.7270229548741116,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 63,
+          "bound": 0.7279027535951983,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 64,
+          "bound": 0.7351352380613625,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 65,
+          "bound": 0.7309091274193478,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 66,
+          "bound": 0.7247719840314213,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 67,
+          "bound": 0.7152777230106587,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 68,
+          "bound": 0.7416048858140121,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 69,
+          "bound": 0.7387221988912909,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 70,
+          "bound": 0.7325016424819748,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 71,
+          "bound": 0.7241122126481943,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 72,
+          "bound": 0.7467730840898905,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 73,
+          "bound": 0.7440362525865588,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 74,
+          "bound": 0.7393669191773933,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 75,
+          "bound": 0.7315168296487937,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 76,
+          "bound": 0.7506093107718996,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 77,
+          "bound": 0.7475079615637275,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 78,
+          "bound": 0.7430243899848203,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 79,
+          "bound": 0.736785272819187,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 80,
+          "bound": 0.7333040811999718,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 81,
+          "bound": 0.741255971143164,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 82,
+          "bound": 0.747811150824991,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 83,
+          "bound": 0.7507395664725536,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 84,
+          "bound": 0.7239890504594209,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 85,
+          "bound": 0.7335492023327383,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 86,
+          "bound": 0.7418378455831993,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 87,
+          "bound": 0.7457508886127728,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 88,
+          "bound": 0.71052130887167,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 89,
+          "bound": 0.7190958819198083,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 90,
+          "bound": 0.7298791974455504,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 91,
+          "bound": 0.7366023133133124,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 92,
+          "bound": 0.7015310354315956,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 93,
+          "bound": 0.7082903240878413,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 94,
+          "bound": 0.7177653314606183,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        },
+        {
+          "branch": "bloch",
+          "cap": 95,
+          "bound": 0.7257160966095958,
+          "status": "optimal",
+          "closed": true,
+          "child_id": null
+        }
+      ]
+    }
+  ],
+  "source_closed_nodes": [],
+  "pending_nodes": [],
+  "next_identifier": 1,
+  "expansion_count": 1,
+  "closed_leaf_count": 98,
+  "open_leaf_count": 0,
+  "maximum_open_bound": null,
+  "certificate_complete": true
+}

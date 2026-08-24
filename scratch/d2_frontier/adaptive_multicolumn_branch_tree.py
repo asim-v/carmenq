@@ -17,9 +17,17 @@ import numpy as np
 
 from flagged_contraction_separator import family_from_payload, find_worst_contraction
 from fourier_behavior_cap_cover import cube_face_caps, plane_caps
-from fourier_behavior_upper import solve_behavior_outer
+from fourier_behavior_upper import InfeasibleBehaviorOuter, solve_behavior_outer
 from fourier_branch_upper import PRIOR_BOX
 from multicolumn_contraction_cell_cover import run_cover
+
+
+def json_bound(value: float) -> float | str | None:
+    if math.isfinite(value):
+        return value
+    if value > 0.0:
+        return "+inf"
+    return None
 
 
 def fixed_base_data(
@@ -126,16 +134,22 @@ def run_tree(
             if prior.get(key) != expected:
                 raise ValueError(f"checkpoint mismatch for {key}")
         records = list(prior["expanded_nodes"])
+        source_closed_nodes = list(
+            prior.get(
+                "source_closed_nodes", prior.get("infeasible_source_nodes", [])
+            )
+        )
         pending = list(prior["pending_nodes"])
         next_identifier = int(prior["next_identifier"])
     else:
         records = []
+        source_closed_nodes = []
         pending = [
             {
                 "id": 0,
                 "parent": None,
                 "depth": 0,
-                "bound": math.inf,
+                "bound": "+inf",
                 "contractions": [],
                 "separator_coefficients": settings["initial_coefficients"],
             }
@@ -160,13 +174,19 @@ def run_tree(
             "max_expansions": max_expansions,
             "solver_conditional": True,
             "expanded_nodes": records,
+            "source_closed_nodes": source_closed_nodes,
             "pending_nodes": leaves,
             "next_identifier": next_identifier,
             "expansion_count": len(records),
-            "closed_leaf_count": sum(int(item["closed_children"]) for item in records),
+            "closed_leaf_count": (
+                sum(int(item["closed_children"]) for item in records)
+                + len(source_closed_nodes)
+            ),
             "open_leaf_count": len(leaves),
-            "maximum_open_bound": max(
-                (float(item["bound"]) for item in leaves), default=None
+            "maximum_open_bound": (
+                json_bound(max(float(item["bound"]) for item in leaves))
+                if leaves
+                else None
             ),
             "certificate_complete": not leaves,
         }
@@ -175,7 +195,44 @@ def run_tree(
         node = heapq.heappop(queue)[-1]
         contractions = tuple(node["contractions"])
         if node.get("separator_coefficients") is None:
-            family = solve_node(caps, base_cut, contractions)
+            try:
+                family = solve_node(caps, base_cut, contractions)
+            except InfeasibleBehaviorOuter as error:
+                closed_node = {
+                    "id": int(node["id"]),
+                    "parent": node["parent"],
+                    "depth": int(node["depth"]),
+                    "incoming_bound": node["bound"],
+                    "status": "solver_infeasible",
+                    "solver_status": str(error),
+                }
+                source_closed_nodes.append(closed_node)
+                print(json.dumps({"source_closed": closed_node}), flush=True)
+                if checkpoint is not None:
+                    checkpoint.parent.mkdir(parents=True, exist_ok=True)
+                    checkpoint.write_text(
+                        json.dumps(snapshot(), indent=2) + "\n", encoding="utf-8"
+                    )
+                continue
+            source_bound = float(family["bound"])
+            if source_bound < target:
+                closed_node = {
+                    "id": int(node["id"]),
+                    "parent": node["parent"],
+                    "depth": int(node["depth"]),
+                    "incoming_bound": node["bound"],
+                    "status": "upper_bound_below_target",
+                    "source_bound": source_bound,
+                    "solver_status": family["status"],
+                }
+                source_closed_nodes.append(closed_node)
+                print(json.dumps({"source_closed": closed_node}), flush=True)
+                if checkpoint is not None:
+                    checkpoint.parent.mkdir(parents=True, exist_ok=True)
+                    checkpoint.write_text(
+                        json.dumps(snapshot(), indent=2) + "\n", encoding="utf-8"
+                    )
+                continue
             prefix, conditioned = family_from_payload(family)
             separation = find_worst_contraction(
                 prefix,
@@ -185,7 +242,6 @@ def run_tree(
                 seed=seed + int(node["id"]),
             )
             coefficients = np.asarray(separation["coefficients"], dtype=float)
-            source_bound = float(family["bound"])
             violation = float(separation["violation"])
         else:
             coefficients = np.asarray(node["separator_coefficients"], dtype=float)
@@ -218,7 +274,7 @@ def run_tree(
                 "id": next_identifier,
                 "parent": int(node["id"]),
                 "depth": int(node["depth"]) + 1,
-                "bound": float(row["bound"]),
+                "bound": json_bound(float(row["bound"])),
                 "contractions": [
                     *contractions,
                     child_contraction(coefficients.tolist(), row, contraction_grid),
@@ -237,7 +293,7 @@ def run_tree(
                 {
                     "branch": row["branch"],
                     "cap": row["cap"],
-                    "bound": bound if math.isfinite(bound) else None,
+                    "bound": json_bound(bound),
                     "status": row["status"],
                     "closed": bound < target,
                     "child_id": child_identifiers.get(branch_key),
@@ -250,7 +306,7 @@ def run_tree(
             "source_bound": source_bound,
             "separator_coefficients": coefficients.tolist(),
             "separator_violation": violation,
-            "maximum_child_bound": float(cover["maximum_bound"]),
+            "maximum_child_bound": json_bound(float(cover["maximum_bound"])),
             "closed_children": len(cover["branches"]) - len(open_rows),
             "open_children": len(open_rows),
             "branches": audited_branches,

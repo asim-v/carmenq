@@ -154,7 +154,7 @@ def run_forest(args: argparse.Namespace) -> dict[str, object]:
         row = {
             **orbit,
             "global_index": global_index,
-            "certificate": str(certificate_path),
+            "certificate": certificate_path.as_posix(),
             "complete": bool(result["certificate_complete"]),
             "expansions": int(result["expansion_count"]),
             "closed_leaves": int(result["closed_leaf_count"]),

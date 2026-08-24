@@ -15,14 +15,17 @@ from fourier_branch_upper import PRIOR_BOX
 
 
 def solve(problem: cp.Problem) -> tuple[float, str]:
-    problem.solve(
-        solver="CLARABEL",
-        tol_gap_abs=2e-8,
-        tol_gap_rel=2e-8,
-        tol_feas=2e-8,
-        max_iter=1000,
-        warm_start=True,
-    )
+    try:
+        problem.solve(
+            solver="CLARABEL",
+            tol_gap_abs=2e-8,
+            tol_gap_rel=2e-8,
+            tol_feas=2e-8,
+            max_iter=1000,
+            warm_start=True,
+        )
+    except cp.SolverError:
+        return float("inf"), "clarabel_solver_error"
     if problem.status in {cp.INFEASIBLE, cp.INFEASIBLE_INACCURATE}:
         return float("-inf"), problem.status
     if problem.status not in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE}:

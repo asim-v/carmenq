@@ -2,7 +2,7 @@
   "scope": "fixed ternary terminal POVM, prefix order 0>=1>=2>=3, lambda=0.55",
   "terminal_effect_weights": [0.92, 0.64, 0.44, 0.0],
   "target": 0.758,
-  "status": "open",
+  "status": "fixed terminal-POVM/prior-box benchmark closed at target 0.758",
   "theorem": "flagged Fourier trace-norm contraction for one common instrument",
   "initial_prior_box": [
     [0.296875, 0.42596435546875],
@@ -16,6 +16,13 @@
     "clarabel_status": "optimal_inaccurate",
     "independent_scs_weaker_outer_bound": 0.7511621958585682,
     "independent_scs_status": "optimal",
+    "closed_below_target": true
+  },
+  "non_fully_vectorial_spectral_cover": {
+    "branch_count": 11,
+    "maximum_branch_code": "pbb",
+    "maximum_clarabel_bound": 0.7511525489616027,
+    "maximum_independent_scs_bound": 0.7511621958585682,
     "closed_below_target": true
   },
   "fully_vectorial_behavior_cover": {
@@ -36,6 +43,26 @@
     },
     "closed_below_target": false,
     "reproducer": "fourier_behavior_cap_cover.py --plane-cells 16 --face-grid 8"
+  },
+  "adaptive_all_coefficient_forest": {
+    "base_fourier_cells": 768,
+    "pair_branches_per_cell": 7,
+    "base_open_branches": 706,
+    "complex_conjugation_orbits": 353,
+    "audited_complete_orbits": 353,
+    "missing_or_open_orbits": 0,
+    "exhaustive_branches_per_expansion": 98,
+    "expanded_nodes": 2698,
+    "closed_leaves": 262059,
+    "source_closed_leaves": 236,
+    "infeasible_leaves": 151733,
+    "maximum_depth": 7,
+    "maximum_finite_terminal_bound": 0.7579983961104495,
+    "leaf_identity": "262059 = 353 + 97 * 2698",
+    "closed_below_target": true,
+    "solver_conditional": true,
+    "aggregate": "regular_multicolumn_forest_complete_l055.json",
+    "interpretation": "the positive-map outer relaxation excludes every physical common instrument in the fixed benchmark"
   },
   "diagnosed_missing_condition": {
     "coefficient_direction": [0.0, 0.0, 1.0, -1.0],
@@ -92,5 +119,5 @@
     "sign_symmetry_score_residual": 0.0,
     "interpretation": "both nondegenerate sign branches are physically nonempty inside the benchmark prior box"
   },
-  "epistemic_status": "solver-conditional conic diagnostics; no interval-verified upper certificate"
+  "epistemic_status": "solver-conditional upper certificate for the fixed terminal-POVM/prior-box benchmark only; no interval verification and no unrestricted terminal-geometry closure"
 }

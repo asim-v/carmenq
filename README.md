@@ -109,9 +109,11 @@ contractions for one common instrument, turns their qubit trace norms into a
 finite conic cap cover, and records both the closed scalar spectral sector and
 the remaining fully vectorial sector in
 [`notes/common_instrument_fourier_contraction.md`](notes/common_instrument_fourier_contraction.md).
-An adaptive extension now excludes the single worst Fourier/pair base cell at
-target `0.758` with a fully recorded 4,657-leaf solver-conditional tree; its
-scope, audit command, and remaining global queue are stated in
+An adaptive extension now excludes all 353 complex-conjugation orbits covering
+the 706 formerly open Fourier/pair branches at target `0.758`.  The committed
+solver-conditional forest has 2,698 expansions, 262,059 closed leaves, no
+missing orbit, and maximum finite terminal bound `0.7579983961`; its scope,
+audit command, and the still-open terminal-geometry problem are stated in
 [`notes/adaptive_multicolumn_contraction_certificate.md`](notes/adaptive_multicolumn_contraction_certificate.md).
 
 ## Explore the order-sensitive theorem

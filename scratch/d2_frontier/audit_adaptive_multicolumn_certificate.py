@@ -9,12 +9,19 @@ from pathlib import Path
 
 import numpy as np
 
-from adaptive_multicolumn_branch_tree import child_contraction
+from adaptive_multicolumn_branch_tree import (
+    child_contraction,
+    fixed_base_data,
+    solve_node,
+)
+from fourier_behavior_upper import InfeasibleBehaviorOuter
 from fourier_behavior_cap_cover import cube_face_caps
 from multicolumn_contraction_cell_cover import run_cover
 
 
 def _close(left: float, right: float, tolerance: float) -> bool:
+    if math.isinf(left) or math.isinf(right):
+        return left == right
     return abs(left - right) <= tolerance * max(1.0, abs(left), abs(right))
 
 
@@ -30,9 +37,20 @@ def audit_certificate(payload: dict[str, object], tolerance: float = 5e-6) -> di
     }
     records = list(payload["expanded_nodes"])
     by_identifier = {int(record["id"]): record for record in records}
-    if len(by_identifier) != len(records) or 0 not in by_identifier:
+    source_closed_rows = payload.get(
+        "source_closed_nodes", payload.get("infeasible_source_nodes", [])
+    )
+    source_closed = {int(node["id"]): node for node in source_closed_rows}
+    if len(source_closed) != len(source_closed_rows):
+        raise ValueError("source-closed node identifiers are not unique")
+    if len(by_identifier) != len(records):
         raise ValueError("expanded node identifiers are not a unique rooted set")
-    if by_identifier[0]["parent"] is not None:
+    if set(by_identifier) & set(source_closed):
+        raise ValueError("a node is both expanded and closed at its source")
+    closed_nodes = {**by_identifier, **source_closed}
+    if 0 not in closed_nodes:
+        raise ValueError("the certificate has no root")
+    if closed_nodes[0]["parent"] is not None:
         raise ValueError("node zero is not the root")
 
     referenced_children: dict[int, tuple[int, float]] = {}
@@ -77,17 +95,37 @@ def audit_certificate(payload: dict[str, object], tolerance: float = 5e-6) -> di
         if not _close(maximum, float(record["maximum_child_bound"]), tolerance):
             raise ValueError(f"node {identifier} has a wrong maximum child bound")
 
+    for node in source_closed.values():
+        maximum_depth = max(maximum_depth, int(node["depth"]))
+        status = str(node.get("status", ""))
+        if status == "upper_bound_below_target":
+            if not float(node["source_bound"]) < target:
+                raise ValueError("a source-bound closure is not below target")
+        elif status == "solver_infeasible":
+            if "infeasible" not in str(node.get("solver_status", "")):
+                raise ValueError("a solver-infeasible closure lacks its solver status")
+        elif status not in {"infeasible", "infeasible_inaccurate"}:
+            raise ValueError(f"unknown source-closure status: {status}")
+        closed_leaves += 1
+
     pending = {int(node["id"]): node for node in payload["pending_nodes"]}
-    all_nonroot = (set(by_identifier) | set(pending)) - {0}
+    all_nonroot = (set(by_identifier) | set(source_closed) | set(pending)) - {0}
     if set(referenced_children) != all_nonroot:
         raise ValueError("the recorded edges do not equal the expanded and pending nodes")
     for child, (parent, incoming_bound) in referenced_children.items():
-        node = by_identifier.get(child, pending.get(child))
+        node = by_identifier.get(child, source_closed.get(child, pending.get(child)))
         if int(node["parent"]) != parent:
             raise ValueError(f"child {child} has an inconsistent parent")
         if child in by_identifier:
-            if not _close(float(node["source_bound"]), incoming_bound, tolerance):
+            if math.isfinite(incoming_bound) and not _close(
+                float(node["source_bound"]), incoming_bound, tolerance
+            ):
                 raise ValueError(f"child {child} has an inconsistent source bound")
+        elif child in source_closed:
+            if not _close(float(node["incoming_bound"]), incoming_bound, tolerance):
+                raise ValueError(
+                    f"source-closed child {child} has an inconsistent incoming bound"
+                )
         elif not _close(float(node["bound"]), incoming_bound, tolerance):
             raise ValueError(f"pending child {child} has an inconsistent bound")
 
@@ -101,6 +139,12 @@ def audit_certificate(payload: dict[str, object], tolerance: float = 5e-6) -> di
     return {
         "certificate_complete": complete,
         "expanded_nodes": len(records),
+        "source_closed_nodes": len(source_closed),
+        "infeasible_source_nodes": sum(
+            str(node.get("status", "")).startswith("solver_infeasible")
+            or "infeasible" in str(node.get("status", ""))
+            for node in source_closed.values()
+        ),
         "closed_leaves": closed_leaves,
         "open_leaves": len(pending),
         "maximum_depth": maximum_depth,
@@ -110,12 +154,19 @@ def audit_certificate(payload: dict[str, object], tolerance: float = 5e-6) -> di
 
 def _paths(payload: dict[str, object]) -> dict[int, tuple[dict[str, object], ...]]:
     records = {int(record["id"]): record for record in payload["expanded_nodes"]}
+    source_closed_rows = payload.get(
+        "source_closed_nodes", payload.get("infeasible_source_nodes", [])
+    )
+    nodes = {
+        **records,
+        **{int(record["id"]): record for record in source_closed_rows},
+    }
     cache: dict[int, tuple[dict[str, object], ...]] = {0: ()}
 
     def visit(identifier: int) -> tuple[dict[str, object], ...]:
         if identifier in cache:
             return cache[identifier]
-        record = records[identifier]
+        record = nodes[identifier]
         parent_id = int(record["parent"])
         parent = records[parent_id]
         incoming = next(
@@ -129,7 +180,7 @@ def _paths(payload: dict[str, object]) -> dict[int, tuple[dict[str, object], ...
         cache[identifier] = (*visit(parent_id), contraction)
         return cache[identifier]
 
-    for identifier in records:
+    for identifier in nodes:
         visit(identifier)
     return cache
 
@@ -157,11 +208,47 @@ def replay_certificate(payload: dict[str, object], tolerance: float = 5e-6) -> N
         for row in replay["branches"]:
             expected = stored[(str(row["branch"]), row["cap"])]["bound"]
             observed = float(row["bound"])
+            if expected == "+inf":
+                continue
             if expected is None:
                 if math.isfinite(observed):
                     raise ValueError(f"node {identifier} changed infeasibility status")
             elif not _close(observed, float(expected), tolerance):
                 raise ValueError(f"node {identifier} changed a stored conic bound")
+
+    caps, base_cut = fixed_base_data(
+        int(payload["plane_cells"]),
+        int(payload["plane_index"]),
+        int(payload["face_grid"]),
+        int(payload["sphere_index"]),
+        int(payload["pair_cap_index"]),
+        str(payload.get("pair_branch", "bloch")),
+    )
+    source_closed = payload.get(
+        "source_closed_nodes", payload.get("infeasible_source_nodes", [])
+    )
+    for node in source_closed:
+        identifier = int(node["id"])
+        try:
+            observed = float(solve_node(caps, base_cut, paths[identifier])["bound"])
+        except InfeasibleBehaviorOuter:
+            if "infeasible" not in str(node.get("status", "")):
+                raise ValueError(
+                    f"source-closed node {identifier} changed to infeasible"
+                ) from None
+        else:
+            if node.get("status") != "upper_bound_below_target":
+                raise ValueError(
+                    f"source-closed node {identifier} changed to feasible"
+                )
+            if not observed < float(payload["target"]):
+                raise ValueError(
+                    f"source-closed node {identifier} is no longer below target"
+                )
+            if not _close(observed, float(node["source_bound"]), tolerance):
+                raise ValueError(
+                    f"source-closed node {identifier} changed its stored bound"
+                )
 
 
 def main() -> None:

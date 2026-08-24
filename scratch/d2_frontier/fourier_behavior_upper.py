@@ -21,6 +21,10 @@ from two_block_choi_seesaw import (
 )
 
 
+class InfeasibleBehaviorOuter(RuntimeError):
+    """The selected conic behavior cell is solver-conditionally infeasible."""
+
+
 CHARACTERS = np.asarray(
     [
         [1.0, 1.0, -1.0, -1.0],
@@ -263,18 +267,25 @@ def solve_behavior_outer(
             "input_fourier_expressions": input_fourier_vectors,
             "pairwise_flagged_expressions": pairwise_flagged,
         }
+    solver_used = solver
     if solver == "clarabel":
-        problem.solve(
-            solver="CLARABEL",
-            tol_gap_abs=1e-9,
-            tol_gap_rel=1e-9,
-            tol_feas=1e-9,
-            max_iter=1000,
-        )
+        try:
+            problem.solve(
+                solver="CLARABEL",
+                tol_gap_abs=1e-9,
+                tol_gap_rel=1e-9,
+                tol_feas=1e-9,
+                max_iter=1000,
+            )
+        except cp.SolverError:
+            problem.solve(solver="SCS", eps=1e-7, max_iters=200_000)
+            solver_used = "scs_after_clarabel_error"
     elif solver == "scs":
         problem.solve(solver="SCS", eps=1e-7, max_iters=200_000)
     else:
         raise ValueError("solver must be clarabel or scs")
+    if problem.status in {cp.INFEASIBLE, cp.INFEASIBLE_INACCURATE}:
+        raise InfeasibleBehaviorOuter(problem.status)
     if problem.status not in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE}:
         raise RuntimeError(f"Fourier behavior outer failed: {problem.status}")
     return {
@@ -309,7 +320,7 @@ def solve_behavior_outer(
             [float(prior[z].value), *np.asarray(input_vector[z].value).tolist()]
             for z in OUTCOMES
         ],
-        "solver": solver,
+        "solver": solver_used,
         "iterations": problem.solver_stats.num_iters,
         "solve_time": problem.solver_stats.solve_time,
     }

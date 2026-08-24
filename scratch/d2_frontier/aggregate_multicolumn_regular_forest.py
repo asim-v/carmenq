@@ -40,10 +40,12 @@ def aggregate(
     totals = {
         "expanded_nodes": 0,
         "closed_leaves": 0,
+        "source_closed_leaves": 0,
         "infeasible_leaves": 0,
     }
     maximum_depth = 0
     maximum_terminal_bound = float("-inf")
+    branching_factors: set[int] = set()
     for key, row in rows_by_key.items():
         if not bool(row["complete"]):
             continue
@@ -62,6 +64,9 @@ def aggregate(
             raise ValueError(f"certificate for {key} is not complete")
         totals["expanded_nodes"] += int(audit["expanded_nodes"])
         totals["closed_leaves"] += int(audit["closed_leaves"])
+        totals["source_closed_leaves"] += int(audit["source_closed_nodes"])
+        totals["infeasible_leaves"] += int(audit["infeasible_source_nodes"])
+        branching_factors.add(int(audit["branches_per_expansion"]))
         maximum_depth = max(maximum_depth, int(audit["maximum_depth"]))
         finite_terminal = []
         for node in certificate["expanded_nodes"]:
@@ -72,6 +77,14 @@ def aggregate(
                     totals["infeasible_leaves"] += 1
                 else:
                     finite_terminal.append(float(branch["bound"]))
+        source_closed = certificate.get(
+            "source_closed_nodes", certificate.get("infeasible_source_nodes", [])
+        )
+        finite_terminal.extend(
+            float(node["source_bound"])
+            for node in source_closed
+            if node.get("source_bound") is not None
+        )
         if finite_terminal:
             maximum_terminal_bound = max(maximum_terminal_bound, *finite_terminal)
         expected_index, expected_orbit = expected_by_key[key]
@@ -79,7 +92,7 @@ def aggregate(
             {
                 "global_index": expected_index,
                 **expected_orbit,
-                "certificate": str(certificate_path),
+                "certificate": certificate_path.as_posix(),
                 "expansions": int(audit["expanded_nodes"]),
                 "closed_leaves": int(audit["closed_leaves"]),
                 "maximum_depth": int(audit["maximum_depth"]),
@@ -96,6 +109,14 @@ def aggregate(
     if require_complete and not complete:
         raise ValueError(f"the regular forest still has {len(missing)} open or missing orbits")
     audited_rows.sort(key=lambda item: int(item["global_index"]))
+    if len(branching_factors) > 1:
+        raise ValueError("the forest certificates use different branching factors")
+    branching_factor = next(iter(branching_factors), None)
+    expected_closed_leaves = len(audited_rows)
+    if branching_factor is not None:
+        expected_closed_leaves += (branching_factor - 1) * totals["expanded_nodes"]
+    if totals["closed_leaves"] != expected_closed_leaves:
+        raise ValueError("the aggregated forest violates the full-tree leaf identity")
     return {
         "scope": "audited global bbb Fourier/pair multicolumn forest",
         "target": target,
@@ -106,6 +127,8 @@ def aggregate(
         "audited_complete_orbits": len(audited_rows),
         "missing_or_open_orbits": len(missing),
         "certificate_complete": complete,
+        "exhaustive_branches_per_expansion": branching_factor,
+        "leaf_identity_verified": True,
         **totals,
         "maximum_depth": maximum_depth,
         "maximum_finite_terminal_bound": (

@@ -2,18 +2,30 @@
 
 ## Result and scope
 
-The most permissive cell in the existing Fourier/pair outer cover of the
-fixed \(\lambda=0.55\) interior benchmark is now excluded at score \(0.758\).
-The calculation uses 48 adaptive contractions, 98 exhaustive spectral
-branches at every expansion, and no unclosed leaf.  The resulting tree has
-4,657 terminal leaves: 2,640 are conically infeasible and the largest finite
-terminal upper bound is \(0.7579901084\).  This is a
-solver-conditional certificate for one cell, not yet a closure of the full
-regular interior.  In particular, the coefficient directions selected in
-this tree cannot silently be imposed on the other open cells without giving
-those cells their own exhaustive trace-norm branch covers.
+The complete Fourier/pair outer cover of the fixed \(\lambda=0.55\) benchmark
+is now excluded at score \(0.758\).  Of the 5,376 base branches, 4,670 were
+already below target.  The remaining 706 Bloch branches form 353 exact
+complex-conjugation orbits, and every representative now has its own adaptive
+tree with 98 exhaustive spectral branches at each expansion.
 
-The base cell is planar Fourier sector 4 of 8, spherical cube-face cell 18 at
+The audited global forest contains 2,698 expansions and 262,059 closed leaves,
+including 151,733 conically infeasible leaves and 236 nodes closed by a fresh
+source solve.  Its maximum depth is 7 and its largest finite terminal upper
+bound is \(0.7579983961\).  There are no missing or open orbits.  The independent
+full-tree identity
+
+\[
+ 262059=353+(98-1)2698
+\]
+
+also holds, so the aggregate cannot have silently dropped a branch.
+
+The original worst cell remains a useful compact example.  Its calculation
+uses 48 adaptive contractions and has 4,657 terminal leaves: 2,640 are
+conically infeasible and the largest finite terminal upper bound is
+\(0.7579901084\).
+
+That base cell is planar Fourier sector 4 of 8, spherical cube-face cell 18 at
 grid 4, and Bloch cap 3 for the \((2,3)\) pair contraction.  Before the new
 cuts its conic upper bound is \(0.7633263647\), the largest value among the
 768 cells in the earlier Fourier/pair calculation.  The adaptive tree has
@@ -62,7 +74,12 @@ Hermiticity-preserving linear interpolation
 If the behaviour constraints preserve trace on the four basis elements, the
 extension is trace preserving everywhere.  In this regular case, the family
 of inequalities (1) for every real \(c\) is equivalent to positivity of
-\(\Gamma\).
+\(\Gamma\).  This is the finite-basis specialization of the established
+characterization that a trace-preserving linear map is positive exactly when
+its induced Schatten-1 norm is one; see Pérez-García, Wolf, Petz, and Ruskai,
+[*J. Math. Phys.* **47**, 083506
+(2006)](https://doi.org/10.1063/1.2218675), especially their discussion after
+Theorem II.1.  The equivalence itself is therefore prior art.
 
 One direction is the usual trace-norm contraction of a positive
 trace-preserving map on Hermitian inputs.  Conversely, take any \(X\succeq0\)
@@ -138,10 +155,12 @@ of (1), and all 98 spectral branches are solved.  Any child still at or above
 only a count of the closed leaves.
 
 The certificate is conditional on CLARABEL's floating-point optimality and
-infeasibility decisions at the recorded tolerances.  It is not an interval
-proof.  The geometric exhaustiveness of each 98-way split and the tree
-topology are independent of the separator optimizer and can be checked
-without solving an optimization problem.
+infeasibility decisions at the recorded tolerances, with SCS fallback after a
+CLARABEL solver exception.  A solver exception by itself is stored as an open
+infinite bound and never closes a leaf.  This is not an interval proof.  The
+geometric exhaustiveness of each 98-way split and the tree topology are
+independent of the separator optimizer and can be checked without solving an
+optimization problem.
 
 ## Reproduction and audit
 
@@ -165,17 +184,31 @@ python scratch/d2_frontier/audit_adaptive_multicolumn_certificate.py \
 Adding `--recompute` rebuilds and re-solves every one of the 4,704 conic
 subproblems before comparing their bounds with the stored certificate.
 
+The global aggregate is reproduced and structurally audited with:
+
+```bash
+python scratch/d2_frontier/aggregate_multicolumn_regular_forest.py \
+  scratch/d2_frontier/fourier_behavior_pair_cover_p8_g4_l055_auditable.json \
+  scratch/d2_frontier/regular_multicolumn_forest_top3_l055.json \
+  scratch/d2_frontier/regular_multicolumn_forest_batch0_l055.json \
+  scratch/d2_frontier/regular_multicolumn_forest_batch1_l055.json \
+  scratch/d2_frontier/regular_multicolumn_forest_batch2_l055.json \
+  --output scratch/d2_frontier/regular_multicolumn_forest_complete_l055.json
+```
+
+This command audits all 353 component trees, rejects duplicate or missing
+orbits, checks the 98 branch labels at every expansion, verifies all
+parent--child links and closure decisions, and enforces the global leaf
+identity.  Replaying every conic solve is deliberately a separate, much more
+expensive operation.
+
 ## What remains
 
-The earlier Fourier/pair cover has 306 Fourier cells whose maximum pair
-branch is at or above \(0.758\).  Retaining all seven spectral branches reveals
-706 open base branches; the scalar-positive pair branch is already closed
-everywhere, so all 706 are Bloch branches.  Complex conjugation reflects the
-Bloch \(y\)-coordinate, preserves the real planar terminal problem, and pairs
-these branches into 353 exact symmetry orbits.  The first three and hardest
-orbits have been closed by trees with 48, 39, and 32 expansions.  A full
-fixed-benchmark certificate must run the same adaptive process until all 353
-representatives are closed.  If arbitrary
-multicolumn trace-norm contraction stalls at a positive-map relaxation, the
-remaining regular case will require the determinant-scaled Choi positivity
-condition rather than more scalar coefficient cuts.
+Together with the eleven non-fully-vectorial spectral regimes, whose largest
+bound is \(0.75115255\), this forest closes the fixed terminal-POVM/prior-box
+benchmark at target \(0.758\), conditional on the recorded conic solves.  It
+does **not** close the unrestricted interior frontier: the terminal POVM has
+been fixed to weights \((0.92,0.64,0.44,0)\), only \(\lambda=0.55\) is covered,
+and no interval-verified numerical enclosure is claimed.  The next global
+task is a certified outer cover of terminal-measurement geometry (and then
+parameter continuation), not additional splitting of these 353 cells.
