@@ -522,3 +522,35 @@ for the polar program, a counterexample above \(0.758\), or a nontrivial
 analytic subfamily in which the maximum can be solved exactly. The repository
 therefore labels the present result as an exact reformulation and obstruction,
 not as a completed unrestricted separation theorem.
+
+## 17. Exact planar common-instrument closure
+
+For a fixed nondegenerate three-effect terminal POVM in one Bloch plane, the
+three pulled effects of each outcome uniquely determine
+\(\Phi_y^*(I),\Phi_y^*(X),\Phi_y^*(Y)\). They arise from one completely positive
+map exactly when
+
+\[
+w\!\left(
+F_y^{-1/2}[\Phi_y^*(X)+i\Phi_y^*(Y)]F_y^{-1/2}
+\right)\leq1,
+\qquad F_y=\Phi_y^*(I),
+\]
+
+with the support version used when \(F_y\) is singular. Together with
+\(\sum_yF_y=I\), these four numerical-radius inequalities are equivalent to
+one common quantum instrument at the level of the observed terminal effects.
+
+This exact closure exposes a concrete defect in the previous columnwise
+outer model. One archived outer strategy satisfies every individual effect
+and residual-effect cone yet has outcome radii
+
+\[
+(0.9999999994,\ 1.7244406626,\ 1.5335799867,\ 0.9999999996).
+\]
+
+The middle outcomes are therefore CP-incompatible. Each violation now comes
+with a pure-state scalar witness, not merely an unsuccessful Choi fit. The
+derivation, established-literature boundary, tests, and reproducer are in
+[planar instrument completion](planar_instrument_completion.md). The exact
+\(0.758\) upper-bound target remains open.

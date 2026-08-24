@@ -82,6 +82,10 @@ The latest exact theory isolates why a naive mixed-state hierarchy stalls and
 replaces its concave RETURN extension by a block-coherence functional with the
 same optimum as the deterministic pure-leaf problem; see
 [`notes/coherence_preserving_convexification.md`](notes/coherence_preserving_convexification.md).
+For fixed planar terminal POVMs, the common-instrument condition also reduces
+to one exact Ando numerical-radius inequality per outcome; the derivation and
+an explicit columnwise-positive but CP-incompatible family are in
+[`notes/planar_instrument_completion.md`](notes/planar_instrument_completion.md).
 
 ## Explore the order-sensitive theorem
 

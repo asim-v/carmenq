@@ -74,6 +74,10 @@ The curated search chain is:
   mixed Schmidt-number relaxations that retain concave Hellinger RETURN;
 - `coherence_polar_program.py`: optimal path-pair polar contractions for the
   block-coherence extension that preserves the pure-leaf optimum;
+- `planar_cp_completion.py`: exact Ando numerical-radius test for whether
+  three planar pulled-effect columns share one completely positive map;
+- `joint_effect_helstrom_seesaw.py`: generates the Helstrom-constrained
+  columnwise outer checkpoints audited by the planar completion test;
 - `qubit_discrimination_geometry.py`: lightweight implementation of that
   weighted-ball Helstrom dual, shared by the analyzer and Choi seesaw;
 - `two_block_choi_seesaw.py`: finite common-instrument formulation with four
