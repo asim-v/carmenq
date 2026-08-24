@@ -215,6 +215,8 @@ class TernaryConeOracle:
         disjunction_source: str = "statistics",
         mip_time_limit: float = 300.0,
         projective_support_lines: tuple[tuple[float, float], ...] = (),
+        common_contractions: tuple[dict[str, object], ...] = (),
+        terminal_reconstruction: tuple[object, object] | None = None,
     ) -> None:
         self.pairs = pairs
         self.coordinate_cases = coordinate_cases
@@ -326,6 +328,201 @@ class TernaryConeOracle:
                     self.prefix[z] <= self.prior_upper[z],
                 )
             )
+
+        # A common quantum instrument is trace-norm contractive even after
+        # its classical output flag and the terminal POVM are retained.  For
+        # every real coefficient vector c this gives the terminal-geometry-
+        # independent necessary condition
+        #
+        #   sum_{y,t} |sum_z c_z q[z,y,t]|
+        #       <= ||sum_z c_z rho[z]||_1.
+        #
+        # The qubit norm on the right is max(|scalar|, ||Bloch||_2).  A
+        # caller supplies one exhaustive spectral branch for each selected
+        # coefficient vector.  Vector-active branches use either an exact
+        # rotational gauge (``gauge_rank == 0``) or an angular-cap upper
+        # envelope.  The measured L1 form is terminal-geometry independent;
+        # the optional reconstructed form below retains two visible Bloch
+        # coordinates with a box-safe terminal-geometry error budget.
+        self.input_vectors = (
+            [cp.Variable(3) for _ in OUTCOMES] if common_contractions else []
+        )
+        for z in OUTCOMES:
+            if self.input_vectors:
+                constraints.append(cp.SOC(self.prefix[z], self.input_vectors[z]))
+        self.common_contraction_values: list[cp.Expression] = []
+        self.common_contraction_selectors: list[cp.Variable] = []
+        if terminal_reconstruction is not None:
+            raw_anchor, raw_errors = terminal_reconstruction
+            reconstruction_anchor = (
+                raw_anchor
+                if isinstance(raw_anchor, cp.Parameter)
+                else np.asarray(raw_anchor, dtype=float)
+            )
+            reconstruction_errors = (
+                raw_errors
+                if isinstance(raw_errors, cp.Parameter)
+                else np.asarray(raw_errors, dtype=float)
+            )
+            if reconstruction_anchor.shape != (2, 3):
+                raise ValueError("terminal reconstruction anchor must have shape (2,3)")
+            if reconstruction_errors.shape != (3,):
+                raise ValueError("terminal reconstruction errors must be nonnegative")
+            if not isinstance(reconstruction_errors, cp.Parameter) and np.any(
+                reconstruction_errors < 0.0
+            ):
+                raise ValueError("terminal reconstruction errors must be nonnegative")
+        else:
+            reconstruction_anchor = None
+            reconstruction_errors = None
+        for contraction in common_contractions:
+            coefficients = np.asarray(contraction["coefficients"], dtype=float)
+            if coefficients.shape != (4,) or np.linalg.norm(coefficients) <= 1e-14:
+                raise ValueError("invalid common-instrument contraction coefficients")
+            branch = str(contraction["branch"])
+            scalar = sum(
+                float(coefficients[z]) * self.prefix[z] for z in OUTCOMES
+            )
+            input_bloch = sum(
+                (
+                    float(coefficients[z]) * self.input_vectors[z]
+                    for z in OUTCOMES
+                ),
+                cp.Constant(np.zeros(3)),
+            )
+            signed_statistics = [
+                cp.hstack(
+                    [
+                        sum(
+                            float(coefficients[z]) * self.statistics[z, y, t]
+                            for z in OUTCOMES
+                        )
+                        for t in range(3)
+                    ]
+                )
+                for y in OUTCOMES
+            ]
+            if reconstruction_anchor is None:
+                flagged = sum(cp.norm1(vector) for vector in signed_statistics)
+            else:
+                block_norms: list[cp.Variable] = []
+                for y, signed_vector in enumerate(signed_statistics):
+                    block_norm = cp.Variable(nonneg=True)
+                    trace = cp.sum(signed_vector)
+                    # For the true reconstruction R(theta),
+                    # ||R(theta)q|| >= ||R0 q|| - sum_t e_t |q_t|.
+                    # Positivity of the raw path statistics gives the affine
+                    # upper bound |sum_z c_z q_z,t| <= sum_z |c_z| q_z,t.
+                    error_budget = sum(
+                        abs(float(coefficients[z]))
+                        * reconstruction_errors[t]
+                        * self.statistics[z, y, t]
+                        for z in OUTCOMES
+                        for t in range(3)
+                    )
+                    constraints.extend(
+                        (
+                            block_norm >= trace,
+                            block_norm >= -trace,
+                            cp.SOC(
+                                block_norm + error_budget,
+                                reconstruction_anchor @ signed_vector,
+                            ),
+                        )
+                    )
+                    block_norms.append(block_norm)
+                flagged = sum(block_norms)
+            self.common_contraction_values.append(flagged)
+            if branch == "scalar-positive":
+                constraints.extend((cp.SOC(scalar, input_bloch), flagged <= scalar))
+            elif branch == "scalar-negative":
+                constraints.extend((cp.SOC(-scalar, input_bloch), flagged <= -scalar))
+            elif branch == "bloch":
+                gauge_rank = contraction.get("gauge_rank")
+                if gauge_rank == 0:
+                    constraints.extend(
+                        (
+                            input_bloch[0] == 0.0,
+                            input_bloch[1] == 0.0,
+                            input_bloch[2] >= 0.0,
+                            flagged <= input_bloch[2],
+                        )
+                    )
+                else:
+                    if gauge_rank == 1:
+                        constraints.extend(
+                            (input_bloch[1] == 0.0, input_bloch[0] >= 0.0)
+                        )
+                    cap_data = contraction.get("cap")
+                    if isinstance(cap_data, cp.Parameter):
+                        if cap_data.shape != (3,):
+                            raise ValueError("a scaled contraction cap must have shape (3,)")
+                        projection_bound = cap_data @ input_bloch
+                    elif cap_data is not None:
+                        cap_array = np.asarray(cap_data, dtype=float)
+                        if cap_array.shape == (3,):
+                            projection_bound = cap_array @ input_bloch
+                        elif cap_array.shape == (4,):
+                            projection_bound = (
+                                cap_array[:3] @ input_bloch / float(cap_array[3])
+                            )
+                        else:
+                            raise ValueError("invalid common-instrument contraction cap")
+                    else:
+                        raise ValueError("a vector-active contraction needs a cap")
+                    constraints.extend(
+                        (
+                            cp.SOC(projection_bound, input_bloch),
+                            flagged <= projection_bound,
+                        )
+                    )
+            elif branch == "spectral-cover":
+                raw_caps = tuple(contraction.get("caps", ()))
+                if not raw_caps:
+                    raise ValueError("a spectral cover requires Bloch caps")
+                signs = tuple(contraction.get("scalar_signs", (1, -1)))
+                if any(sign not in {1, -1} for sign in signs) or not signs:
+                    raise ValueError("spectral-cover scalar signs must be +1 or -1")
+                scaled_caps: list[np.ndarray] = []
+                for raw_cap in raw_caps:
+                    cap_array = np.asarray(raw_cap, dtype=float)
+                    if cap_array.shape == (3,):
+                        scaled = cap_array
+                    elif cap_array.shape == (4,):
+                        if cap_array[3] <= 0.0:
+                            raise ValueError("spectral-cover cap cosine must be positive")
+                        scaled = cap_array[:3] / cap_array[3]
+                    else:
+                        raise ValueError("invalid spectral-cover cap")
+                    scaled_caps.append(scaled)
+                coefficient_bound = float(np.max(np.abs(coefficients)))
+                cap_scale = max(float(np.linalg.norm(cap)) for cap in scaled_caps)
+                big_m = coefficient_bound * (1.0 + max(1.0, cap_scale))
+                big_m = float(np.nextafter(big_m, math.inf))
+                selectors = cp.Variable(len(signs) + len(scaled_caps), boolean=True)
+                self.common_contraction_selectors.append(selectors)
+                constraints.append(cp.sum(selectors) == 1.0)
+                for index, sign in enumerate(signs):
+                    inactive = big_m * (1.0 - selectors[index])
+                    signed_scalar = float(sign) * scalar
+                    constraints.extend(
+                        (
+                            cp.SOC(signed_scalar + inactive, input_bloch),
+                            flagged <= signed_scalar + inactive,
+                        )
+                    )
+                offset = len(signs)
+                for index, cap in enumerate(scaled_caps):
+                    inactive = big_m * (1.0 - selectors[offset + index])
+                    projection = cap @ input_bloch
+                    constraints.extend(
+                        (
+                            cp.SOC(projection + inactive, input_bloch),
+                            flagged <= projection + inactive,
+                        )
+                    )
+            else:
+                raise ValueError(f"unknown contraction branch {branch!r}")
         self.max_behavior_conditions = int(max_behavior_conditions)
         self.behavior_disjunctions = behavior_disjunctions
         self.disjunction_prior_bounds = disjunction_prior_bounds
@@ -780,7 +977,7 @@ class TernaryConeOracle:
                 center_chart,
             )
         try:
-            if self.behavior_disjunctions:
+            if self.behavior_disjunctions or self.common_contraction_selectors:
                 self.problem.solve(
                     solver="SCIP",
                     verbose=False,
@@ -830,6 +1027,17 @@ class TernaryConeOracle:
                     "projective_statistics": np.asarray(
                         self.projective_statistics.value
                     ).tolist(),
+                    "input_bloch_vectors": [
+                        np.asarray(vector.value).tolist()
+                        for vector in self.input_vectors
+                    ],
+                    "common_contraction_values": [
+                        float(value.value) for value in self.common_contraction_values
+                    ],
+                    "common_contraction_selectors": [
+                        np.asarray(selector.value).tolist()
+                        for selector in self.common_contraction_selectors
+                    ],
                 }
             )
             if self.conditional_behavior is not None:
