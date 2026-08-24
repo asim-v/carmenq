@@ -86,6 +86,11 @@ For fixed planar terminal POVMs, the common-instrument condition also reduces
 to one exact Ando numerical-radius inequality per outcome; the derivation and
 an explicit columnwise-positive but CP-incompatible family are in
 [`notes/planar_instrument_completion.md`](notes/planar_instrument_completion.md).
+The complementary harmonic-analysis route derives flagged Fourier
+contractions for one common instrument, turns their qubit trace norms into a
+finite conic cap cover, and records both the closed scalar spectral sector and
+the still-open fully vectorial sector in
+[`notes/common_instrument_fourier_contraction.md`](notes/common_instrument_fourier_contraction.md).
 
 ## Explore the order-sensitive theorem
 

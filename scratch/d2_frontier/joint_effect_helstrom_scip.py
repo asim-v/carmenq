@@ -167,9 +167,27 @@ def build(
     linked_columns: tuple[str, ...] | None,
     require_cp_completion: bool = False,
     ando_direction_count: int = 0,
+    fourier_trace_branches: tuple[str, str, str] | None = None,
+    prefix_prior_bounds: np.ndarray | None = None,
 ) -> tuple[Model, dict[str, object]]:
     if ando_direction_count < 0:
         raise ValueError("ando_direction_count must be nonnegative")
+    branch_choices = {"scalar-positive", "scalar-negative", "bloch"}
+    if fourier_trace_branches is not None and (
+        len(fourier_trace_branches) != 3
+        or any(choice not in branch_choices for choice in fourier_trace_branches)
+    ):
+        raise ValueError("Fourier trace branches must contain three valid cases")
+    if prefix_prior_bounds is not None:
+        prefix_prior_bounds = np.asarray(prefix_prior_bounds, dtype=float)
+        if prefix_prior_bounds.shape != (4, 2):
+            raise ValueError("prefix prior bounds must have shape (4,2)")
+        if np.any(prefix_prior_bounds[:, 0] < 0.0) or np.any(
+            prefix_prior_bounds[:, 1] > 1.0
+        ):
+            raise ValueError("prefix prior bounds must lie in [0,1]")
+        if np.any(prefix_prior_bounds[:, 0] > prefix_prior_bounds[:, 1]):
+            raise ValueError("prefix prior lower bounds exceed upper bounds")
     traces = np.trace(effects, axis1=1, axis2=2).real
     directions = np.zeros((4, 3), dtype=float)
     for s in OUTCOMES:
@@ -182,7 +200,10 @@ def build(
     state_scalar = []
     state_vector = []
     for z in OUTCOMES:
-        scalar = model.addVar(lb=0.0, ub=1.0, name=f"a_{z}")
+        lower, upper = (
+            (0.0, 1.0) if prefix_prior_bounds is None else tuple(prefix_prior_bounds[z])
+        )
+        scalar = model.addVar(lb=float(lower), ub=float(upper), name=f"a_{z}")
         vector = tuple(
             model.addVar(lb=-1.0, ub=1.0, name=f"r_{z}_{axis}") for axis in range(3)
         )
@@ -344,6 +365,7 @@ def build(
     statistics: dict[tuple[int, int, int], object] = {}
     probability: dict[tuple[int, int], object] = {}
     correct: dict[tuple[int, int], object] = {}
+    path_output_planar: dict[tuple[int, int, int], object] = {}
     for z, y in PATHS:
         p = model.addVar(lb=0.0, ub=1.0, name=f"p_{z}_{y}")
         model.addCons(
@@ -382,6 +404,8 @@ def build(
         )
         model.addCons(reconstructed_output[0] == p)
         add_lorentz(model, reconstructed_output[0], list(reconstructed_output[1:]))
+        for domain, item in enumerate(reconstructed_output):
+            path_output_planar[z, y, domain] = item
         s = z ^ y
         d = statistics[z, y, s] if s in active else 0.0
         probability[z, y] = p
@@ -509,7 +533,132 @@ def build(
             audit - syndrome[s],
             tuple(dual_vector[axis] - terminal_vector[s][axis] for axis in range(3)),
         )
+        if s in active:
+            # Strong duality plus optimality of the fixed rank-one effect
+            # P_s = w_s Pi_s exposes a one-dimensional Helstrom face:
+            # Y - tau_s = (audit - Tr(tau_s)) (I - Pi_s). These linear
+            # identities follow from the existing primal/dual constraints,
+            # but stating them explicitly removes a large artificial root
+            # relaxation before the bilinear terminal coordinates are fixed.
+            for axis in range(3):
+                model.addCons(
+                    terminal_vector[s][axis]
+                    == dual_vector[axis] + (audit - syndrome[s]) * directions[s, axis]
+                )
     model.addCons(audit <= quicksum(traces[s] * syndrome[s] for s in OUTCOMES))
+
+    # Fourier-energy common-channel cuts. For every nontrivial character of
+    # Z_2^2, convolution gives tau_hat(k) = Phi_hat(k)(rho_hat(k)). The signed
+    # instrument map is trace-norm contractive on Hermitian inputs, hence
+    # ||tau_hat(k)||_1 <= ||rho_hat(k)||_1. For a qubit Bloch matrix
+    # X=(x0 I+x.sigma)/2, ||X||_1^2=max(x0^2,||x||^2) <= x0^2+||x||^2.
+    # The variables below retain the exact terminal max and only relax the
+    # input side by this last, explicit factor-of-at-most-two inequality.
+    fourier_norm_square = []
+    fourier_input_energy = []
+    fourier_flagged_sum = []
+    for character in range(1, 4):
+        signs = tuple(
+            -1.0 if (character & label).bit_count() % 2 else 1.0 for label in OUTCOMES
+        )
+        terminal_scalar = quicksum(signs[s] * syndrome[s] for s in OUTCOMES)
+        terminal_bloch = tuple(
+            quicksum(signs[s] * terminal_vector[s][axis] for s in OUTCOMES)
+            for axis in range(3)
+        )
+        prefix_scalar = quicksum(signs[z] * state_scalar[z] for z in OUTCOMES)
+        prefix_bloch = tuple(
+            quicksum(signs[z] * state_vector[z][axis] for z in OUTCOMES)
+            for axis in range(3)
+        )
+        norm_square = model.addVar(
+            lb=0.0, ub=1.0, name=f"fourier_terminal_norm2_{character}"
+        )
+        input_energy = prefix_scalar * prefix_scalar + quicksum(
+            item * item for item in prefix_bloch
+        )
+        model.addCons(norm_square >= terminal_scalar * terminal_scalar)
+        model.addCons(norm_square >= quicksum(item * item for item in terminal_bloch))
+        model.addCons(norm_square <= input_energy)
+
+        # Do not allow cancellations between classical outcomes. The flagged
+        # CPTP channel obeys
+        #   sum_y ||Phi_y(rho_hat(k))||_1 <= ||rho_hat(k)||_1.
+        # Only planar output coordinates are observed, so their trace norms
+        # are certified lower bounds on the full output norms. The input
+        # trace norm is again relaxed by its Bloch Euclidean energy.
+        flagged_norms = []
+        for y in OUTCOMES:
+            output_scalar = quicksum(
+                signs[z] * path_output_planar[z, y, 0] for z in OUTCOMES
+            )
+            output_planar = tuple(
+                quicksum(signs[z] * path_output_planar[z, y, domain] for z in OUTCOMES)
+                for domain in (1, 2)
+            )
+            flagged_norm = model.addVar(
+                lb=0.0,
+                ub=1.0,
+                name=f"fourier_flagged_norm_{character}_{y}",
+            )
+            model.addCons(flagged_norm >= output_scalar)
+            model.addCons(flagged_norm >= -output_scalar)
+            add_lorentz(model, flagged_norm, [*output_planar, 0.0])
+            flagged_norms.append(flagged_norm)
+        flagged_sum = quicksum(flagged_norms)
+        fourier_flagged_sum.append(flagged_sum)
+        model.addCons(flagged_sum * flagged_sum <= input_energy)
+        if fourier_trace_branches is not None:
+            branch = fourier_trace_branches[character - 1]
+            prefix_bloch_square = quicksum(item * item for item in prefix_bloch)
+            if branch == "scalar-positive":
+                model.addCons(prefix_scalar >= 0.0)
+                model.addCons(prefix_bloch_square <= prefix_scalar * prefix_scalar)
+                model.addCons(flagged_sum <= prefix_scalar)
+            elif branch == "scalar-negative":
+                model.addCons(prefix_scalar <= 0.0)
+                model.addCons(prefix_bloch_square <= prefix_scalar * prefix_scalar)
+                model.addCons(flagged_sum <= -prefix_scalar)
+            else:
+                model.addCons(prefix_bloch_square >= prefix_scalar * prefix_scalar)
+                model.addCons(flagged_sum * flagged_sum <= prefix_bloch_square)
+        fourier_norm_square.append(norm_square)
+        fourier_input_energy.append(input_energy)
+
+    # Parseval states the total input energy in the original state
+    # coordinates. Keeping both forms helps propagation in spatial nodes.
+    total_input_bloch = tuple(
+        quicksum(state_vector[z][axis] for z in OUTCOMES) for axis in range(3)
+    )
+    parseval_energy = (
+        4.0
+        * quicksum(
+            state_scalar[z] * state_scalar[z]
+            + quicksum(item * item for item in state_vector[z])
+            for z in OUTCOMES
+        )
+        - 1.0
+        - quicksum(item * item for item in total_input_bloch)
+    )
+    model.addCons(quicksum(fourier_norm_square) <= parseval_energy)
+    if prefix_prior_bounds is not None and fourier_trace_branches == (
+        "bloch",
+        "bloch",
+        "bloch",
+    ):
+        prior_square_secant = quicksum(
+            float(prefix_prior_bounds[z, 0] + prefix_prior_bounds[z, 1])
+            * state_scalar[z]
+            - float(prefix_prior_bounds[z, 0] * prefix_prior_bounds[z, 1])
+            for z in OUTCOMES
+        )
+        model.addCons(
+            quicksum(item * item for item in fourier_flagged_sum)
+            <= 4.0 * prior_square_secant
+            - quicksum(item * item for item in total_input_bloch)
+        )
+    variables["fourier_terminal_norm_square"] = tuple(fourier_norm_square)
+    variables["fourier_input_energy"] = tuple(fourier_input_energy)
 
     flat = [probability[z, y] for z, y in PATHS]
     hellinger = []
@@ -852,6 +1001,12 @@ def main() -> None:
         help="finite pure-state cover of the exact numerical-radius inequality",
     )
     parser.add_argument(
+        "--fourier-trace-branches",
+        nargs=3,
+        choices=("scalar-positive", "scalar-negative", "bloch"),
+        help=("exact trace-norm cases for the three nontrivial Z2^2 Fourier modes"),
+    )
+    parser.add_argument(
         "--linked-column",
         action="append",
         default=[],
@@ -859,6 +1014,13 @@ def main() -> None:
             "link one b_J or d_y_t statistic to its Born product; "
             "when omitted, all twelve b_J columns are linked"
         ),
+    )
+    parser.add_argument(
+        "--prefix-prior-bounds",
+        type=float,
+        nargs=8,
+        metavar=("L0", "U0", "L1", "U1", "L2", "U2", "L3", "U3"),
+        help="optional four prior intervals used for spatial secant cuts",
     )
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
@@ -876,6 +1038,12 @@ def main() -> None:
         None if not args.linked_column else tuple(dict.fromkeys(args.linked_column)),
         args.require_cp_completion,
         args.ando_directions,
+        None
+        if args.fourier_trace_branches is None
+        else tuple(args.fourier_trace_branches),
+        None
+        if args.prefix_prior_bounds is None
+        else np.asarray(args.prefix_prior_bounds, dtype=float).reshape(4, 2),
     )
     if args.seed_npz is not None and args.common_instrument_seed_npz is not None:
         raise ValueError("choose only one seed format")
@@ -911,6 +1079,14 @@ def main() -> None:
         "rotation_gauge_fixed": not args.no_rotation_gauge,
         "cp_completion_required": args.require_cp_completion,
         "ando_directions": args.ando_directions,
+        "fourier_trace_branches": args.fourier_trace_branches,
+        "prefix_prior_bounds": (
+            None
+            if args.prefix_prior_bounds is None
+            else np.asarray(args.prefix_prior_bounds, dtype=float)
+            .reshape(4, 2)
+            .tolist()
+        ),
         "common_instrument_seed": (
             None
             if args.common_instrument_seed_npz is None

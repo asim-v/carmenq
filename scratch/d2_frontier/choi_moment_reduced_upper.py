@@ -173,6 +173,13 @@ def solve_povm(
     tensor_localizers: str = "none",
     gauge_fix: bool = False,
     return_linear_weights: np.ndarray | None = None,
+    fourier_trace_branches: tuple[str, str, str] | None = None,
+    fourier_bloch_caps: tuple[
+        tuple[float, float, float, float] | None,
+        tuple[float, float, float, float] | None,
+        tuple[float, float, float, float] | None,
+    ]
+    | None = None,
 ) -> dict[str, object]:
     traces = np.trace(effects, axis1=1, axis2=2).real
     active = tuple(int(s) for s in OUTCOMES if traces[s] > 1e-9)
@@ -468,6 +475,183 @@ def solve_povm(
         )
         constraints.append(cp.SOC(probabilities[z, y], output_vectors[z, y]))
 
+    # Exact finite-group data processing for the one common flagged channel.
+    # With G=Z_2^2 and a convolutional readout,
+    #
+    #   tau_s = sum_z Phi_{z xor s}(rho_z),
+    #
+    # every nontrivial Fourier component is the image of the corresponding
+    # input component under the same flagged CPTP map.  Hence
+    #
+    #   sum_y ||Phi_y(rho_hat_chi)||_1 <= ||rho_hat_chi||_1.
+    #
+    # For a Hermitian qubit operator the norm on the right is the maximum of
+    # the absolute scalar coefficient and the Bloch-vector length.  The three
+    # possible active pieces are covered by scalar-positive, scalar-negative,
+    # and bloch.  Scalar pieces are SOC representable.  For all Bloch pieces
+    # in a branch, Parseval and state positivity give the joint convex cut
+    #
+    #   sum_chi q_chi^2 + ||sum_z r_z||^2 <= 4 sum_z a_z^2,
+    #
+    # and each a_z^2 is majorised by its secant on the current prior cell.
+    fourier_flagged: list[cp.Expression] = []
+    if fourier_trace_branches is not None:
+        allowed_fourier_branches = {
+            "scalar-positive",
+            "scalar-negative",
+            "bloch",
+        }
+        if len(fourier_trace_branches) != 3 or any(
+            branch not in allowed_fourier_branches
+            for branch in fourier_trace_branches
+        ):
+            raise ValueError(
+                "fourier_trace_branches must contain three spectral branches"
+            )
+        if fourier_bloch_caps is None:
+            spectral_caps = (None, None, None)
+        else:
+            if len(fourier_bloch_caps) != 3:
+                raise ValueError("fourier_bloch_caps must contain three entries")
+            spectral_caps = fourier_bloch_caps
+        characters = np.asarray(
+            [
+                [1.0, 1.0, -1.0, -1.0],
+                [1.0, -1.0, 1.0, -1.0],
+                [1.0, -1.0, -1.0, 1.0],
+            ]
+        )
+        bloch_flagged: list[cp.Expression] = []
+        bloch_seen = 0
+        for character_index, (character, branch) in enumerate(
+            zip(characters, fourier_trace_branches)
+        ):
+            scalar_form = affine_sum(
+                [(character[z], state[z, 0]) for z in OUTCOMES]
+            )
+            scalar = value(scalar_form, first)
+            vector_forms = [
+                affine_sum(
+                    [(character[z], state[z, mu]) for z in OUTCOMES]
+                )
+                for mu in range(1, 4)
+            ]
+            vector = cp.hstack(
+                [value(vector_form, first) for vector_form in vector_forms]
+            )
+            scalar_square = product(scalar_form, scalar_form, first, second)
+            vector_square = sum(
+                product(vector_form, vector_form, first, second)
+                for vector_form in vector_forms
+            )
+            block_norms: list[cp.Variable] = []
+            for y in OUTCOMES:
+                output_scalar = sum(
+                    character[z] * probabilities[z, y] for z in OUTCOMES
+                )
+                output_vector = sum(
+                    character[z] * output_vectors[z, y] for z in OUTCOMES
+                )
+                block_norm = cp.Variable(nonneg=True)
+                constraints.extend(
+                    (
+                        block_norm >= output_scalar,
+                        block_norm >= -output_scalar,
+                        cp.SOC(block_norm, output_vector),
+                    )
+                )
+                block_norms.append(block_norm)
+            flagged = sum(block_norms)
+            fourier_flagged.append(flagged)
+            if branch == "scalar-positive":
+                constraints.extend(
+                    (
+                        cp.SOC(scalar, vector),
+                        flagged <= scalar,
+                        scalar_square >= vector_square,
+                    )
+                )
+            elif branch == "scalar-negative":
+                constraints.extend(
+                    (
+                        cp.SOC(-scalar, vector),
+                        flagged <= -scalar,
+                        scalar_square >= vector_square,
+                    )
+                )
+            else:
+                constraints.extend(
+                    (
+                        vector_square >= scalar_square,
+                        cp.square(flagged) <= vector_square,
+                    )
+                )
+                if bloch_seen == 0:
+                    # The input side has a free simultaneous SU(2) gauge:
+                    # rotate every prefix state and precompose the common
+                    # instrument with the inverse rotation.  Outputs and the
+                    # objective are unchanged.  Align the first vector-active
+                    # Fourier component with +z; its trace-norm contraction
+                    # is then the exact linear inequality below.
+                    constraints.extend(
+                        (
+                            vector[0] == 0.0,
+                            vector[1] == 0.0,
+                            vector[2] >= 0.0,
+                            flagged <= vector[2],
+                        )
+                    )
+                elif bloch_seen == 1:
+                    # The residual rotation around z can put the transverse
+                    # component of the second active vector on the +x axis.
+                    constraints.extend((vector[1] == 0.0, vector[0] >= 0.0))
+                cap = spectral_caps[character_index]
+                if cap is not None:
+                    cap_array = np.asarray(cap, dtype=float)
+                    if cap_array.shape != (4,):
+                        raise ValueError("a Fourier Bloch cap is (nx,ny,nz,cosine)")
+                    normal = cap_array[:3]
+                    cosine = float(cap_array[3])
+                    if (
+                        not np.all(np.isfinite(cap_array))
+                        or abs(float(np.linalg.norm(normal)) - 1.0) > 1e-9
+                        or not 0.0 < cosine <= 1.0
+                    ):
+                        raise ValueError("invalid Fourier Bloch cap")
+                    projection = normal @ vector
+                    # The cap condition is n.v >= cos(delta)||v||.  Inside
+                    # the cap, ||v|| <= n.v/cos(delta), yielding a linear
+                    # outer bound on the otherwise reverse-convex trace-norm
+                    # contraction.  A finite cap cover therefore gives a
+                    # finite family of rigorous conic outer problems.
+                    constraints.extend(
+                        (
+                            cp.SOC(projection / cosine, vector),
+                            flagged <= projection / cosine,
+                        )
+                    )
+                bloch_seen += 1
+                bloch_flagged.append(flagged)
+
+        if bloch_flagged:
+            total_input_vector = sum(
+                cp.hstack(
+                    [value(state[z, mu], first) for mu in range(1, 4)]
+                )
+                for z in OUTCOMES
+            )
+            prior_square_secants = sum(
+                (state_bounds[z, 0, 0] + state_bounds[z, 0, 1])
+                * value(state[z, 0], first)
+                - state_bounds[z, 0, 0] * state_bounds[z, 0, 1]
+                for z in OUTCOMES
+            )
+            constraints.append(
+                cp.sum_squares(cp.hstack(bloch_flagged))
+                + cp.sum_squares(total_input_vector)
+                <= 4.0 * prior_square_secants
+            )
+
     witness_expressions: list[cp.Expression] = []
     witness_uppers: list[float] = []
     for witness_cut in witness_cuts:
@@ -656,6 +840,22 @@ def solve_povm(
             )
         )
     constraints.append(audit == dual_trace)
+    # The active fixed effects are nonzero multiples of rank-one projectors.
+    # Equality of the primal and dual Helstrom objectives therefore exposes a
+    # one-dimensional face of every active dual slack.  Writing
+    # Pi_s=(I+n_s.sigma)/2 gives the exact affine identity
+    #
+    #   t_s = d + (Tr(Y)-b_s) n_s.
+    #
+    # This is stronger numerically than leaving complementary slackness
+    # implicit in a conic solver, while remaining logically redundant at
+    # every physical feasible point.
+    for s in active:
+        constraints.append(
+            terminal_vectors[s]
+            == dual_vector
+            + (dual_trace - syndrome_priors[s]) * directions[s]
+        )
 
     if return_linear_weights is None:
         returned = hellinger_hypograph(
@@ -812,6 +1012,21 @@ def solve_povm(
         "return_mode": return_mode,
         "return_linear_weights": (
             None if linear_return_weights is None else linear_return_weights.tolist()
+        ),
+        "fourier_trace_branches": (
+            None
+            if fourier_trace_branches is None
+            else list(fourier_trace_branches)
+        ),
+        "fourier_flagged_norms": (
+            None
+            if fourier_trace_branches is None
+            else [float(item.value) for item in fourier_flagged]
+        ),
+        "fourier_bloch_caps": (
+            None
+            if fourier_bloch_caps is None
+            else [None if cap is None else list(cap) for cap in fourier_bloch_caps]
         ),
         "state_coordinate_bounds": state_bounds.tolist(),
         "common_instrument_witness_cuts": witness_reports,

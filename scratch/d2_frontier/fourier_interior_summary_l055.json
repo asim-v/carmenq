@@ -1,0 +1,40 @@
+{
+  "scope": "fixed ternary terminal POVM, prefix order 0>=1>=2>=3, lambda=0.55",
+  "terminal_effect_weights": [0.92, 0.64, 0.44, 0.0],
+  "target": 0.758,
+  "status": "open",
+  "theorem": "flagged Fourier trace-norm contraction for one common instrument",
+  "initial_prior_box": [
+    [0.296875, 0.42596435546875],
+    [0.224609375, 0.34832000732421875],
+    [0.15234375, 0.258392333984375],
+    [0.1083984375, 0.201324462890625]
+  ],
+  "scalar_vector_vector_branch": {
+    "branch_code": "pbb",
+    "clarabel_bound": 0.7511524953708636,
+    "clarabel_status": "optimal_inaccurate",
+    "independent_scs_weaker_outer_bound": 0.7511621958585682,
+    "independent_scs_status": "optimal",
+    "closed_below_target": true
+  },
+  "fully_vectorial_behavior_cover": {
+    "branch_code": "bbb",
+    "plane_cells": 16,
+    "sphere_caps": 384,
+    "cell_count": 6144,
+    "plane_covering_cosine": 0.9951847266721969,
+    "sphere_covering_cosine": 0.984375,
+    "maximum_bound": 0.762937061350879,
+    "closed_below_target": false,
+    "reproducer": "fourier_behavior_cap_cover.py --plane-cells 16 --face-grid 8"
+  },
+  "diagnosed_missing_condition": {
+    "coefficient_direction": [0.0, 0.0, 1.0, -1.0],
+    "input_trace_norm": 0.2297683641833867,
+    "flagged_output_trace_norm": 0.3230418346704891,
+    "violation": 0.09327347048710238,
+    "interpretation": "the three group characters are necessary but not sufficient for one common instrument"
+  },
+  "epistemic_status": "solver-conditional conic diagnostics; no interval-verified upper certificate"
+}
