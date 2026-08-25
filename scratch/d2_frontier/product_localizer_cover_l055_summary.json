@@ -1,0 +1,390 @@
+{
+  "schema": "carmenq.common-instrument-product-localizer-cover-summary.v1",
+  "checkpoint": {
+    "filename": "ternary_exactdet_ando_matrixlocalizer_instrument_topcell_pilot100_l055.json",
+    "sha256": "cd28fc7166e8308c15cca4baee4f316889d777707f3161a0b18559d268fc06c7",
+    "bytes": 474562
+  },
+  "baseline": {
+    "filename": "ando_instrument_cover_l055_summary.json",
+    "sha256": "d7e2be661554aaf9666a8f80106ee471fc2daa0df0cbb5215a4241ddc1dfdebe",
+    "schema": "carmenq.ando-instrument-cover-summary.v1",
+    "checkpoint_sha256": "52f943c85c3ae6ed231a50befbe45f79f71861f783fa099452467de076211111"
+  },
+  "sandwich_only_checkpoint": {
+    "filename": "_ternary_exactdet_ando_sandwichonly_instrument_topcell_pilot100_l055.json",
+    "sha256": "5c5115e45b72efa5346a1ae4129aa24081965e5f2c6a8ac6a10c35a35fbcb444",
+    "bytes": 2382545
+  },
+  "runtime": {
+    "python": "3.10.5",
+    "numpy": "2.2.6",
+    "cvxpy": "1.7.5",
+    "installed_solvers": [
+      "CLARABEL",
+      "OSQP",
+      "SCIP",
+      "SCIPY",
+      "SCS"
+    ],
+    "recorded_wall_seconds": 87.26552419999643
+  },
+  "problem": {
+    "support_weight": 0.55,
+    "target": 0.758,
+    "base_code": "bbb",
+    "top_spectral_cell": true,
+    "scope": "one continuous terminal cell and the selected Fourier spectral cell; all input--Choi and input--POVM products use convergent McCormick envelopes; pure-prefix caps, determinant-scaled common-POVM cuts, and optional planar Ando cuts are valid on complete input and terminal boxes; coordinatewise POVM product sums and matrix-order Choi product localizers are added exactly when enabled; numerical SDP bounds remain solver-conditional"
+  },
+  "configuration": {
+    "bound_safety": 2e-06,
+    "minimum_width": 1e-06,
+    "max_witnesses": 24,
+    "max_new_witnesses_per_node": 4,
+    "witness_tolerance": 2e-09,
+    "planar_ando_witnesses": true,
+    "common_povm_product_sum_rules": false,
+    "common_instrument_product_trace_rules": true,
+    "common_instrument_product_psd_sandwiches": true,
+    "max_nodes": 100
+  },
+  "run": {
+    "solved_nodes": 49,
+    "closed_nodes": 25,
+    "split_nodes": 24,
+    "pending_nodes": 0,
+    "unresolved_nodes": 0,
+    "maximum_depth": 6,
+    "maximum_closed_bound": 0.7579083037237451,
+    "cover_upper_bound": 0.7579083037237451,
+    "statuses_complete": true,
+    "complete": true
+  },
+  "accounting_audit": {
+    "identifiers_unique": true,
+    "root_identifier": 0,
+    "all_parent_child_links_valid": true,
+    "binary_tree_identity_valid": true,
+    "dispositions": {
+      "closed": 25,
+      "split": 24
+    },
+    "statuses": {
+      "optimal": 34,
+      "optimal_inaccurate": 15
+    },
+    "branching_rules": {
+      "none": 25,
+      "product-residual": 24
+    },
+    "recomputed_maximum_closed_bound": 0.7579083037237451,
+    "recomputed_maximum_closed_bound_class": "finite",
+    "recomputed_cover_upper_bound": 0.7579083037237451
+  },
+  "sandwich_only_ablation": {
+    "run": {
+      "solved_nodes": 100,
+      "closed_nodes": 3,
+      "split_nodes": 97,
+      "pending_nodes": 95,
+      "unresolved_nodes": 0,
+      "maximum_pending_bound": 0.7631986663448878,
+      "cover_upper_bound": 0.7631986663448878,
+      "runtime_seconds": 138.27100860000064,
+      "complete": false
+    },
+    "accounting_audit": {
+      "identifiers_unique": true,
+      "root_identifier": 0,
+      "all_parent_child_links_valid": true,
+      "binary_tree_identity_valid": true,
+      "dispositions": {
+        "closed": 3,
+        "split": 97
+      },
+      "statuses": {
+        "infeasible": 3,
+        "optimal": 95,
+        "optimal_inaccurate": 2
+      },
+      "branching_rules": {
+        "none": 3,
+        "product-residual": 97
+      },
+      "recomputed_maximum_closed_bound": null,
+      "recomputed_maximum_closed_bound_class": "negative-infinity",
+      "recomputed_cover_upper_bound": 0.7631986663448878
+    }
+  },
+  "finite_closed_leaves": [
+    {
+      "identifier": 25,
+      "parent": 14,
+      "depth": 4,
+      "status": "optimal",
+      "bound": 0.7579083037237451,
+      "raw_value": 0.7579063037237451,
+      "maximum_coordinate_width": 0.16686057399138396,
+      "parent_bound": 0.7607452586036262
+    },
+    {
+      "identifier": 17,
+      "parent": 10,
+      "depth": 4,
+      "status": "optimal",
+      "bound": 0.7576247278627245,
+      "raw_value": 0.7576227278627246,
+      "maximum_coordinate_width": 0.16686057399138396,
+      "parent_bound": 0.7606164675125913
+    },
+    {
+      "identifier": 35,
+      "parent": 23,
+      "depth": 5,
+      "status": "optimal",
+      "bound": 0.7573694193554789,
+      "raw_value": 0.7573674193554789,
+      "maximum_coordinate_width": 0.16686057399138396,
+      "parent_bound": 0.7593655132181253
+    },
+    {
+      "identifier": 32,
+      "parent": 11,
+      "depth": 4,
+      "status": "optimal_inaccurate",
+      "bound": 0.757316263184527,
+      "raw_value": 0.7573142631845271,
+      "maximum_coordinate_width": 0.16622050025897647,
+      "parent_bound": 0.7604070909329604
+    },
+    {
+      "identifier": 40,
+      "parent": 15,
+      "depth": 5,
+      "status": "optimal_inaccurate",
+      "bound": 0.7571670754201535,
+      "raw_value": 0.7571650754201535,
+      "maximum_coordinate_width": 0.16686057399138396,
+      "parent_bound": 0.75953205459204
+    },
+    {
+      "identifier": 22,
+      "parent": 8,
+      "depth": 4,
+      "status": "optimal_inaccurate",
+      "bound": 0.7571229617218703,
+      "raw_value": 0.7571209617218704,
+      "maximum_coordinate_width": 0.15334955139913303,
+      "parent_bound": 0.7613828906101126
+    },
+    {
+      "identifier": 42,
+      "parent": 21,
+      "depth": 5,
+      "status": "optimal_inaccurate",
+      "bound": 0.7569554276980052,
+      "raw_value": 0.7569534276980052,
+      "maximum_coordinate_width": 0.15310483238778314,
+      "parent_bound": 0.7588959324140064
+    },
+    {
+      "identifier": 29,
+      "parent": 20,
+      "depth": 5,
+      "status": "optimal",
+      "bound": 0.7568939758164365,
+      "raw_value": 0.7568919758164365,
+      "maximum_coordinate_width": 0.15310483238778314,
+      "parent_bound": 0.7594578682417196
+    },
+    {
+      "identifier": 18,
+      "parent": 10,
+      "depth": 4,
+      "status": "optimal_inaccurate",
+      "bound": 0.75675235920372,
+      "raw_value": 0.75675035920372,
+      "maximum_coordinate_width": 0.16686057399138396,
+      "parent_bound": 0.7606164675125913
+    },
+    {
+      "identifier": 47,
+      "parent": 27,
+      "depth": 6,
+      "status": "optimal",
+      "bound": 0.7563782677062382,
+      "raw_value": 0.7563762677062382,
+      "maximum_coordinate_width": 0.1297167787366079,
+      "parent_bound": 0.758309822789735
+    },
+    {
+      "identifier": 34,
+      "parent": 12,
+      "depth": 4,
+      "status": "optimal",
+      "bound": 0.7563777514509691,
+      "raw_value": 0.7563757514509691,
+      "maximum_coordinate_width": 0.15334955139913303,
+      "parent_bound": 0.7594036788981714
+    },
+    {
+      "identifier": 39,
+      "parent": 15,
+      "depth": 5,
+      "status": "optimal",
+      "bound": 0.7563685007348636,
+      "raw_value": 0.7563665007348637,
+      "maximum_coordinate_width": 0.16686057399138396,
+      "parent_bound": 0.75953205459204
+    },
+    {
+      "identifier": 33,
+      "parent": 12,
+      "depth": 4,
+      "status": "optimal",
+      "bound": 0.756258659354145,
+      "raw_value": 0.7562566593541451,
+      "maximum_coordinate_width": 0.15334955139913303,
+      "parent_bound": 0.7594036788981714
+    },
+    {
+      "identifier": 36,
+      "parent": 23,
+      "depth": 5,
+      "status": "optimal",
+      "bound": 0.7561423238340617,
+      "raw_value": 0.7561403238340617,
+      "maximum_coordinate_width": 0.16686057399138396,
+      "parent_bound": 0.7593655132181253
+    },
+    {
+      "identifier": 38,
+      "parent": 24,
+      "depth": 5,
+      "status": "optimal",
+      "bound": 0.7560141910481457,
+      "raw_value": 0.7560121910481458,
+      "maximum_coordinate_width": 0.16686057399138396,
+      "parent_bound": 0.7582058498937142
+    },
+    {
+      "identifier": 45,
+      "parent": 31,
+      "depth": 5,
+      "status": "optimal_inaccurate",
+      "bound": 0.7558373856701709,
+      "raw_value": 0.755835385670171,
+      "maximum_coordinate_width": 0.15310483238778314,
+      "parent_bound": 0.7582139153943525
+    },
+    {
+      "identifier": 41,
+      "parent": 21,
+      "depth": 5,
+      "status": "optimal",
+      "bound": 0.7556730812081275,
+      "raw_value": 0.7556710812081275,
+      "maximum_coordinate_width": 0.15310483238778314,
+      "parent_bound": 0.7588959324140064
+    },
+    {
+      "identifier": 44,
+      "parent": 26,
+      "depth": 5,
+      "status": "optimal",
+      "bound": 0.7556620996189783,
+      "raw_value": 0.7556600996189784,
+      "maximum_coordinate_width": 0.15310483238778314,
+      "parent_bound": 0.7582505345668986
+    },
+    {
+      "identifier": 16,
+      "parent": 9,
+      "depth": 4,
+      "status": "optimal",
+      "bound": 0.7556369462997626,
+      "raw_value": 0.7556349462997627,
+      "maximum_coordinate_width": 0.16686057399138396,
+      "parent_bound": 0.7614976214015544
+    },
+    {
+      "identifier": 37,
+      "parent": 24,
+      "depth": 5,
+      "status": "optimal_inaccurate",
+      "bound": 0.7554734475288235,
+      "raw_value": 0.7554714475288236,
+      "maximum_coordinate_width": 0.16686057399138396,
+      "parent_bound": 0.7582058498937142
+    },
+    {
+      "identifier": 30,
+      "parent": 20,
+      "depth": 5,
+      "status": "optimal",
+      "bound": 0.755431702636736,
+      "raw_value": 0.755429702636736,
+      "maximum_coordinate_width": 0.15310483238778314,
+      "parent_bound": 0.7594578682417196
+    },
+    {
+      "identifier": 43,
+      "parent": 26,
+      "depth": 5,
+      "status": "optimal_inaccurate",
+      "bound": 0.7553736114268997,
+      "raw_value": 0.7553716114268998,
+      "maximum_coordinate_width": 0.15310483238778314,
+      "parent_bound": 0.7582505345668986
+    },
+    {
+      "identifier": 48,
+      "parent": 27,
+      "depth": 6,
+      "status": "optimal",
+      "bound": 0.7552117851778063,
+      "raw_value": 0.7552097851778063,
+      "maximum_coordinate_width": 0.1297167787366079,
+      "parent_bound": 0.758309822789735
+    },
+    {
+      "identifier": 28,
+      "parent": 19,
+      "depth": 5,
+      "status": "optimal",
+      "bound": 0.7543195105846162,
+      "raw_value": 0.7543175105846163,
+      "maximum_coordinate_width": 0.15310483238778314,
+      "parent_bound": 0.7600940919346179
+    },
+    {
+      "identifier": 46,
+      "parent": 31,
+      "depth": 5,
+      "status": "optimal_inaccurate",
+      "bound": 0.75420293517548,
+      "raw_value": 0.75420093517548,
+      "maximum_coordinate_width": 0.15310483238778314,
+      "parent_bound": 0.7582139153943525
+    }
+  ],
+  "comparison": {
+    "ando_reference_nodes": 1000,
+    "ando_maximum_pending_bound": 0.7633726473409502,
+    "sandwich_only_nodes": 100,
+    "sandwich_only_maximum_pending_bound": 0.7631986663448878,
+    "sandwich_only_target_gap": 0.005198666344887748,
+    "sandwich_only_complete": false,
+    "localizer_nodes": 49,
+    "localizer_cover_upper_bound": 0.7579083037237451,
+    "absolute_bound_improvement": 0.0054643436172051585,
+    "target_margin": 9.169627625493781e-05,
+    "node_reduction_factor": 20.408163265306122
+  },
+  "conclusion": {
+    "target_closed": true,
+    "logical_status": "the selected continuous-terminal/Fourier cell is covered below target by the recorded solver-conditional SDP tree",
+    "global_claim": false,
+    "remaining_scope": "extend the same sound localizers across every terminal and spectral cell required by the global frontier partition"
+  }
+}

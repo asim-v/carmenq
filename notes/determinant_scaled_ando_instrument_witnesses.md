@@ -255,6 +255,13 @@ Ando criterion is exact; therefore adding more scalar planar positivity
 conditions without shrinking or strengthening those product envelopes is not
 the right next move.
 
+That diagnosis was subsequently confirmed.  Matrix-order conic-RLT
+localizers for the scalar--Choi products, combined with the exact lifted
+partial-trace identity of one common instrument, close this selected region in
+49 nodes at `0.7579083037237451`.  The result and its sandwich-only control are
+documented in `common_instrument_product_localizers.md`; the scope remains
+localized rather than global.
+
 ## 9. Reproduction
 
 From `scratch/d2_frontier`:

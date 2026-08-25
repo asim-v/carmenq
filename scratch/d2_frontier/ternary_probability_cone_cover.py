@@ -295,6 +295,7 @@ class TernaryConeOracle:
         common_povm_input_radii: object | None = None,
         common_povm_trace_radii: object | None = None,
         common_povm_bilinear: bool = False,
+        common_povm_product_sum_rules: bool = False,
         input_pauli_lower: object | None = None,
         input_pauli_upper: object | None = None,
         input_purity_caps: object | None = None,
@@ -304,6 +305,8 @@ class TernaryConeOracle:
         common_instrument_row_radii: object | None = None,
         common_instrument_terminal_effect_anchor: object | None = None,
         common_instrument_terminal_effect_errors: object | None = None,
+        common_instrument_product_trace_rules: bool = False,
+        common_instrument_product_psd_sandwiches: bool = False,
         max_common_instrument_witnesses: int = 0,
     ) -> None:
         self.pairs = pairs
@@ -629,6 +632,17 @@ class TernaryConeOracle:
             bilinear_coefficients = choi_probability_basis_coefficients(
                 bilinear_effects
             )
+        if common_povm_product_sum_rules and not common_povm_bilinear:
+            raise ValueError(
+                "common-POVM product sum rules require the bilinear model"
+            )
+        if (
+            common_instrument_product_trace_rules
+            or common_instrument_product_psd_sandwiches
+        ) and bilinear_coefficients is None:
+            raise ValueError(
+                "common-instrument product localizers require the bilinear model"
+            )
         if (input_pauli_lower is None) != (input_pauli_upper is None):
             raise ValueError("both input Pauli bounds must be supplied together")
         pauli_lower: object | None = None
@@ -802,6 +816,26 @@ class TernaryConeOracle:
                             constraints.append(
                                 self.statistics[z, y, t] == cp.sum(product)
                             )
+                if common_povm_product_sum_rules:
+                    # Exact products satisfy
+                    #   sum_(y,t) r_(z,mu) F_(y,t,mu)
+                    #     = r_(z,mu) delta_(mu,0)
+                    # because the effective POVM sums to (1,0,0,0).  These
+                    # coordinatewise RLT identities are stronger than the
+                    # single normalization obtained after summing over mu.
+                    for z in OUTCOMES:
+                        for mu in range(4):
+                            constraints.append(
+                                sum(
+                                    self.common_povm_products[z][index][mu]
+                                    for index in range(12)
+                                )
+                                == (
+                                    self.input_pauli[z, mu]
+                                    if mu == 0
+                                    else 0.0
+                                )
+                            )
         self.common_instrument_choi: list[tuple[cp.Variable, cp.Variable]] = []
         self.common_instrument_anchor_statistics: list[list[list[cp.Expression]]] = []
         self.common_instrument_products: list[
@@ -956,6 +990,75 @@ class TernaryConeOracle:
                                         - lower * part_upper,
                                     )
                                 )
+                            if common_instrument_product_psd_sandwiches:
+                                # If P=xJ exactly with J positive semidefinite
+                                # and x in [lower,upper], then both P-lower*J
+                                # and upper*J-P are positive semidefinite.  The
+                                # realified LMIs retain this matrix order,
+                                # which entrywise McCormick envelopes discard.
+                                lower_real = product_real - lower * choi_real
+                                lower_imaginary = (
+                                    product_imaginary - lower * choi_imaginary
+                                )
+                                upper_real = upper * choi_real - product_real
+                                upper_imaginary = (
+                                    upper * choi_imaginary - product_imaginary
+                                )
+                                constraints.extend(
+                                    (
+                                        cp.bmat(
+                                            [
+                                                [lower_real, -lower_imaginary],
+                                                [lower_imaginary, lower_real],
+                                            ]
+                                        )
+                                        >> 0,
+                                        cp.bmat(
+                                            [
+                                                [upper_real, -upper_imaginary],
+                                                [upper_imaginary, upper_real],
+                                            ]
+                                        )
+                                        >> 0,
+                                    )
+                                )
+                        if common_instrument_product_trace_rules:
+                            # Trace preservation couples all outcome products
+                            # to the same scalar input coordinate:
+                            #   Tr_out sum_y P_(z,mu,y) = r_(z,mu) I.
+                            # This exact linear identity is absent from
+                            # independent entrywise product envelopes.
+                            for i in range(2):
+                                for j in range(2):
+                                    partial_trace_real = sum(
+                                        self.common_instrument_products[z][mu][y][0][
+                                            2 * i, 2 * j
+                                        ]
+                                        + self.common_instrument_products[z][mu][y][0][
+                                            2 * i + 1, 2 * j + 1
+                                        ]
+                                        for y in OUTCOMES
+                                    )
+                                    partial_trace_imaginary = sum(
+                                        self.common_instrument_products[z][mu][y][1][
+                                            2 * i, 2 * j
+                                        ]
+                                        + self.common_instrument_products[z][mu][y][1][
+                                            2 * i + 1, 2 * j + 1
+                                        ]
+                                        for y in OUTCOMES
+                                    )
+                                    constraints.extend(
+                                        (
+                                            partial_trace_real
+                                            == (
+                                                input_coordinate
+                                                if i == j
+                                                else 0.0
+                                            ),
+                                            partial_trace_imaginary == 0.0,
+                                        )
+                                    )
                 anchor_statistics = cp.Variable((4, 4, 3), nonneg=True)
                 self.common_instrument_anchor_statistics = [
                     [

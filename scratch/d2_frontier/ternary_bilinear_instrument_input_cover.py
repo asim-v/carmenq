@@ -43,6 +43,7 @@ import itertools
 import json
 import math
 from pathlib import Path
+import time
 from typing import Any
 
 import cvxpy as cp
@@ -880,6 +881,10 @@ def _assemble(
     max_new_witnesses_per_node: int,
     witness_tolerance: float,
     use_ando_witnesses: bool,
+    use_povm_product_sum_rules: bool,
+    use_instrument_product_trace_rules: bool,
+    use_instrument_product_psd_sandwiches: bool,
+    runtime_seconds: float,
 ) -> dict[str, Any]:
     pending = [item[2] for item in sorted(pending_heap)]
     closed = sum(record.get("disposition") == "closed" for record in records)
@@ -888,6 +893,15 @@ def _assemble(
         (float(node["parent_bound"]) for node in pending),
         default=-math.inf,
     )
+    maximum_closed_bound = max(
+        (
+            float(record["bound"])
+            for record in records
+            if record.get("disposition") == "closed"
+        ),
+        default=-math.inf,
+    )
+    cover_upper_bound = max(frontier_bound, maximum_closed_bound)
     statuses_complete = all(
         record.get("status")
         in {
@@ -919,6 +933,13 @@ def _assemble(
         "max_new_witnesses_per_node": int(max_new_witnesses_per_node),
         "witness_tolerance": float(witness_tolerance),
         "planar_ando_witnesses": bool(use_ando_witnesses),
+        "common_povm_product_sum_rules": bool(use_povm_product_sum_rules),
+        "common_instrument_product_trace_rules": bool(
+            use_instrument_product_trace_rules
+        ),
+        "common_instrument_product_psd_sandwiches": bool(
+            use_instrument_product_psd_sandwiches
+        ),
         "determinant_bounds_method": "exhaustive-multiaffine-vertices",
         "determinant_near_relative_gap": DETERMINANT_NEAR_RELATIVE_GAP,
         "ando_near_relative_gap": ANDO_NEAR_RELATIVE_GAP,
@@ -938,6 +959,9 @@ def _assemble(
             sum(int(record.get("new_ando_witnesses", 0)) for record in records)
         ),
         "maximum_pending_bound": float(frontier_bound),
+        "maximum_closed_bound": float(maximum_closed_bound),
+        "cover_upper_bound": float(cover_upper_bound),
+        "runtime_seconds": float(runtime_seconds),
         "statuses_complete": bool(statuses_complete),
         "complete": bool(complete),
         "next_identifier": int(next_identifier),
@@ -950,8 +974,9 @@ def _assemble(
             "cell; all input--Choi and input--POVM products use convergent "
             "McCormick envelopes; pure-prefix caps, determinant-scaled "
             "common-POVM cuts, and optional planar Ando cuts are valid on "
-            "complete input and terminal boxes; numerical SDP bounds remain "
-            "solver-conditional"
+            "complete input and terminal boxes; coordinatewise POVM product "
+            "sums and matrix-order Choi product localizers are added exactly "
+            "when enabled; numerical SDP bounds remain solver-conditional"
         ),
     }
 
@@ -969,10 +994,36 @@ def cover_candidate_region(
     max_new_witnesses_per_node: int,
     witness_tolerance: float,
     use_ando_witnesses: bool,
+    use_povm_product_sum_rules: bool,
+    use_instrument_product_trace_rules: bool,
+    use_instrument_product_psd_sandwiches: bool,
     resume: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Cover one localised input region with spatial instrument cells."""
 
+    started = time.perf_counter()
+    prior_runtime = float(resume.get("runtime_seconds", 0.0)) if resume else 0.0
+    if resume is not None:
+        expected_modes = {
+            "planar_ando_witnesses": use_ando_witnesses,
+            "common_povm_product_sum_rules": use_povm_product_sum_rules,
+            "common_instrument_product_trace_rules": (
+                use_instrument_product_trace_rules
+            ),
+            "common_instrument_product_psd_sandwiches": (
+                use_instrument_product_psd_sandwiches
+            ),
+        }
+        mismatches = [
+            key
+            for key, expected in expected_modes.items()
+            if bool(resume.get(key, False)) != bool(expected)
+        ]
+        if mismatches:
+            raise ValueError(
+                "resume flags do not match checkpoint modes: "
+                + ", ".join(mismatches)
+            )
     box, contractions, reconstruction = _configuration(source, use_top_spectral_cell)
     terminal_effects, terminal_errors, _, terminal_audit = (
         terminal_effect_anchor_and_errors(box["terminal_alpha"], box["terminal_beta"])
@@ -989,8 +1040,13 @@ def cover_candidate_region(
         input_pauli_upper=upper_parameter,
         input_purity_caps=purity_caps,
         common_povm_bilinear=True,
+        common_povm_product_sum_rules=use_povm_product_sum_rules,
         common_instrument_terminal_effect_anchor=terminal_effects,
         common_instrument_terminal_effect_errors=terminal_errors,
+        common_instrument_product_trace_rules=use_instrument_product_trace_rules,
+        common_instrument_product_psd_sandwiches=(
+            use_instrument_product_psd_sandwiches
+        ),
         max_common_instrument_witnesses=max_witnesses,
     )
 
@@ -1343,6 +1399,10 @@ def cover_candidate_region(
                     max_new_witnesses_per_node,
                     witness_tolerance,
                     use_ando_witnesses,
+                    use_povm_product_sum_rules,
+                    use_instrument_product_trace_rules,
+                    use_instrument_product_psd_sandwiches,
+                    prior_runtime + time.perf_counter() - started,
                 ),
             )
 
@@ -1363,6 +1423,10 @@ def cover_candidate_region(
         max_new_witnesses_per_node,
         witness_tolerance,
         use_ando_witnesses,
+        use_povm_product_sum_rules,
+        use_instrument_product_trace_rules,
+        use_instrument_product_psd_sandwiches,
+        prior_runtime + time.perf_counter() - started,
     )
     _write_checkpoint(output, payload)
     return payload
@@ -1383,6 +1447,11 @@ def main() -> None:
     parser.add_argument("--max-new-witnesses-per-node", type=int, default=4)
     parser.add_argument("--witness-tolerance", type=float, default=2e-9)
     parser.add_argument("--planar-ando-witnesses", action="store_true")
+    parser.add_argument("--common-povm-product-sum-rules", action="store_true")
+    parser.add_argument("--common-instrument-product-trace-rules", action="store_true")
+    parser.add_argument(
+        "--common-instrument-product-psd-sandwiches", action="store_true"
+    )
     parser.add_argument("--top-spectral-cell", action="store_true")
     args = parser.parse_args()
 
@@ -1411,6 +1480,9 @@ def main() -> None:
         args.max_new_witnesses_per_node,
         args.witness_tolerance,
         args.planar_ando_witnesses,
+        args.common_povm_product_sum_rules,
+        args.common_instrument_product_trace_rules,
+        args.common_instrument_product_psd_sandwiches,
         resume,
     )
     print(
@@ -1424,6 +1496,9 @@ def main() -> None:
                     "pending_nodes",
                     "unresolved_nodes",
                     "maximum_pending_bound",
+                    "maximum_closed_bound",
+                    "cover_upper_bound",
+                    "runtime_seconds",
                     "statuses_complete",
                     "complete",
                 )

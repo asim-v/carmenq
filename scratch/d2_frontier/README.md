@@ -65,7 +65,12 @@ The curated search chain is:
   input box, with inherited fixed-input separating witnesses;
 - `ternary_bilinear_instrument_input_cover.py`: convergent input--Choi and
   input--POVM McCormick model with pure-prefix caps, exact multi-affine
-  determinant signs, robust Cramer witnesses, and optional planar Ando cuts;
+  determinant signs, robust Cramer witnesses, optional planar Ando cuts, and
+  optional common-instrument conic-RLT product localizers;
+- `product_localizer_ablation.py`: identical-cell ablation of scalar product
+  sums, Choi product traces, and matrix-order product sandwiches;
+- `summarize_product_localizer_cover.py`: strict-JSON validation of the
+  target-closing localizer tree and its sandwich-only control;
 - `summarize_determinant_povm_cover.py`: validates a large checkpoint's tree
   accounting and emits the compact committed determinant-witness audit;
 - `summarize_ando_instrument_cover.py`: validates the common-instrument
@@ -151,6 +156,34 @@ python summarize_ando_instrument_cover.py \
   ternary_exactdet_ando_guided_instrument_topcell_pilot100_l055.json \
   --baseline-summary determinant_povm_cover_l055_summary.json \
   --output ando_instrument_cover_l055_summary.json
+
+python product_localizer_ablation.py \
+  --frontier-json ternary_reconstructed_depth4_g2_top_leaf_bbb_p1_s92_l055.json \
+  --checkpoint ternary_exactdet_ando_guided_instrument_topcell_pilot100_l055.json \
+  --limit 20 --output product_localizer_ablation_top20_l055.json
+
+python ternary_bilinear_instrument_input_cover.py \
+  --frontier-json ternary_reconstructed_depth4_g2_top_leaf_bbb_p1_s92_l055.json \
+  --localisation-json ternary_exactdet_hybrid_instrument_topcell_pilot_l055.json \
+  --output _ternary_exactdet_ando_sandwichonly_instrument_topcell_pilot100_l055.json \
+  --top-spectral-cell --planar-ando-witnesses \
+  --common-instrument-product-psd-sandwiches \
+  --max-nodes 100 --checkpoint-every 10
+
+python ternary_bilinear_instrument_input_cover.py \
+  --frontier-json ternary_reconstructed_depth4_g2_top_leaf_bbb_p1_s92_l055.json \
+  --localisation-json ternary_exactdet_hybrid_instrument_topcell_pilot_l055.json \
+  --output ternary_exactdet_ando_matrixlocalizer_instrument_topcell_pilot100_l055.json \
+  --top-spectral-cell --planar-ando-witnesses \
+  --common-instrument-product-trace-rules \
+  --common-instrument-product-psd-sandwiches \
+  --max-nodes 100 --checkpoint-every 10
+
+python summarize_product_localizer_cover.py \
+  ternary_exactdet_ando_matrixlocalizer_instrument_topcell_pilot100_l055.json \
+  --baseline-summary ando_instrument_cover_l055_summary.json \
+  --sandwich-checkpoint _ternary_exactdet_ando_sandwichonly_instrument_topcell_pilot100_l055.json \
+  --output product_localizer_cover_l055_summary.json
 ```
 
 The committed JSON files record representative double-precision runs. Binary
@@ -183,3 +216,15 @@ run generates eight such cuts and lowers the maximum pending bound from
 does not close target `0.758` and the strengthened tree closes fewer nodes.
 The compact audit is `ando_instrument_cover_l055_summary.json`; see
 `../../notes/determinant_scaled_ando_instrument_witnesses.md`.
+
+The common-instrument product localizers resolve that selected localized cell.
+The matrix inequalities retain the Choi order of each lifted scalar--matrix
+product, while exact partial-trace identities couple all outcome products to
+one trace-preserving instrument.  A 20-cell ablation finds no material gain
+from the trace rule alone, mean improvement `0.0132790` from the PSD sandwich,
+and mean improvement `0.0265894` when both are imposed.  The sandwich-only
+100-node control remains open at `0.7631986663448878`; the combined tree closes
+in 49 nodes with solver-conditional cover upper bound `0.7579083037237451`,
+below target `0.758`.  This is not a global frontier certificate.  See
+`../../notes/common_instrument_product_localizers.md` and the strict compact
+audit `product_localizer_cover_l055_summary.json`.

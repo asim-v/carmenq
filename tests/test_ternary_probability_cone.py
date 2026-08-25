@@ -374,6 +374,82 @@ def test_common_instrument_tube_builds_one_realified_shared_choi_family() -> Non
     assert not oracle.problem.is_mixed_integer()
 
 
+def test_common_product_localizers_hold_for_exact_physical_products() -> None:
+    rng = np.random.default_rng(224745)
+    raw_kraus = [
+        rng.normal(size=(2, 2)) + 1j * rng.normal(size=(2, 2)) for _ in range(4)
+    ]
+    normalizer = sum(item.conj().T @ item for item in raw_kraus)
+    eigenvalues, eigenvectors = np.linalg.eigh(normalizer)
+    inverse_root = (eigenvectors / np.sqrt(eigenvalues)) @ eigenvectors.conj().T
+    choi = [choi_from_kraus([item @ inverse_root]) for item in raw_kraus]
+
+    lower, coordinate, upper = -0.17, 0.06, 0.21
+    products = [coordinate * matrix for matrix in choi]
+    for matrix, product in zip(choi, products, strict=True):
+        for residual in (
+            product - lower * matrix,
+            upper * matrix - product,
+        ):
+            realification = np.block(
+                [[residual.real, -residual.imag], [residual.imag, residual.real]]
+            )
+            assert np.linalg.eigvalsh(realification).min() >= -2e-14
+
+    partial_trace = np.empty((2, 2), dtype=complex)
+    for i in range(2):
+        for j in range(2):
+            partial_trace[i, j] = sum(
+                product[2 * i, 2 * j] + product[2 * i + 1, 2 * j + 1]
+                for product in products
+            )
+    np.testing.assert_allclose(
+        partial_trace,
+        coordinate * np.eye(2),
+        atol=3e-15,
+    )
+
+
+def test_bilinear_oracle_builds_dpp_common_product_localizers() -> None:
+    center = np.asarray(
+        [
+            [0.30, 0.06, 0.01, -0.02],
+            [0.27, -0.03, 0.05, 0.01],
+            [0.23, 0.02, -0.04, 0.03],
+            [0.20, -0.01, -0.02, -0.04],
+        ]
+    )
+    lower = center - 0.01
+    upper = center + 0.01
+    terminal, errors, _, _ = terminal_effect_anchor_and_errors(
+        (1.74, 1.76),
+        (1.15, 1.17),
+    )
+    common = dict(
+        support_weight=0.55,
+        prefix_order=(0, 1, 2, 3),
+        pairs=(),
+        coordinate_cases=(),
+        maximum_weight_floor=0.79,
+        projective_support_upper=0.7573,
+        input_pauli_lower=lower,
+        input_pauli_upper=upper,
+        common_povm_bilinear=True,
+        common_instrument_terminal_effect_anchor=terminal,
+        common_instrument_terminal_effect_errors=errors,
+    )
+    baseline = TernaryConeOracle(**common)
+    strengthened = TernaryConeOracle(
+        **common,
+        common_povm_product_sum_rules=True,
+        common_instrument_product_trace_rules=True,
+        common_instrument_product_psd_sandwiches=True,
+    )
+    assert strengthened.problem.is_dpp()
+    assert not strengthened.problem.is_mixed_integer()
+    assert len(strengthened.problem.constraints) >= len(baseline.problem.constraints) + 250
+
+
 def test_measured_instrument_projection_accepts_a_physical_table() -> None:
     rng = np.random.default_rng(264575)
     inputs = np.asarray(

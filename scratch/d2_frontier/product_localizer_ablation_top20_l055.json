@@ -1,0 +1,1438 @@
+{
+  "schema": "carmenq.product-localizer-ablation.v1",
+  "runtime": {
+    "python": "3.10.5",
+    "numpy": "2.2.6",
+    "cvxpy": "1.7.5",
+    "installed_solvers": [
+      "CLARABEL",
+      "OSQP",
+      "SCIP",
+      "SCIPY",
+      "SCS"
+    ]
+  },
+  "source": {
+    "support_weight": 0.55,
+    "target": 0.758,
+    "top_spectral_cell": true,
+    "bound_safety": 2e-06,
+    "checkpoint_solved_nodes": 1000,
+    "checkpoint_maximum_pending_bound": 0.7633726473409502
+  },
+  "construction": {
+    "baseline": {
+      "build_seconds": 0.8355984000008903,
+      "is_dpp": true,
+      "is_mixed_integer": false
+    },
+    "povm-sums": {
+      "build_seconds": 1.0401404999938677,
+      "is_dpp": true,
+      "is_mixed_integer": false
+    },
+    "choi-trace": {
+      "build_seconds": 1.1929600999937975,
+      "is_dpp": true,
+      "is_mixed_integer": false
+    },
+    "choi-sandwich": {
+      "build_seconds": 0.9000559999985853,
+      "is_dpp": true,
+      "is_mixed_integer": false
+    },
+    "choi-both": {
+      "build_seconds": 1.1480025999990175,
+      "is_dpp": true,
+      "is_mixed_integer": false
+    }
+  },
+  "cell_count": 20,
+  "cells": [
+    {
+      "identifier": 1939,
+      "parent": 167,
+      "depth": 10,
+      "parent_bound": 0.7633726473409502,
+      "maximum_coordinate_width": 0.1297167787366079,
+      "results": {
+        "baseline": {
+          "status": "optimal",
+          "bound": 0.7633726481117245,
+          "bound_class": "finite",
+          "raw_value": 0.7633706481117245,
+          "raw_value_class": "finite",
+          "iterations": 29,
+          "solve_seconds": 47.09050300000672,
+          "inherited_witnesses": 0
+        },
+        "povm-sums": {
+          "status": "optimal",
+          "bound": 0.7633726481570774,
+          "bound_class": "finite",
+          "raw_value": 0.7633706481570774,
+          "raw_value_class": "finite",
+          "iterations": 28,
+          "solve_seconds": 44.64409230000456,
+          "inherited_witnesses": 0
+        },
+        "choi-trace": {
+          "status": "optimal",
+          "bound": 0.7633726480781898,
+          "bound_class": "finite",
+          "raw_value": 0.7633706480781899,
+          "raw_value_class": "finite",
+          "iterations": 29,
+          "solve_seconds": 47.10703619999549,
+          "inherited_witnesses": 0
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.7599450850544359,
+          "bound_class": "finite",
+          "raw_value": 0.759943085054436,
+          "raw_value_class": "finite",
+          "iterations": 26,
+          "solve_seconds": 52.09259359999851,
+          "inherited_witnesses": 0
+        },
+        "choi-both": {
+          "status": "optimal",
+          "bound": 0.7482621818815474,
+          "bound_class": "finite",
+          "raw_value": 0.7482601818815474,
+          "raw_value_class": "finite",
+          "iterations": 21,
+          "solve_seconds": 54.364506800004165,
+          "inherited_witnesses": 0
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": -4.535294362284503e-11,
+        "choi-trace": 3.353461952571024e-11,
+        "choi-sandwich": 0.0034275630572885296,
+        "choi-both": 0.015110466230177089
+      }
+    },
+    {
+      "identifier": 1940,
+      "parent": 167,
+      "depth": 10,
+      "parent_bound": 0.7633726473409502,
+      "maximum_coordinate_width": 0.1297167787366079,
+      "results": {
+        "baseline": {
+          "status": "optimal",
+          "bound": 0.7632567879118223,
+          "bound_class": "finite",
+          "raw_value": 0.7632547879118223,
+          "raw_value_class": "finite",
+          "iterations": 33,
+          "solve_seconds": 0.23172109999723034,
+          "inherited_witnesses": 0
+        },
+        "povm-sums": {
+          "status": "optimal",
+          "bound": 0.7632567886899457,
+          "bound_class": "finite",
+          "raw_value": 0.7632547886899458,
+          "raw_value_class": "finite",
+          "iterations": 34,
+          "solve_seconds": 0.2673490999950445,
+          "inherited_witnesses": 0
+        },
+        "choi-trace": {
+          "status": "optimal",
+          "bound": 0.7632567885883439,
+          "bound_class": "finite",
+          "raw_value": 0.763254788588344,
+          "raw_value_class": "finite",
+          "iterations": 32,
+          "solve_seconds": 0.2991671999989194,
+          "inherited_witnesses": 0
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.7581144352892001,
+          "bound_class": "finite",
+          "raw_value": 0.7581124352892001,
+          "raw_value_class": "finite",
+          "iterations": 27,
+          "solve_seconds": 0.6716341999999713,
+          "inherited_witnesses": 0
+        },
+        "choi-both": {
+          "status": "optimal_inaccurate",
+          "bound": 0.7435854428037222,
+          "bound_class": "finite",
+          "raw_value": 0.7435834428037222,
+          "raw_value_class": "finite",
+          "iterations": 28,
+          "solve_seconds": 0.6898403000013786,
+          "inherited_witnesses": 0
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": -7.781234545589655e-10,
+        "choi-trace": -6.765216165049992e-10,
+        "choi-sandwich": 0.005142352622622193,
+        "choi-both": 0.01967134510810009
+      }
+    },
+    {
+      "identifier": 168,
+      "parent": 163,
+      "depth": 9,
+      "parent_bound": 0.7633726473100816,
+      "maximum_coordinate_width": 0.15310483238778314,
+      "results": {
+        "baseline": {
+          "status": "optimal",
+          "bound": 0.7617379567388101,
+          "bound_class": "finite",
+          "raw_value": 0.7617359567388101,
+          "raw_value_class": "finite",
+          "iterations": 30,
+          "solve_seconds": 0.20936470000015106,
+          "inherited_witnesses": 0
+        },
+        "povm-sums": {
+          "status": "optimal",
+          "bound": 0.7617379570045787,
+          "bound_class": "finite",
+          "raw_value": 0.7617359570045787,
+          "raw_value_class": "finite",
+          "iterations": 30,
+          "solve_seconds": 0.20923680000123568,
+          "inherited_witnesses": 0
+        },
+        "choi-trace": {
+          "status": "optimal",
+          "bound": 0.7617379564359726,
+          "bound_class": "finite",
+          "raw_value": 0.7617359564359727,
+          "raw_value_class": "finite",
+          "iterations": 30,
+          "solve_seconds": 0.24059619999752613,
+          "inherited_witnesses": 0
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.7585154384761053,
+          "bound_class": "finite",
+          "raw_value": 0.7585134384761053,
+          "raw_value_class": "finite",
+          "iterations": 27,
+          "solve_seconds": 0.5529181999954744,
+          "inherited_witnesses": 0
+        },
+        "choi-both": {
+          "status": "optimal",
+          "bound": 0.7471573650828525,
+          "bound_class": "finite",
+          "raw_value": 0.7471553650828525,
+          "raw_value_class": "finite",
+          "iterations": 25,
+          "solve_seconds": 0.67075019999902,
+          "inherited_witnesses": 0
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": -2.657686293261463e-10,
+        "choi-trace": 3.028374218061458e-10,
+        "choi-sandwich": 0.00322251826270481,
+        "choi-both": 0.014580591655957598
+      }
+    },
+    {
+      "identifier": 1893,
+      "parent": 1291,
+      "depth": 16,
+      "parent_bound": 0.7633725619676915,
+      "maximum_coordinate_width": 0.10133217166538752,
+      "results": {
+        "baseline": {
+          "status": "optimal",
+          "bound": 0.7632709928124958,
+          "bound_class": "finite",
+          "raw_value": 0.7632689928124958,
+          "raw_value_class": "finite",
+          "iterations": 32,
+          "solve_seconds": 0.22045470000011846,
+          "inherited_witnesses": 4
+        },
+        "povm-sums": {
+          "status": "optimal",
+          "bound": 0.7632709928092615,
+          "bound_class": "finite",
+          "raw_value": 0.7632689928092615,
+          "raw_value_class": "finite",
+          "iterations": 28,
+          "solve_seconds": 0.24411379999946803,
+          "inherited_witnesses": 4
+        },
+        "choi-trace": {
+          "status": "optimal",
+          "bound": 0.7632709927660758,
+          "bound_class": "finite",
+          "raw_value": 0.7632689927660758,
+          "raw_value_class": "finite",
+          "iterations": 33,
+          "solve_seconds": 0.2838675000020885,
+          "inherited_witnesses": 4
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.7414071264393411,
+          "bound_class": "finite",
+          "raw_value": 0.7414051264393412,
+          "raw_value_class": "finite",
+          "iterations": 26,
+          "solve_seconds": 0.6942186000014772,
+          "inherited_witnesses": 4
+        },
+        "choi-both": {
+          "status": "optimal",
+          "bound": 0.7269941750749596,
+          "bound_class": "finite",
+          "raw_value": 0.7269921750749596,
+          "raw_value_class": "finite",
+          "iterations": 29,
+          "solve_seconds": 0.7510753999958979,
+          "inherited_witnesses": 4
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": 3.234301715338006e-12,
+        "choi-trace": 4.641997897181227e-11,
+        "choi-sandwich": 0.021863866373154628,
+        "choi-both": 0.036276817737536216
+      }
+    },
+    {
+      "identifier": 1894,
+      "parent": 1291,
+      "depth": 16,
+      "parent_bound": 0.7633725619676915,
+      "maximum_coordinate_width": 0.10133217166538752,
+      "results": {
+        "baseline": {
+          "status": "optimal_inaccurate",
+          "bound": 0.7633725604011575,
+          "bound_class": "finite",
+          "raw_value": 0.7633705604011576,
+          "raw_value_class": "finite",
+          "iterations": 32,
+          "solve_seconds": 0.2183311999979196,
+          "inherited_witnesses": 4
+        },
+        "povm-sums": {
+          "status": "optimal",
+          "bound": 0.763372561692954,
+          "bound_class": "finite",
+          "raw_value": 0.763370561692954,
+          "raw_value_class": "finite",
+          "iterations": 32,
+          "solve_seconds": 0.333753799997794,
+          "inherited_witnesses": 4
+        },
+        "choi-trace": {
+          "status": "optimal",
+          "bound": 0.7633725620134214,
+          "bound_class": "finite",
+          "raw_value": 0.7633705620134215,
+          "raw_value_class": "finite",
+          "iterations": 34,
+          "solve_seconds": 0.26696340000489727,
+          "inherited_witnesses": 4
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.7427278835826076,
+          "bound_class": "finite",
+          "raw_value": 0.7427258835826076,
+          "raw_value_class": "finite",
+          "iterations": 28,
+          "solve_seconds": 0.5814979999995558,
+          "inherited_witnesses": 4
+        },
+        "choi-both": {
+          "status": "optimal",
+          "bound": 0.7295259179426251,
+          "bound_class": "finite",
+          "raw_value": 0.7295239179426252,
+          "raw_value_class": "finite",
+          "iterations": 21,
+          "solve_seconds": 0.5675286999976379,
+          "inherited_witnesses": 4
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": -1.291796447588922e-09,
+        "choi-trace": -1.612263877959208e-09,
+        "choi-sandwich": 0.02064467681854998,
+        "choi-both": 0.03384664245853242
+      }
+    },
+    {
+      "identifier": 1431,
+      "parent": 1429,
+      "depth": 14,
+      "parent_bound": 0.7633723031166936,
+      "maximum_coordinate_width": 0.10133217166538752,
+      "results": {
+        "baseline": {
+          "status": "optimal",
+          "bound": 0.7632551017508121,
+          "bound_class": "finite",
+          "raw_value": 0.7632531017508122,
+          "raw_value_class": "finite",
+          "iterations": 31,
+          "solve_seconds": 0.21123459999944316,
+          "inherited_witnesses": 1
+        },
+        "povm-sums": {
+          "status": "optimal",
+          "bound": 0.7632551015402695,
+          "bound_class": "finite",
+          "raw_value": 0.7632531015402696,
+          "raw_value_class": "finite",
+          "iterations": 31,
+          "solve_seconds": 0.22258800000417978,
+          "inherited_witnesses": 1
+        },
+        "choi-trace": {
+          "status": "optimal",
+          "bound": 0.7632551017839325,
+          "bound_class": "finite",
+          "raw_value": 0.7632531017839326,
+          "raw_value_class": "finite",
+          "iterations": 32,
+          "solve_seconds": 0.2725605000014184,
+          "inherited_witnesses": 1
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.7557809471068081,
+          "bound_class": "finite",
+          "raw_value": 0.7557789471068082,
+          "raw_value_class": "finite",
+          "iterations": 26,
+          "solve_seconds": 0.5347841999973753,
+          "inherited_witnesses": 1
+        },
+        "choi-both": {
+          "status": "optimal",
+          "bound": 0.7398566433573613,
+          "bound_class": "finite",
+          "raw_value": 0.7398546433573614,
+          "raw_value_class": "finite",
+          "iterations": 27,
+          "solve_seconds": 0.7870897999964654,
+          "inherited_witnesses": 1
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": 2.1054258336761222e-10,
+        "choi-trace": -3.3120395315222595e-11,
+        "choi-sandwich": 0.007474154644004027,
+        "choi-both": 0.023398458393450783
+      }
+    },
+    {
+      "identifier": 1432,
+      "parent": 1429,
+      "depth": 14,
+      "parent_bound": 0.7633723031166936,
+      "maximum_coordinate_width": 0.10133217166538752,
+      "results": {
+        "baseline": {
+          "status": "optimal",
+          "bound": 0.7633723031161996,
+          "bound_class": "finite",
+          "raw_value": 0.7633703031161997,
+          "raw_value_class": "finite",
+          "iterations": 31,
+          "solve_seconds": 0.27264009999635164,
+          "inherited_witnesses": 1
+        },
+        "povm-sums": {
+          "status": "optimal",
+          "bound": 0.7633723030258884,
+          "bound_class": "finite",
+          "raw_value": 0.7633703030258885,
+          "raw_value_class": "finite",
+          "iterations": 31,
+          "solve_seconds": 0.21637429999827873,
+          "inherited_witnesses": 1
+        },
+        "choi-trace": {
+          "status": "optimal",
+          "bound": 0.7633723028495999,
+          "bound_class": "finite",
+          "raw_value": 0.7633703028496,
+          "raw_value_class": "finite",
+          "iterations": 33,
+          "solve_seconds": 0.30160080000496237,
+          "inherited_witnesses": 1
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.7567065214122722,
+          "bound_class": "finite",
+          "raw_value": 0.7567045214122723,
+          "raw_value_class": "finite",
+          "iterations": 28,
+          "solve_seconds": 0.6635838000001968,
+          "inherited_witnesses": 1
+        },
+        "choi-both": {
+          "status": "optimal",
+          "bound": 0.7419542576486554,
+          "bound_class": "finite",
+          "raw_value": 0.7419522576486555,
+          "raw_value_class": "finite",
+          "iterations": 27,
+          "solve_seconds": 0.7328895999962697,
+          "inherited_witnesses": 1
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": 9.031120296043582e-11,
+        "choi-trace": 2.665997422823807e-10,
+        "choi-sandwich": 0.006665781703927398,
+        "choi-both": 0.021418045467544222
+      }
+    },
+    {
+      "identifier": 1449,
+      "parent": 271,
+      "depth": 14,
+      "parent_bound": 0.7633714082861902,
+      "maximum_coordinate_width": 0.10133217166538752,
+      "results": {
+        "baseline": {
+          "status": "optimal",
+          "bound": 0.7632048268485105,
+          "bound_class": "finite",
+          "raw_value": 0.7632028268485106,
+          "raw_value_class": "finite",
+          "iterations": 34,
+          "solve_seconds": 0.343388799999957,
+          "inherited_witnesses": 4
+        },
+        "povm-sums": {
+          "status": "optimal",
+          "bound": 0.7632048278010845,
+          "bound_class": "finite",
+          "raw_value": 0.7632028278010845,
+          "raw_value_class": "finite",
+          "iterations": 35,
+          "solve_seconds": 0.2811835000029532,
+          "inherited_witnesses": 4
+        },
+        "choi-trace": {
+          "status": "optimal",
+          "bound": 0.7632048275921725,
+          "bound_class": "finite",
+          "raw_value": 0.7632028275921725,
+          "raw_value_class": "finite",
+          "iterations": 33,
+          "solve_seconds": 0.26380369999969844,
+          "inherited_witnesses": 4
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.7534641871554203,
+          "bound_class": "finite",
+          "raw_value": 0.7534621871554203,
+          "raw_value_class": "finite",
+          "iterations": 23,
+          "solve_seconds": 0.5835359999982757,
+          "inherited_witnesses": 4
+        },
+        "choi-both": {
+          "status": "optimal",
+          "bound": 0.7325696741953049,
+          "bound_class": "finite",
+          "raw_value": 0.732567674195305,
+          "raw_value_class": "finite",
+          "iterations": 28,
+          "solve_seconds": 0.7728473999959533,
+          "inherited_witnesses": 4
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": -9.52573908641341e-10,
+        "choi-trace": -7.436619098299957e-10,
+        "choi-sandwich": 0.009740639693090247,
+        "choi-both": 0.0306351526532056
+      }
+    },
+    {
+      "identifier": 1450,
+      "parent": 271,
+      "depth": 14,
+      "parent_bound": 0.7633714082861902,
+      "maximum_coordinate_width": 0.10133217166538752,
+      "results": {
+        "baseline": {
+          "status": "optimal",
+          "bound": 0.7633714083365882,
+          "bound_class": "finite",
+          "raw_value": 0.7633694083365883,
+          "raw_value_class": "finite",
+          "iterations": 33,
+          "solve_seconds": 0.25043359999835957,
+          "inherited_witnesses": 4
+        },
+        "povm-sums": {
+          "status": "optimal",
+          "bound": 0.7633714083795585,
+          "bound_class": "finite",
+          "raw_value": 0.7633694083795586,
+          "raw_value_class": "finite",
+          "iterations": 34,
+          "solve_seconds": 0.29544719999830704,
+          "inherited_witnesses": 4
+        },
+        "choi-trace": {
+          "status": "optimal",
+          "bound": 0.7633714083604838,
+          "bound_class": "finite",
+          "raw_value": 0.7633694083604838,
+          "raw_value_class": "finite",
+          "iterations": 33,
+          "solve_seconds": 0.26007319999916945,
+          "inherited_witnesses": 4
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.75667502737382,
+          "bound_class": "finite",
+          "raw_value": 0.75667302737382,
+          "raw_value_class": "finite",
+          "iterations": 25,
+          "solve_seconds": 0.719772099997499,
+          "inherited_witnesses": 4
+        },
+        "choi-both": {
+          "status": "optimal",
+          "bound": 0.7380443865469233,
+          "bound_class": "finite",
+          "raw_value": 0.7380423865469233,
+          "raw_value_class": "finite",
+          "iterations": 26,
+          "solve_seconds": 0.7577596000046469,
+          "inherited_witnesses": 4
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": -4.2970293989696984e-11,
+        "choi-trace": -2.389555220361217e-11,
+        "choi-sandwich": 0.006696380962768256,
+        "choi-both": 0.02532702178966495
+      }
+    },
+    {
+      "identifier": 1715,
+      "parent": 1569,
+      "depth": 15,
+      "parent_bound": 0.7633707374539426,
+      "maximum_coordinate_width": 0.11948493768492953,
+      "results": {
+        "baseline": {
+          "status": "optimal",
+          "bound": 0.7633707373993047,
+          "bound_class": "finite",
+          "raw_value": 0.7633687373993048,
+          "raw_value_class": "finite",
+          "iterations": 32,
+          "solve_seconds": 0.26775780000025406,
+          "inherited_witnesses": 0
+        },
+        "povm-sums": {
+          "status": "optimal",
+          "bound": 0.7633707371421354,
+          "bound_class": "finite",
+          "raw_value": 0.7633687371421355,
+          "raw_value_class": "finite",
+          "iterations": 30,
+          "solve_seconds": 0.2745470000008936,
+          "inherited_witnesses": 0
+        },
+        "choi-trace": {
+          "status": "optimal_inaccurate",
+          "bound": 0.7633707363768578,
+          "bound_class": "finite",
+          "raw_value": 0.7633687363768579,
+          "raw_value_class": "finite",
+          "iterations": 33,
+          "solve_seconds": 0.23616559999936726,
+          "inherited_witnesses": 0
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.7392970749836026,
+          "bound_class": "finite",
+          "raw_value": 0.7392950749836027,
+          "raw_value_class": "finite",
+          "iterations": 20,
+          "solve_seconds": 0.4207832999964012,
+          "inherited_witnesses": 0
+        },
+        "choi-both": {
+          "status": "optimal_inaccurate",
+          "bound": 0.7336779749634973,
+          "bound_class": "finite",
+          "raw_value": 0.7336759749634973,
+          "raw_value_class": "finite",
+          "iterations": 25,
+          "solve_seconds": 0.7833801999950083,
+          "inherited_witnesses": 0
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": 2.571692858666097e-10,
+        "choi-trace": 1.0224469049191498e-09,
+        "choi-sandwich": 0.02407366241570208,
+        "choi-both": 0.02969276243580743
+      }
+    },
+    {
+      "identifier": 1716,
+      "parent": 1569,
+      "depth": 15,
+      "parent_bound": 0.7633707374539426,
+      "maximum_coordinate_width": 0.11948493768492953,
+      "results": {
+        "baseline": {
+          "status": "optimal",
+          "bound": 0.7618614417278811,
+          "bound_class": "finite",
+          "raw_value": 0.7618594417278811,
+          "raw_value_class": "finite",
+          "iterations": 29,
+          "solve_seconds": 0.2615105000004405,
+          "inherited_witnesses": 0
+        },
+        "povm-sums": {
+          "status": "optimal",
+          "bound": 0.7618598990888841,
+          "bound_class": "finite",
+          "raw_value": 0.7618578990888841,
+          "raw_value_class": "finite",
+          "iterations": 29,
+          "solve_seconds": 0.2560144999952172,
+          "inherited_witnesses": 0
+        },
+        "choi-trace": {
+          "status": "optimal_inaccurate",
+          "bound": 0.7618614410238415,
+          "bound_class": "finite",
+          "raw_value": 0.7618594410238415,
+          "raw_value_class": "finite",
+          "iterations": 32,
+          "solve_seconds": 0.22904839999682736,
+          "inherited_witnesses": 0
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.7305399929057018,
+          "bound_class": "finite",
+          "raw_value": 0.7305379929057019,
+          "raw_value_class": "finite",
+          "iterations": 28,
+          "solve_seconds": 0.6316484999988461,
+          "inherited_witnesses": 0
+        },
+        "choi-both": {
+          "status": "optimal",
+          "bound": 0.7263987328009337,
+          "bound_class": "finite",
+          "raw_value": 0.7263967328009338,
+          "raw_value_class": "finite",
+          "iterations": 22,
+          "solve_seconds": 0.7259725000039907,
+          "inherited_witnesses": 0
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": 1.5426389969874776e-06,
+        "choi-trace": 7.040396043933583e-10,
+        "choi-sandwich": 0.03132144882217924,
+        "choi-both": 0.03546270892694736
+      }
+    },
+    {
+      "identifier": 1721,
+      "parent": 1559,
+      "depth": 15,
+      "parent_bound": 0.7633707369344357,
+      "maximum_coordinate_width": 0.12031805507330462,
+      "results": {
+        "baseline": {
+          "status": "optimal",
+          "bound": 0.7630067810445611,
+          "bound_class": "finite",
+          "raw_value": 0.7630047810445612,
+          "raw_value_class": "finite",
+          "iterations": 35,
+          "solve_seconds": 0.23359090000303695,
+          "inherited_witnesses": 0
+        },
+        "povm-sums": {
+          "status": "optimal",
+          "bound": 0.7630067815983071,
+          "bound_class": "finite",
+          "raw_value": 0.7630047815983072,
+          "raw_value_class": "finite",
+          "iterations": 33,
+          "solve_seconds": 0.27772649999678833,
+          "inherited_witnesses": 0
+        },
+        "choi-trace": {
+          "status": "optimal",
+          "bound": 0.7630067816390738,
+          "bound_class": "finite",
+          "raw_value": 0.7630047816390738,
+          "raw_value_class": "finite",
+          "iterations": 37,
+          "solve_seconds": 0.2921693999960553,
+          "inherited_witnesses": 0
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.740248055908174,
+          "bound_class": "finite",
+          "raw_value": 0.740246055908174,
+          "raw_value_class": "finite",
+          "iterations": 22,
+          "solve_seconds": 0.4876390999997966,
+          "inherited_witnesses": 0
+        },
+        "choi-both": {
+          "status": "optimal",
+          "bound": 0.734490817119168,
+          "bound_class": "finite",
+          "raw_value": 0.734488817119168,
+          "raw_value_class": "finite",
+          "iterations": 30,
+          "solve_seconds": 0.8329540000049747,
+          "inherited_witnesses": 0
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": -5.537460490145918e-10,
+        "choi-trace": -5.945126613227103e-10,
+        "choi-sandwich": 0.022758725136387103,
+        "choi-both": 0.02851596392539313
+      }
+    },
+    {
+      "identifier": 1722,
+      "parent": 1559,
+      "depth": 15,
+      "parent_bound": 0.7633707369344357,
+      "maximum_coordinate_width": 0.12031805507330462,
+      "results": {
+        "baseline": {
+          "status": "optimal",
+          "bound": 0.7633484100719573,
+          "bound_class": "finite",
+          "raw_value": 0.7633464100719574,
+          "raw_value_class": "finite",
+          "iterations": 33,
+          "solve_seconds": 0.23556940000707982,
+          "inherited_witnesses": 0
+        },
+        "povm-sums": {
+          "status": "optimal",
+          "bound": 0.7633484100469358,
+          "bound_class": "finite",
+          "raw_value": 0.7633464100469358,
+          "raw_value_class": "finite",
+          "iterations": 33,
+          "solve_seconds": 0.22594609999941895,
+          "inherited_witnesses": 0
+        },
+        "choi-trace": {
+          "status": "optimal",
+          "bound": 0.7633484100336355,
+          "bound_class": "finite",
+          "raw_value": 0.7633464100336356,
+          "raw_value_class": "finite",
+          "iterations": 33,
+          "solve_seconds": 0.24965440000232775,
+          "inherited_witnesses": 0
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.7387191839799275,
+          "bound_class": "finite",
+          "raw_value": 0.7387171839799276,
+          "raw_value_class": "finite",
+          "iterations": 21,
+          "solve_seconds": 0.5157001999978092,
+          "inherited_witnesses": 0
+        },
+        "choi-both": {
+          "status": "optimal",
+          "bound": 0.7346341831196191,
+          "bound_class": "finite",
+          "raw_value": 0.7346321831196192,
+          "raw_value_class": "finite",
+          "iterations": 23,
+          "solve_seconds": 0.609569799999008,
+          "inherited_witnesses": 0
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": 2.5021540395187003e-11,
+        "choi-trace": 3.8321790185591453e-11,
+        "choi-sandwich": 0.024629226092029777,
+        "choi-both": 0.028714226952338162
+      }
+    },
+    {
+      "identifier": 1771,
+      "parent": 385,
+      "depth": 12,
+      "parent_bound": 0.7633706663064329,
+      "maximum_coordinate_width": 0.12031805507330462,
+      "results": {
+        "baseline": {
+          "status": "infeasible",
+          "bound": null,
+          "bound_class": "negative-infinity",
+          "raw_value": null,
+          "raw_value_class": "missing",
+          "iterations": null,
+          "solve_seconds": 0.17448419999709586,
+          "inherited_witnesses": 0
+        },
+        "povm-sums": {
+          "status": "infeasible",
+          "bound": null,
+          "bound_class": "negative-infinity",
+          "raw_value": null,
+          "raw_value_class": "missing",
+          "iterations": null,
+          "solve_seconds": 0.1721248000030755,
+          "inherited_witnesses": 0
+        },
+        "choi-trace": {
+          "status": "infeasible",
+          "bound": null,
+          "bound_class": "negative-infinity",
+          "raw_value": null,
+          "raw_value_class": "missing",
+          "iterations": null,
+          "solve_seconds": 0.17356510000536218,
+          "inherited_witnesses": 0
+        },
+        "choi-sandwich": {
+          "status": "infeasible",
+          "bound": null,
+          "bound_class": "negative-infinity",
+          "raw_value": null,
+          "raw_value_class": "missing",
+          "iterations": null,
+          "solve_seconds": 0.4336928999982774,
+          "inherited_witnesses": 0
+        },
+        "choi-both": {
+          "status": "solver_error",
+          "bound": null,
+          "bound_class": "positive-infinity",
+          "raw_value": null,
+          "raw_value_class": "missing",
+          "iterations": null,
+          "solve_seconds": 0.42032479999761563,
+          "inherited_witnesses": 0
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": null,
+        "choi-trace": null,
+        "choi-sandwich": null,
+        "choi-both": null
+      }
+    },
+    {
+      "identifier": 1772,
+      "parent": 385,
+      "depth": 12,
+      "parent_bound": 0.7633706663064329,
+      "maximum_coordinate_width": 0.12031805507330462,
+      "results": {
+        "baseline": {
+          "status": "optimal",
+          "bound": 0.7633706659350736,
+          "bound_class": "finite",
+          "raw_value": 0.7633686659350737,
+          "raw_value_class": "finite",
+          "iterations": 27,
+          "solve_seconds": 0.2325039999996079,
+          "inherited_witnesses": 0
+        },
+        "povm-sums": {
+          "status": "optimal",
+          "bound": 0.7633706669414394,
+          "bound_class": "finite",
+          "raw_value": 0.7633686669414395,
+          "raw_value_class": "finite",
+          "iterations": 28,
+          "solve_seconds": 0.22836269999970682,
+          "inherited_witnesses": 0
+        },
+        "choi-trace": {
+          "status": "optimal",
+          "bound": 0.763370666717135,
+          "bound_class": "finite",
+          "raw_value": 0.7633686667171351,
+          "raw_value_class": "finite",
+          "iterations": 28,
+          "solve_seconds": 0.22703829999954905,
+          "inherited_witnesses": 0
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.758749275459131,
+          "bound_class": "finite",
+          "raw_value": 0.758747275459131,
+          "raw_value_class": "finite",
+          "iterations": 22,
+          "solve_seconds": 0.4868082999964827,
+          "inherited_witnesses": 0
+        },
+        "choi-both": {
+          "status": "optimal",
+          "bound": 0.7461730436396251,
+          "bound_class": "finite",
+          "raw_value": 0.7461710436396252,
+          "raw_value_class": "finite",
+          "iterations": 22,
+          "solve_seconds": 0.6322351999988314,
+          "inherited_witnesses": 0
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": -1.0063657684966643e-09,
+        "choi-trace": -7.820614156273109e-10,
+        "choi-sandwich": 0.004621390475942677,
+        "choi-both": 0.017197622295448523
+      }
+    },
+    {
+      "identifier": 1865,
+      "parent": 1864,
+      "depth": 17,
+      "parent_bound": 0.763370457672701,
+      "maximum_coordinate_width": 0.08343028699569198,
+      "results": {
+        "baseline": {
+          "status": "optimal",
+          "bound": 0.7632341195080793,
+          "bound_class": "finite",
+          "raw_value": 0.7632321195080793,
+          "raw_value_class": "finite",
+          "iterations": 38,
+          "solve_seconds": 0.2987552000049618,
+          "inherited_witnesses": 3
+        },
+        "povm-sums": {
+          "status": "optimal",
+          "bound": 0.7632341194611122,
+          "bound_class": "finite",
+          "raw_value": 0.7632321194611122,
+          "raw_value_class": "finite",
+          "iterations": 42,
+          "solve_seconds": 0.34719590000167955,
+          "inherited_witnesses": 3
+        },
+        "choi-trace": {
+          "status": "optimal",
+          "bound": 0.7632341201780175,
+          "bound_class": "finite",
+          "raw_value": 0.7632321201780176,
+          "raw_value_class": "finite",
+          "iterations": 36,
+          "solve_seconds": 0.3330915999977151,
+          "inherited_witnesses": 3
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.7468621027802621,
+          "bound_class": "finite",
+          "raw_value": 0.7468601027802622,
+          "raw_value_class": "finite",
+          "iterations": 25,
+          "solve_seconds": 0.6626374999977998,
+          "inherited_witnesses": 3
+        },
+        "choi-both": {
+          "status": "optimal",
+          "bound": 0.7266835960773129,
+          "bound_class": "finite",
+          "raw_value": 0.726681596077313,
+          "raw_value_class": "finite",
+          "iterations": 31,
+          "solve_seconds": 0.8789754999961588,
+          "inherited_witnesses": 3
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": 4.696709687834755e-11,
+        "choi-trace": -6.699382160135769e-10,
+        "choi-sandwich": 0.016372016727817185,
+        "choi-both": 0.03655052343076637
+      }
+    },
+    {
+      "identifier": 1866,
+      "parent": 1864,
+      "depth": 17,
+      "parent_bound": 0.763370457672701,
+      "maximum_coordinate_width": 0.08343028699569198,
+      "results": {
+        "baseline": {
+          "status": "optimal",
+          "bound": 0.7633704564830506,
+          "bound_class": "finite",
+          "raw_value": 0.7633684564830506,
+          "raw_value_class": "finite",
+          "iterations": 33,
+          "solve_seconds": 0.226113600001554,
+          "inherited_witnesses": 3
+        },
+        "povm-sums": {
+          "status": "optimal",
+          "bound": 0.7633704565740226,
+          "bound_class": "finite",
+          "raw_value": 0.7633684565740226,
+          "raw_value_class": "finite",
+          "iterations": 32,
+          "solve_seconds": 0.22465350000129547,
+          "inherited_witnesses": 3
+        },
+        "choi-trace": {
+          "status": "optimal_inaccurate",
+          "bound": 0.7633704514108927,
+          "bound_class": "finite",
+          "raw_value": 0.7633684514108927,
+          "raw_value_class": "finite",
+          "iterations": 32,
+          "solve_seconds": 0.3074166000005789,
+          "inherited_witnesses": 3
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.7512081162073666,
+          "bound_class": "finite",
+          "raw_value": 0.7512061162073667,
+          "raw_value_class": "finite",
+          "iterations": 25,
+          "solve_seconds": 0.552332799998112,
+          "inherited_witnesses": 3
+        },
+        "choi-both": {
+          "status": "optimal_inaccurate",
+          "bound": 0.7326073083320567,
+          "bound_class": "finite",
+          "raw_value": 0.7326053083320567,
+          "raw_value_class": "finite",
+          "iterations": 24,
+          "solve_seconds": 0.7615982999996049,
+          "inherited_witnesses": 3
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": -9.097200770469271e-11,
+        "choi-trace": 5.072157915897435e-09,
+        "choi-sandwich": 0.01216234027568397,
+        "choi-both": 0.030763148150993902
+      }
+    },
+    {
+      "identifier": 1537,
+      "parent": 1534,
+      "depth": 16,
+      "parent_bound": 0.7633702831931605,
+      "maximum_coordinate_width": 0.11948493768492953,
+      "results": {
+        "baseline": {
+          "status": "optimal",
+          "bound": 0.7633702842133715,
+          "bound_class": "finite",
+          "raw_value": 0.7633682842133716,
+          "raw_value_class": "finite",
+          "iterations": 32,
+          "solve_seconds": 0.22435160000168253,
+          "inherited_witnesses": 6
+        },
+        "povm-sums": {
+          "status": "optimal",
+          "bound": 0.7633702840442759,
+          "bound_class": "finite",
+          "raw_value": 0.7633682840442759,
+          "raw_value_class": "finite",
+          "iterations": 33,
+          "solve_seconds": 0.2512930000011693,
+          "inherited_witnesses": 6
+        },
+        "choi-trace": {
+          "status": "optimal",
+          "bound": 0.7633702837427097,
+          "bound_class": "finite",
+          "raw_value": 0.7633682837427097,
+          "raw_value_class": "finite",
+          "iterations": 30,
+          "solve_seconds": 0.23624779999954626,
+          "inherited_witnesses": 6
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.7574515079216827,
+          "bound_class": "finite",
+          "raw_value": 0.7574495079216828,
+          "raw_value_class": "finite",
+          "iterations": 28,
+          "solve_seconds": 0.7563454000046477,
+          "inherited_witnesses": 6
+        },
+        "choi-both": {
+          "status": "optimal",
+          "bound": 0.7385808594449753,
+          "bound_class": "finite",
+          "raw_value": 0.7385788594449754,
+          "raw_value_class": "finite",
+          "iterations": 29,
+          "solve_seconds": 0.7946836999981315,
+          "inherited_witnesses": 6
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": 1.6909562639000342e-10,
+        "choi-trace": 4.706618428329534e-10,
+        "choi-sandwich": 0.005918776291688799,
+        "choi-both": 0.024789424768396184
+      }
+    },
+    {
+      "identifier": 1538,
+      "parent": 1534,
+      "depth": 16,
+      "parent_bound": 0.7633702831931605,
+      "maximum_coordinate_width": 0.11948493768492953,
+      "results": {
+        "baseline": {
+          "status": "optimal",
+          "bound": 0.7633187312771399,
+          "bound_class": "finite",
+          "raw_value": 0.76331673127714,
+          "raw_value_class": "finite",
+          "iterations": 35,
+          "solve_seconds": 0.25535800000216113,
+          "inherited_witnesses": 6
+        },
+        "povm-sums": {
+          "status": "optimal_inaccurate",
+          "bound": 0.7633187274403359,
+          "bound_class": "finite",
+          "raw_value": 0.763316727440336,
+          "raw_value_class": "finite",
+          "iterations": 36,
+          "solve_seconds": 0.2584465999971144,
+          "inherited_witnesses": 6
+        },
+        "choi-trace": {
+          "status": "optimal",
+          "bound": 0.7633187317293759,
+          "bound_class": "finite",
+          "raw_value": 0.763316731729376,
+          "raw_value_class": "finite",
+          "iterations": 35,
+          "solve_seconds": 0.2569930999961798,
+          "inherited_witnesses": 6
+        },
+        "choi-sandwich": {
+          "status": "optimal",
+          "bound": 0.7510319806539806,
+          "bound_class": "finite",
+          "raw_value": 0.7510299806539806,
+          "raw_value_class": "finite",
+          "iterations": 27,
+          "solve_seconds": 0.699975399998948,
+          "inherited_witnesses": 6
+        },
+        "choi-both": {
+          "status": "optimal",
+          "bound": 0.7366605529465561,
+          "bound_class": "finite",
+          "raw_value": 0.7366585529465561,
+          "raw_value_class": "finite",
+          "iterations": 24,
+          "solve_seconds": 0.624641900001734,
+          "inherited_witnesses": 6
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": 3.836803985635129e-09,
+        "choi-trace": -4.52236026404762e-10,
+        "choi-sandwich": 0.012286750623159315,
+        "choi-both": 0.026658178330583815
+      }
+    },
+    {
+      "identifier": 1883,
+      "parent": 1881,
+      "depth": 16,
+      "parent_bound": 0.7633701782370663,
+      "maximum_coordinate_width": 0.11948493768492953,
+      "results": {
+        "baseline": {
+          "status": "infeasible",
+          "bound": null,
+          "bound_class": "negative-infinity",
+          "raw_value": null,
+          "raw_value_class": "missing",
+          "iterations": null,
+          "solve_seconds": 0.13602150000224356,
+          "inherited_witnesses": 4
+        },
+        "povm-sums": {
+          "status": "infeasible",
+          "bound": null,
+          "bound_class": "negative-infinity",
+          "raw_value": null,
+          "raw_value_class": "missing",
+          "iterations": null,
+          "solve_seconds": 0.10544780000054743,
+          "inherited_witnesses": 4
+        },
+        "choi-trace": {
+          "status": "infeasible",
+          "bound": null,
+          "bound_class": "negative-infinity",
+          "raw_value": null,
+          "raw_value_class": "missing",
+          "iterations": null,
+          "solve_seconds": 0.112590699995053,
+          "inherited_witnesses": 4
+        },
+        "choi-sandwich": {
+          "status": "infeasible",
+          "bound": null,
+          "bound_class": "negative-infinity",
+          "raw_value": null,
+          "raw_value_class": "missing",
+          "iterations": null,
+          "solve_seconds": 0.4145342999981949,
+          "inherited_witnesses": 4
+        },
+        "choi-both": {
+          "status": "infeasible",
+          "bound": null,
+          "bound_class": "negative-infinity",
+          "raw_value": null,
+          "raw_value_class": "missing",
+          "iterations": null,
+          "solve_seconds": 0.41447089999564923,
+          "inherited_witnesses": 4
+        }
+      },
+      "improvements_from_baseline": {
+        "povm-sums": null,
+        "choi-trace": null,
+        "choi-sandwich": null,
+        "choi-both": null
+      }
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "comparable_cells": 0,
+      "minimum_improvement": null,
+      "maximum_improvement": null,
+      "mean_improvement": null,
+      "strict_improvement_cells_at_1e-8": 0,
+      "finite_bound_cells": 18,
+      "finite_bounds_below_target": 0,
+      "status_counts": {
+        "infeasible": 2,
+        "optimal": 17,
+        "optimal_inaccurate": 1
+      }
+    },
+    "povm-sums": {
+      "comparable_cells": 18,
+      "minimum_improvement": -1.291796447588922e-09,
+      "maximum_improvement": 1.5426389969874776e-06,
+      "mean_improvement": 8.568058183931902e-08,
+      "strict_improvement_cells_at_1e-8": 1,
+      "finite_bound_cells": 18,
+      "finite_bounds_below_target": 0,
+      "status_counts": {
+        "infeasible": 2,
+        "optimal": 17,
+        "optimal_inaccurate": 1
+      }
+    },
+    "choi-trace": {
+      "comparable_cells": 18,
+      "minimum_improvement": -1.612263877959208e-09,
+      "maximum_improvement": 5.072157915897435e-09,
+      "mean_improvement": 1.3160045275739662e-10,
+      "strict_improvement_cells_at_1e-8": 0,
+      "finite_bound_cells": 18,
+      "finite_bounds_below_target": 0,
+      "status_counts": {
+        "infeasible": 2,
+        "optimal": 15,
+        "optimal_inaccurate": 3
+      }
+    },
+    "choi-sandwich": {
+      "comparable_cells": 18,
+      "minimum_improvement": 0.00322251826270481,
+      "maximum_improvement": 0.03132144882217924,
+      "mean_improvement": 0.013279015055483345,
+      "strict_improvement_cells_at_1e-8": 18,
+      "finite_bound_cells": 18,
+      "finite_bounds_below_target": 14,
+      "status_counts": {
+        "infeasible": 2,
+        "optimal": 18
+      }
+    },
+    "choi-both": {
+      "comparable_cells": 18,
+      "minimum_improvement": 0.014580591655957598,
+      "maximum_improvement": 0.03655052343076637,
+      "mean_improvement": 0.02658939448393577,
+      "strict_improvement_cells_at_1e-8": 18,
+      "finite_bound_cells": 18,
+      "finite_bounds_below_target": 18,
+      "status_counts": {
+        "infeasible": 1,
+        "optimal": 15,
+        "optimal_inaccurate": 3,
+        "solver_error": 1
+      }
+    }
+  },
+  "interpretation": "positive improvements tighten the solver-conditional upper bound; small negative values can arise from conic-solver tolerances",
+  "inputs": {
+    "frontier": {
+      "filename": "ternary_reconstructed_depth4_g2_top_leaf_bbb_p1_s92_l055.json",
+      "sha256": "8d314683c074d0aa59f5cac2677941f908d4d22350ed8187165f1f643a005884",
+      "bytes": 7296114
+    },
+    "checkpoint": {
+      "filename": "ternary_exactdet_ando_guided_instrument_topcell_pilot100_l055.json",
+      "sha256": "52f943c85c3ae6ed231a50befbe45f79f71861f783fa099452467de076211111",
+      "bytes": 35298181
+    }
+  }
+}
