@@ -71,13 +71,20 @@ family is incompatible.
 from carmenq import (
     project_to_common_instrument,
     reconstruct_common_instrument_from_basis,
+    reconstruct_effective_povm_from_basis,
     scan_flagged_trace_norm_cuts,
 )
 
 cuts = scan_flagged_trace_norm_cuts(prefix_states, conditioned_outputs)
 projection = project_to_common_instrument(prefix_states, conditioned_outputs)
 basis = reconstruct_common_instrument_from_basis(prefix_states, conditioned_outputs)
-print(min(cut.slack for cut in cuts), projection.separation_gap, basis.minimum_choi_eigenvalue)
+effective = reconstruct_effective_povm_from_basis(prefix_states, measured_probabilities)
+print(
+    min(cut.slack for cut in cuts),
+    projection.separation_gap,
+    basis.minimum_choi_eigenvalue,
+    effective.minimum_effect_eigenvalue,
+)
 ```
 
 The algebraic reconstruction applies when the four prefix states form an
@@ -115,6 +122,15 @@ solver-conditional forest has 2,698 expansions, 262,059 closed leaves, no
 missing orbit, and maximum finite terminal bound `0.7579983961`; its scope,
 audit command, and the still-open terminal-geometry problem are stated in
 [`notes/adaptive_multicolumn_contraction_certificate.md`](notes/adaptive_multicolumn_contraction_certificate.md).
+For a variable ternary terminal POVM, interval-safe planar reconstruction now
+retains two output Bloch coordinates inside the same contractions.  An
+arbitrary-depth spectral engine shows where that strategy stops scaling: a
+fourth separator expands the selected cell's open frontier from 815 to 2,216
+without improving its `0.76351459` maximum.  The unique effective POVM at the
+maximiser has ten nonpositive effects, with worst eigenvalue margin `-0.15326`.
+This gives a concrete next formulation---the finite determinant-scaled
+common-POVM localiser---and a documented reason not to add blind cuts.  See
+[`notes/common_effective_povm_frontier.md`](notes/common_effective_povm_frontier.md).
 
 ## Explore the order-sensitive theorem
 

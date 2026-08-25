@@ -30,6 +30,7 @@ from .protocol import (
 )
 from .common_instrument import (
     BasisInstrumentReconstruction,
+    BasisPovmReconstruction,
     CommonInstrumentProjection,
     FlaggedTraceNormCut,
     comparison_scale_grid,
@@ -38,6 +39,7 @@ from .common_instrument import (
     flagged_trace_norm_cut,
     project_to_common_instrument,
     reconstruct_common_instrument_from_basis,
+    reconstruct_effective_povm_from_basis,
     robust_common_instrument_witness_bound,
     scan_flagged_trace_norm_cuts,
 )
@@ -82,6 +84,7 @@ plan = plan_experiment
 __all__ = [
     "BenchmarkCounts",
     "BasisInstrumentReconstruction",
+    "BasisPovmReconstruction",
     "CertificationResult",
     "CommonInstrumentProjection",
     "FrontierPoint",
@@ -133,6 +136,7 @@ __all__ = [
     "plan_experiment",
     "project_to_common_instrument",
     "reconstruct_common_instrument_from_basis",
+    "reconstruct_effective_povm_from_basis",
     "robust_common_instrument_witness_bound",
     "return_curve",
     "rank_two_static_qubit_support",

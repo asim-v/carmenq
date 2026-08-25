@@ -11,6 +11,7 @@ from carmenq.common_instrument import (
     flagged_trace_norm_cut,
     project_to_common_instrument,
     reconstruct_common_instrument_from_basis,
+    reconstruct_effective_povm_from_basis,
     robust_common_instrument_witness_bound,
     scan_flagged_trace_norm_cuts,
 )
@@ -179,3 +180,43 @@ def test_basis_reconstruction_rejects_singular_input_family() -> None:
     outputs = np.zeros((4, 2, 2, 2), dtype=complex)
     with pytest.raises(np.linalg.LinAlgError, match="do not span"):
         reconstruct_common_instrument_from_basis(states, outputs)
+
+
+def test_effective_povm_basis_reconstruction_recovers_a_physical_povm() -> None:
+    states = basis_prefix_states()
+    effects = np.repeat((IDENTITY / 12.0)[None, :, :], 12, axis=0)
+    probabilities = np.asarray(
+        [[np.trace(state @ effect).real for effect in effects] for state in states]
+    )
+    reconstruction = reconstruct_effective_povm_from_basis(states, probabilities)
+    assert reconstruction.is_compatible(2e-12)
+    assert reconstruction.effect_matrices == pytest.approx(effects, abs=2e-14)
+    assert reconstruction.probability_residual < 2e-16
+    assert reconstruction.completeness_residual < 2e-15
+    assert reconstruction.signed_effect_numerators == pytest.approx(
+        abs(reconstruction.input_determinant) * effects,
+        abs=2e-15,
+    )
+
+
+def test_effective_povm_basis_reconstruction_detects_negative_unique_effects() -> None:
+    states = basis_prefix_states()
+    effects = np.repeat((0.09 * IDENTITY)[None, :, :], 12, axis=0)
+    effects[0] = 0.05 * IDENTITY + 0.08 * X
+    effects[1] = 0.05 * IDENTITY - 0.08 * X
+    probabilities = np.asarray(
+        [[np.trace(state @ effect).real for effect in effects] for state in states]
+    )
+    assert np.min(probabilities) >= 0.0
+    reconstruction = reconstruct_effective_povm_from_basis(states, probabilities)
+    assert reconstruction.probability_residual < 2e-16
+    assert reconstruction.completeness_residual < 2e-15
+    assert reconstruction.minimum_effect_eigenvalue == pytest.approx(-0.03)
+    assert np.count_nonzero(reconstruction.minimum_effect_eigenvalues < -1e-12) == 2
+    assert not reconstruction.is_compatible()
+
+
+def test_effective_povm_basis_reconstruction_rejects_singular_inputs() -> None:
+    states = np.repeat((IDENTITY / 8.0)[None, :, :], 4, axis=0)
+    with pytest.raises(np.linalg.LinAlgError, match="do not span"):
+        reconstruct_effective_povm_from_basis(states, np.full((4, 3), 1.0 / 24.0))

@@ -125,6 +125,39 @@ class BasisInstrumentReconstruction:
         )
 
 
+@dataclass(frozen=True)
+class BasisPovmReconstruction:
+    """Unique effective POVM reconstructed from four qubit input states.
+
+    ``effect_pauli_coordinates[k]`` contains ``(a0, ax, ay, az)`` for
+    ``F[k] = a0 I + ax X + ay Y + az Z``.  A common instrument followed by
+    any terminal POVM necessarily induces such a common effective POVM.
+    """
+
+    input_pauli_matrix: Array
+    input_determinant: float
+    input_condition_number: float
+    effect_pauli_coordinates: Array
+    effect_matrices: Array
+    signed_effect_numerators: Array
+    minimum_effect_eigenvalues: Array
+    probability_residual: float
+    completeness_residual: float
+
+    @property
+    def minimum_effect_eigenvalue(self) -> float:
+        return float(np.min(self.minimum_effect_eigenvalues))
+
+    def is_compatible(self, tolerance: float = 1e-8) -> bool:
+        """Return whether the unique effects form a POVM."""
+
+        return (
+            self.minimum_effect_eigenvalue >= -tolerance
+            and self.probability_residual <= tolerance
+            and self.completeness_residual <= tolerance
+        )
+
+
 def _hermitian(matrix: Array) -> Array:
     return 0.5 * (matrix + matrix.conj().T)
 
@@ -369,6 +402,95 @@ def reconstruct_common_instrument_from_basis(
         minimum_choi_eigenvalues=minimum_eigenvalues,
         output_residual=output_residual,
         trace_preservation_residual=trace_residual,
+    )
+
+
+def reconstruct_effective_povm_from_basis(
+    prefix_states: Array,
+    probabilities: Array,
+    rank_tolerance: float = 1e-10,
+) -> BasisPovmReconstruction:
+    r"""Reconstruct the unique common POVM fixed by four qubit inputs.
+
+    Let ``R[z]`` contain the Pauli coordinates of the four input states and
+    let ``Q[z,k]`` be the observed outcome probabilities.  When ``R`` is
+    nonsingular, the unique effect coordinates are ``A = R^{-1} Q``.  They
+    form a POVM exactly when every reconstructed effect is positive and the
+    effects sum to identity.
+
+    With ``delta = det(R)``, the returned signed numerators equal
+    ``sign(delta) * adj(R) Q`` in matrix form.  Their positivity is the finite
+    determinant-scaled polynomial condition useful in global optimisation.
+    A common instrument followed by a terminal measurement must pass this
+    test, although a common effective POVM need not admit the specified
+    sequential factorisation.
+    """
+
+    if not math.isfinite(rank_tolerance) or rank_tolerance <= 0.0:
+        raise ValueError("rank_tolerance must be finite and positive")
+    states = np.asarray(prefix_states, dtype=complex)
+    if states.shape != (4, 2, 2):
+        raise ValueError("basis POVM reconstruction requires states of shape (4,2,2)")
+    states = np.asarray([_hermitian(item) for item in states])
+    raw_probabilities = np.asarray(probabilities)
+    if raw_probabilities.ndim != 2 or raw_probabilities.shape[0] != 4:
+        raise ValueError("probabilities must have shape (4, outcomes)")
+    if raw_probabilities.shape[1] < 1:
+        raise ValueError("at least one POVM outcome is required")
+    if np.iscomplexobj(raw_probabilities) and np.max(np.abs(raw_probabilities.imag)) > 1e-12:
+        raise ValueError("probabilities must be real")
+    probability = np.asarray(raw_probabilities.real, dtype=float)
+    if not np.all(np.isfinite(probability)):
+        raise ValueError("probabilities must be finite")
+
+    input_pauli = np.asarray([_pauli_coefficients(state) for state in states])
+    singular_values = np.linalg.svd(input_pauli, compute_uv=False)
+    if singular_values[-1] <= rank_tolerance * singular_values[0]:
+        raise np.linalg.LinAlgError(
+            "the four prefix states do not span the Hermitian qubit operators"
+        )
+    determinant = float(np.linalg.det(input_pauli))
+    condition_number = float(singular_values[0] / singular_values[-1])
+    coordinates = np.linalg.solve(input_pauli, probability).T
+    effects = np.asarray(
+        [
+            _hermitian(
+                sum(
+                    coordinate[mu] * _PAULIS[mu]
+                    for mu in range(4)
+                )
+            )
+            for coordinate in coordinates
+        ]
+    )
+    signed_numerator_coordinates = abs(determinant) * coordinates
+    signed_numerators = np.asarray(
+        [
+            _hermitian(
+                sum(
+                    coordinate[mu] * _PAULIS[mu]
+                    for mu in range(4)
+                )
+            )
+            for coordinate in signed_numerator_coordinates
+        ]
+    )
+    reconstructed = input_pauli @ coordinates.T
+    probability_residual = float(np.linalg.norm(reconstructed - probability))
+    completeness_residual = float(np.linalg.norm(effects.sum(axis=0) - np.eye(2)))
+    minimum_eigenvalues = np.asarray(
+        [float(np.linalg.eigvalsh(effect).min()) for effect in effects]
+    )
+    return BasisPovmReconstruction(
+        input_pauli_matrix=input_pauli,
+        input_determinant=determinant,
+        input_condition_number=condition_number,
+        effect_pauli_coordinates=coordinates,
+        effect_matrices=effects,
+        signed_effect_numerators=signed_numerators,
+        minimum_effect_eigenvalues=minimum_eigenvalues,
+        probability_residual=probability_residual,
+        completeness_residual=completeness_residual,
     )
 
 

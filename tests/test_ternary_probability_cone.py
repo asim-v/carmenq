@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scratch" / "d2_frontier"))
 
 from pairwise_inellipse_box_cover import cross_coefficient  # noqa: E402
+from common_effective_povm_audit import audit_common_effective_povm  # noqa: E402
 from fourier_behavior_cap_cover import cube_face_caps  # noqa: E402
 from ternary_probability_cone_cover import (  # noqa: E402
     TernaryConeOracle,
@@ -23,6 +24,13 @@ from terminal_reconstruction_enclosure import (  # noqa: E402
     reconstruction_anchor_and_errors,
 )
 from validate_terminal_reconstructed_frontier import validate  # noqa: E402
+from validate_common_effective_povm_frontier import (  # noqa: E402
+    validate as validate_common_povm_frontier,
+)
+from ternary_frontier_separator_cover import open_source_cells  # noqa: E402
+from ternary_extend_separator_frontier import normalise_frontier  # noqa: E402
+from ternary_refine_last_separator_cover import cube_face_children  # noqa: E402
+from ternary_shared_separator_cover import extract_shared_frontier  # noqa: E402
 
 
 def canonical_three_effect_povm(weights: np.ndarray) -> np.ndarray:
@@ -234,3 +242,157 @@ def test_spectral_cover_builds_one_mixed_integer_selector_family() -> None:
     assert oracle.problem.is_mixed_integer()
     assert len(oracle.common_contraction_selectors) == 1
     assert oracle.common_contraction_selectors[0].shape == (25,)
+
+
+def test_shared_separator_extracts_all_open_first_generation_branches() -> None:
+    payload = {
+        "nodes": [
+            {
+                "status": "optimal",
+                "separator": {"coefficients": [1.0, 0.0, -1.0, 0.0]},
+                "children": [
+                    {"branch": "scalar-positive", "cap": None, "bound": 0.74},
+                    {"branch": "scalar-negative", "cap": None, "bound": 0.76},
+                    {"branch": "bloch", "cap": 7, "bound": 0.759},
+                    {"branch": "bloch", "cap": 8, "bound": 0.75},
+                ],
+            },
+            {
+                "status": "optimal",
+                "separator": {"coefficients": [0.0, 1.0, 0.0, -1.0]},
+                "children": [],
+            },
+        ]
+    }
+    first, second, parents, counts = extract_shared_frontier(payload, 0.758)
+    assert np.array_equal(first, [1.0, 0.0, -1.0, 0.0])
+    assert np.array_equal(second, [0.0, 1.0, 0.0, -1.0])
+    assert parents == (
+        {"branch": "scalar-negative", "cap": None},
+        {"branch": "bloch", "cap": 7},
+    )
+    assert counts == {
+        "first_generation_total": 4,
+        "first_generation_closed": 2,
+        "first_generation_open": 2,
+    }
+
+
+def test_frontier_filter_preserves_scalar_and_bloch_product_cells() -> None:
+    payload = {
+        "cells": [
+            {
+                "first_branch": "scalar-negative",
+                "first_cap": None,
+                "second_branch": "bloch",
+                "second_cap": 3,
+                "bound": 0.759,
+            },
+            {
+                "first_branch": "bloch",
+                "first_cap": 1,
+                "second_branch": "scalar-positive",
+                "second_cap": None,
+                "bound": 0.757,
+            },
+        ]
+    }
+    assert open_source_cells(payload, 0.758) == (payload["cells"][0],)
+
+
+def test_nested_cube_face_children_partition_each_coarse_chart_cell() -> None:
+    all_children = [
+        child
+        for parent in range(24)
+        for child in cube_face_children(parent, 2, 4)
+    ]
+    assert len(all_children) == 96
+    assert sorted(all_children) == list(range(96))
+    assert cube_face_children(0, 2, 4) == (0, 1, 4, 5)
+    assert cube_face_children(23, 2, 4) == (90, 91, 94, 95)
+
+
+def test_arbitrary_depth_frontier_normalises_legacy_three_separator_cells() -> None:
+    payload = {
+        "contraction_grid": 4,
+        "new_grid": 2,
+        "first_separator": [1.0, 0.0, -1.0, 0.0],
+        "shared_second_separator": [0.0, 1.0, 0.0, -1.0],
+        "new_separator": [1.0, -1.0, 0.0, 0.0],
+        "cells": [
+            {
+                "first_branch": "bloch",
+                "first_cap": 5,
+                "second_branch": "scalar-positive",
+                "second_cap": None,
+                "new_branch": "bloch",
+                "new_cap": 8,
+                "status": "optimal",
+                "bound": 0.759,
+            },
+            {
+                "first_branch": "bloch",
+                "first_cap": 6,
+                "second_branch": "bloch",
+                "second_cap": 7,
+                "new_branch": "scalar-negative",
+                "new_cap": None,
+                "status": "optimal",
+                "bound": 0.75,
+            },
+        ],
+    }
+    coefficients, grids, cells = normalise_frontier(payload, 0.758)
+    assert len(coefficients) == 3
+    assert grids == (4, 4, 2)
+    assert len(cells) == 1
+    assert cells[0]["branches"] == ("bloch", "scalar-positive", "bloch")
+    assert cells[0]["caps"] == (5, None, 8)
+
+
+def test_common_effective_povm_basis_audit_accepts_a_physical_povm() -> None:
+    priors = np.full(4, 0.25)
+    bloch = np.asarray(
+        [[0.1, 0.0, 0.0], [0.0, 0.1, 0.0], [0.0, 0.0, 0.1], [0.0, 0.0, 0.0]]
+    )
+    state_matrix = np.column_stack([priors, bloch])
+    effects = np.zeros((4, 12))
+    effects[0, :] = 1.0 / 12.0
+    statistics = (state_matrix @ effects).reshape(4, 4, 3)
+    audit = audit_common_effective_povm(priors, bloch, statistics)
+    assert audit["status"] == "nonsingular"
+    assert audit["common_effective_povm"]
+    assert audit["negative_effect_count"] == 0
+    assert abs(audit["minimum_margin"] - 1.0 / 12.0) < 2e-14
+    assert audit["interpolation_residual"] < 1e-14
+    assert audit["completeness_residual"] < 1e-14
+
+
+def test_common_effective_povm_basis_audit_exposes_negative_unique_effects() -> None:
+    priors = np.full(4, 0.25)
+    bloch = np.asarray(
+        [[0.1, 0.0, 0.0], [0.0, 0.1, 0.0], [0.0, 0.0, 0.1], [0.0, 0.0, 0.0]]
+    )
+    state_matrix = np.column_stack([priors, bloch])
+    effects = np.zeros((4, 12))
+    effects[:, 0] = [0.05, 0.08, 0.0, 0.0]
+    effects[:, 1] = [0.05, -0.08, 0.0, 0.0]
+    effects[0, 2:] = 0.09
+    statistics = (state_matrix @ effects).reshape(4, 4, 3)
+    assert np.min(statistics) >= 0.0
+    audit = audit_common_effective_povm(priors, bloch, statistics)
+    assert not audit["common_effective_povm"]
+    assert audit["negative_effect_count"] == 2
+    assert abs(audit["minimum_margin"] + 0.03) < 2e-14
+    assert abs(audit["worst_effect_witness_expectation"] + 0.03) < 2e-14
+    assert audit["completeness_residual"] < 1e-14
+
+
+def test_common_effective_povm_frontier_artifacts_recompute_exactly() -> None:
+    summary = validate_common_povm_frontier()
+    assert summary["logical_status"] == (
+        "adaptive separator frontier rejected by kill criterion"
+    )
+    assert summary["source_open_cells"] == 815
+    assert summary["depth4_open_cells"] == 2216
+    assert summary["negative_effect_count"] == 10
