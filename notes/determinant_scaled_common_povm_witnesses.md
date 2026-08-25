@@ -205,7 +205,7 @@ The full checkpoint is intentionally not committed because it is about
 accounting, and the independently recomputed leading-cell enclosures are in
 [`determinant_povm_cover_l055_summary.json`](../scratch/d2_frontier/determinant_povm_cover_l055_summary.json).
 
-## Kill result and next relaxation
+## Kill result and common-instrument follow-up
 
 The scalar common-POVM witnesses are not the missing global certificate.
 The best remaining cells reconstruct nine or ten nonpositive effective
@@ -215,8 +215,8 @@ directions cannot fix that enclosure loss, and determinant-only branching
 was empirically worse because it neglected the rest of the bilinear
 relaxation.
 
-The next justified object is matrix-valued.  For a nonsingular input basis,
-the unique map for outcome (y) has determinant-scaled Choi numerator
+The follow-up asks for the matrix coupling of a common instrument. For a
+nonsingular input basis, the unique map for outcome \(y\) has Choi numerator
 
 \[
  K_y=\frac12\sum_{\mu,\nu}
@@ -225,13 +225,19 @@ the unique map for outcome (y) has determinant-scaled Choi numerator
  \qquad sK_y\succeq0.
 \]
 
-A useful next relaxation must preserve this matrix coupling over each input
-box: either a positive-semidefinite localiser for the joint input--output
-moments or adaptive rank-one Choi directions (v^\dagger sK_yv\geq0) with
-box-valid coefficient envelopes.  It must also carry the unobserved output
-Bloch coordinate and terminal-cell uncertainty rather than projecting them
-away.  That is a stronger requirement than another scalar POVM direction and
-is the next falsifiable step toward the complete interior frontier.
+For the planar terminal operator system, Ando's theorem converts existence of
+the missing output coordinate into a coupled family of support-function
+inequalities. This retains the exact fixed-input completion condition without
+explicitly carrying that coordinate, correcting the stronger requirement
+stated in the first version of this note.
+
+The completed follow-up multiplies those inequalities by \(|\det R|\) and
+interval-encloses their Cramer coefficients over complete input and terminal
+boxes. In the equal-budget 1,000-node comparison it generates eight robust
+common-instrument cuts and gives a strict but small \(1.47\times10^{-6}\)
+leading-bound improvement; it does not close the target. Details and the
+compact audit are in
+[`determinant_scaled_ando_instrument_witnesses.md`](determinant_scaled_ando_instrument_witnesses.md).
 
 ## Reproduction
 

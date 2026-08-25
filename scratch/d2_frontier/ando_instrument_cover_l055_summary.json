@@ -1,0 +1,516 @@
+{
+  "schema": "carmenq.ando-instrument-cover-summary.v1",
+  "checkpoint": {
+    "filename": "ternary_exactdet_ando_guided_instrument_topcell_pilot100_l055.json",
+    "sha256": "52f943c85c3ae6ed231a50befbe45f79f71861f783fa099452467de076211111",
+    "bytes": 35298181
+  },
+  "baseline": {
+    "filename": "determinant_povm_cover_l055_summary.json",
+    "schema": "carmenq.determinant-povm-cover-summary.v1",
+    "checkpoint_sha256": "4c9e782273bed0bea70bfc91945988052e516b5e9b78e18c7aea8f0bd5108d07"
+  },
+  "runtime": {
+    "python": "3.10.5",
+    "numpy": "2.2.6",
+    "cvxpy": "1.7.5",
+    "installed_solvers": [
+      "CLARABEL",
+      "OSQP",
+      "SCIP",
+      "SCIPY",
+      "SCS"
+    ]
+  },
+  "problem": {
+    "support_weight": 0.55,
+    "target": 0.758,
+    "base_code": "bbb",
+    "top_spectral_cell": true,
+    "scope": "one continuous terminal cell and the selected Fourier spectral cell; all input--Choi and input--POVM products use convergent McCormick envelopes; pure-prefix caps, determinant-scaled common-POVM cuts, and optional planar Ando cuts are valid on complete input and terminal boxes; numerical SDP bounds remain solver-conditional"
+  },
+  "configuration": {
+    "bound_safety": 2e-06,
+    "minimum_width": 1e-06,
+    "max_witnesses": 24,
+    "max_new_witnesses_per_node": 4,
+    "witness_tolerance": 2e-09,
+    "determinant_bounds_method": "exhaustive-multiaffine-vertices",
+    "determinant_near_relative_gap": 1.02,
+    "ando_near_relative_gap": 1.4,
+    "ando_split_shortlist": 4,
+    "maximum_determinant_branch_streak": 1,
+    "max_nodes": 1000
+  },
+  "run": {
+    "solved_nodes": 1000,
+    "closed_nodes": 30,
+    "split_nodes": 970,
+    "pending_nodes": 941,
+    "unresolved_nodes": 0,
+    "maximum_depth": 23,
+    "determinant_witness_count": 811,
+    "planar_ando_witness_count": 8,
+    "maximum_pending_bound": 0.7633726473409502,
+    "statuses_complete": true,
+    "complete": false
+  },
+  "accounting_audit": {
+    "dispositions": {
+      "closed": 30,
+      "split": 970
+    },
+    "branching_rules": {
+      "ando-margin": 145,
+      "determinant-margin": 140,
+      "none": 30,
+      "product-residual": 685
+    },
+    "records_with_new_witnesses": 305,
+    "sign_definite_audits": 925,
+    "robust_witness_nodes": 60,
+    "near_margin_nodes": 358
+  },
+  "ando_accounting": {
+    "planar_ando_witness_count": 8,
+    "records_with_new_ando_witnesses": 8,
+    "ando_audits": 970,
+    "audits_with_exact_ando_violation": 925,
+    "near_ando_margin_nodes": 353,
+    "positive_ando_split_score_nodes": 223,
+    "maximum_ando_split_score": 0.11041139372869906,
+    "branching_rules": {
+      "ando-margin": 145,
+      "determinant-margin": 140,
+      "none": 30,
+      "product-residual": 685
+    },
+    "witness_nodes": [
+      {
+        "identifier": 376,
+        "parent": 371,
+        "depth": 17,
+        "parent_bound": 0.7634512764607377,
+        "bound": 0.7628570184624912,
+        "new_witnesses": 3,
+        "new_ando_witnesses": 1
+      },
+      {
+        "identifier": 485,
+        "parent": 481,
+        "depth": 16,
+        "parent_bound": 0.7634303897075566,
+        "bound": 0.7630749094923243,
+        "new_witnesses": 2,
+        "new_ando_witnesses": 1
+      },
+      {
+        "identifier": 123,
+        "parent": 119,
+        "depth": 16,
+        "parent_bound": 0.7634096727273416,
+        "bound": 0.763051525939206,
+        "new_witnesses": 2,
+        "new_ando_witnesses": 1
+      },
+      {
+        "identifier": 1371,
+        "parent": 493,
+        "depth": 18,
+        "parent_bound": 0.7633963404501024,
+        "bound": 0.7629904792929275,
+        "new_witnesses": 4,
+        "new_ando_witnesses": 1
+      },
+      {
+        "identifier": 1274,
+        "parent": 1115,
+        "depth": 15,
+        "parent_bound": 0.7633907616184777,
+        "bound": 0.7626202162500585,
+        "new_witnesses": 4,
+        "new_ando_witnesses": 1
+      },
+      {
+        "identifier": 1363,
+        "parent": 1361,
+        "depth": 14,
+        "parent_bound": 0.7633835010005993,
+        "bound": 0.7630843192936788,
+        "new_witnesses": 2,
+        "new_ando_witnesses": 1
+      },
+      {
+        "identifier": 1860,
+        "parent": 1857,
+        "depth": 15,
+        "parent_bound": 0.7633756976191514,
+        "bound": 0.7625033967062017,
+        "new_witnesses": 2,
+        "new_ando_witnesses": 1
+      },
+      {
+        "identifier": 1507,
+        "parent": 1277,
+        "depth": 16,
+        "parent_bound": 0.7633734934615827,
+        "bound": 0.7631254545948659,
+        "new_witnesses": 2,
+        "new_ando_witnesses": 1
+      }
+    ]
+  },
+  "leading_pending_determinants": {
+    "cell_count": 20,
+    "ordinary_interval_sign_indefinite": 18,
+    "vertex_sign_counts": {
+      "positive": 20
+    },
+    "minimum_certified_absolute_determinant": 4.505888900724824e-05,
+    "cells": [
+      {
+        "identifier": 1939,
+        "parent": 167,
+        "depth": 10,
+        "parent_bound": 0.7633726473409502,
+        "ordinary_interval": [
+          -0.0054104923974231025,
+          0.03159513387525359
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0013258430452774278,
+          0.025830098853243437
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1940,
+        "parent": 167,
+        "depth": 10,
+        "parent_bound": 0.7633726473409502,
+        "ordinary_interval": [
+          -0.005486273519658605,
+          0.034779533509200614
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0017169818365388395,
+          0.02856391335748192
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 168,
+        "parent": 163,
+        "depth": 9,
+        "parent_bound": 0.7633726473100816,
+        "ordinary_interval": [
+          -0.00715870170899726,
+          0.03096361861547435
+        ],
+        "exhaustive_vertex_enclosure": [
+          4.505888900724824e-05,
+          0.025432022859607786
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1893,
+        "parent": 1291,
+        "depth": 16,
+        "parent_bound": 0.7633725619676915,
+        "ordinary_interval": [
+          1.3413372723893646e-06,
+          0.02730665176412257
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.004311616967275705,
+          0.023072917743396915
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 4
+      },
+      {
+        "identifier": 1894,
+        "parent": 1291,
+        "depth": 16,
+        "parent_bound": 0.7633725619676915,
+        "ordinary_interval": [
+          -0.0005248354388360447,
+          0.025490932656598225
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.003932238852214429,
+          0.02149340517562892
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 4
+      },
+      {
+        "identifier": 1431,
+        "parent": 1429,
+        "depth": 14,
+        "parent_bound": 0.7633723031166936,
+        "ordinary_interval": [
+          -0.002765261658828384,
+          0.02794695237880589
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0032676657164862825,
+          0.023216641686298466
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 1
+      },
+      {
+        "identifier": 1432,
+        "parent": 1429,
+        "depth": 14,
+        "parent_bound": 0.7633723031166936,
+        "ordinary_interval": [
+          -0.003822281842330863,
+          0.025292760787127774
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0024807519988249305,
+          0.021042807646160528
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 1
+      },
+      {
+        "identifier": 1449,
+        "parent": 271,
+        "depth": 14,
+        "parent_bound": 0.7633714082861902,
+        "ordinary_interval": [
+          -0.0013138966219101804,
+          0.03140888065593895
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.004149743998231067,
+          0.026441205828010905
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 4
+      },
+      {
+        "identifier": 1450,
+        "parent": 271,
+        "depth": 14,
+        "parent_bound": 0.7633714082861902,
+        "ordinary_interval": [
+          -0.002366152266556386,
+          0.028770842145589736
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0032179202500536956,
+          0.024118422233077537
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 4
+      },
+      {
+        "identifier": 1715,
+        "parent": 1569,
+        "depth": 15,
+        "parent_bound": 0.7633707374539426,
+        "ordinary_interval": [
+          -0.0026717893135244394,
+          0.020946518958895544
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0016983504203459754,
+          0.017236750909958763
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1716,
+        "parent": 1569,
+        "depth": 15,
+        "parent_bound": 0.7633707374539426,
+        "ordinary_interval": [
+          -0.003583984059308474,
+          0.018014965042053438
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0006499888437170418,
+          0.014429098734707437
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1721,
+        "parent": 1559,
+        "depth": 15,
+        "parent_bound": 0.7633707369344357,
+        "ordinary_interval": [
+          -0.002900801411442345,
+          0.01875687698905751
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0005802098123007152,
+          0.01568488908183986
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1722,
+        "parent": 1559,
+        "depth": 15,
+        "parent_bound": 0.7633707369344357,
+        "ordinary_interval": [
+          -0.0026040420774497836,
+          0.018281528987612723
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0007617872223520833,
+          0.015381746253662941
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1771,
+        "parent": 385,
+        "depth": 12,
+        "parent_bound": 0.7633706663064329,
+        "ordinary_interval": [
+          -0.0065399177184556154,
+          0.029884442158293653
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0008829501575317196,
+          0.024386570531318822
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1772,
+        "parent": 385,
+        "depth": 12,
+        "parent_bound": 0.7633706663064329,
+        "ordinary_interval": [
+          -0.006320512583511726,
+          0.028067074320546326
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0008374508600099998,
+          0.02284505560238947
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1865,
+        "parent": 1864,
+        "depth": 17,
+        "parent_bound": 0.763370457672701,
+        "ordinary_interval": [
+          0.0008102895287806273,
+          0.028114424559128565
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0051349491224794855,
+          0.02392781840380734
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 3
+      },
+      {
+        "identifier": 1866,
+        "parent": 1864,
+        "depth": 17,
+        "parent_bound": 0.763370457672701,
+        "ordinary_interval": [
+          -0.0003192224301597326,
+          0.02555957223953106
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.004255018934035728,
+          0.021609172623966163
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 3
+      },
+      {
+        "identifier": 1537,
+        "parent": 1534,
+        "depth": 16,
+        "parent_bound": 0.7633702831931605,
+        "ordinary_interval": [
+          -0.0016739456800637254,
+          0.02980978792565295
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0039326346401894145,
+          0.02486746805397806
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 6
+      },
+      {
+        "identifier": 1538,
+        "parent": 1534,
+        "depth": 16,
+        "parent_bound": 0.7633702831931605,
+        "ordinary_interval": [
+          -0.0032016753198900304,
+          0.025477907908001893
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0021437587227921997,
+          0.020796663614215484
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 6
+      },
+      {
+        "identifier": 1883,
+        "parent": 1881,
+        "depth": 16,
+        "parent_bound": 0.7633701782370663,
+        "ordinary_interval": [
+          -0.0003404730788388784,
+          0.03350166891433837
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.005853511100925623,
+          0.02809694561826202
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 4
+      }
+    ]
+  },
+  "comparison_to_baseline": {
+    "baseline_maximum_pending_bound": 0.7633741152384063,
+    "ando_maximum_pending_bound": 0.7633726473409502,
+    "absolute_bound_improvement": 1.467897456031153e-06,
+    "baseline_closed_nodes": 33,
+    "ando_closed_nodes": 30,
+    "baseline_pending_nodes": 935,
+    "ando_pending_nodes": 941,
+    "strict_bound_improvement": true,
+    "tree_dominance": false
+  },
+  "comparison_to_target": {
+    "base_localisation_bound": 0.7635145905297471,
+    "base_gap": 0.005514590529747121,
+    "remaining_gap": 0.005372647340950221,
+    "bound_reduction": 0.00014194318879690027,
+    "fraction_of_initial_gap_removed": 0.025739569970104247
+  },
+  "conclusion": {
+    "target_closed": false,
+    "logical_status": "common-instrument positivity gives a strict bound improvement but remains insufficient at the recorded node budget",
+    "next_bottleneck": "the convergent input-cell relaxation and McCormick products, not missing separate-effect or planar common-instrument positivity"
+  }
+}

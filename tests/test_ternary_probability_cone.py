@@ -36,6 +36,10 @@ from ternary_common_instrument_input_cover import (  # noqa: E402
     robust_witness_error,
 )
 from ternary_bilinear_instrument_input_cover import (  # noqa: E402
+    ando_witness_coefficient_bounds,
+    ando_input_split_scores,
+    determinant_ando_witnesses,
+    planar_ando_direction,
     box_purity_caps,
     determinant_interval,
     determinant_povm_witnesses,
@@ -52,6 +56,10 @@ from ternary_frontier_separator_cover import open_source_cells  # noqa: E402
 from ternary_extend_separator_frontier import normalise_frontier  # noqa: E402
 from ternary_refine_last_separator_cover import cube_face_children  # noqa: E402
 from ternary_shared_separator_cover import extract_shared_frontier  # noqa: E402
+from summarize_ando_instrument_cover import (  # noqa: E402
+    SCHEMA as ANDO_SUMMARY_SCHEMA,
+)
+
 from summarize_determinant_povm_cover import (  # noqa: E402
     SCHEMA as DETERMINANT_SUMMARY_SCHEMA,
     validate_accounting as validate_determinant_accounting,
@@ -901,3 +909,250 @@ def test_compact_determinant_cover_summary_records_open_status() -> None:
         "positive": 20
     }
     assert not summary["conclusion"]["target_closed"]
+
+
+def test_compact_ando_cover_summary_records_strict_nondominant_gain() -> None:
+    path = (
+        ROOT
+        / "scratch"
+        / "d2_frontier"
+        / "ando_instrument_cover_l055_summary.json"
+    )
+    summary = json.loads(path.read_text(encoding="utf-8"))
+    assert summary["schema"] == ANDO_SUMMARY_SCHEMA
+    assert summary["run"]["solved_nodes"] == 1000
+    assert summary["run"]["unresolved_nodes"] == 0
+    assert summary["run"]["planar_ando_witness_count"] == 8
+    assert summary["ando_accounting"]["audits_with_exact_ando_violation"] == 925
+    comparison = summary["comparison_to_baseline"]
+    assert comparison["strict_bound_improvement"]
+    assert not comparison["tree_dominance"]
+    assert (
+        comparison["ando_maximum_pending_bound"]
+        < comparison["baseline_maximum_pending_bound"]
+    )
+    assert summary["run"]["maximum_pending_bound"] > summary["problem"]["target"]
+    assert not summary["conclusion"]["target_closed"]
+
+
+def known_non_cp_planar_pullbacks() -> tuple[np.ndarray, float, float]:
+    """Return positive pulled effects with no common planar CP completion."""
+
+    second = np.asarray(
+        [
+            [0.24175927315093138, -0.30528594092156486 + 0.05548766814312024j],
+            [-0.30528594092156475 - 0.05548766814312024j, 0.39824073004173],
+        ]
+    )
+    third = np.asarray(
+        [
+            [0.24654148066124223, 0.11892952988987542 - 0.18317018377261665j],
+            [0.11892952988987542 + 0.18317018377261671j, 0.19345852058459123],
+        ]
+    )
+    matrices = np.asarray([np.eye(2) - second - third, second, third])
+    paulis = np.asarray(
+        [
+            np.eye(2),
+            [[0.0, 1.0], [1.0, 0.0]],
+            [[0.0, -1j], [1j, 0.0]],
+            [[1.0, 0.0], [0.0, -1.0]],
+        ],
+        dtype=complex,
+    )
+    coefficients = np.asarray(
+        [
+            [
+                0.5 * np.trace(matrices[outcome] @ paulis[coordinate]).real
+                for outcome in range(3)
+            ]
+            for coordinate in range(4)
+        ]
+    )
+    denominator = 1.0 / (0.92 + 0.64 - 1.0)
+    return coefficients, 0.92 * denominator, 0.64 * denominator
+
+
+def test_planar_ando_direction_detects_common_cp_failure() -> None:
+    pulled, alpha, beta = known_non_cp_planar_pullbacks()
+    report = planar_ando_direction(pulled, planar_reconstruction(alpha, beta))
+    assert report["violation"] > 0.1
+    assert report["exact_margin"] == -report["violation"]
+    np.testing.assert_allclose(
+        np.linalg.norm(report["test_direction"][1:]),
+        1.0,
+        atol=2e-12,
+    )
+
+
+def test_zero_width_ando_enclosure_matches_cramers_rule() -> None:
+    inputs = np.asarray(
+        [
+            [0.25, 0.10, 0.00, 0.00],
+            [0.25, 0.00, 0.10, 0.00],
+            [0.25, 0.00, 0.00, 0.10],
+            [0.25, 0.00, 0.00, 0.00],
+        ]
+    )
+    pulled, alpha, beta = known_non_cp_planar_pullbacks()
+    report = planar_ando_direction(pulled, planar_reconstruction(alpha, beta))
+    sign = 1 if np.linalg.det(inputs) > 0.0 else -1
+    _, coefficient_upper, _ = ando_witness_coefficient_bounds(
+        inputs,
+        inputs,
+        (alpha, alpha),
+        (beta, beta),
+        np.asarray(report["test_direction"]),
+        float(report["phase"]),
+        sign,
+    )
+    probabilities = inputs @ pulled
+    enclosed_lhs = float(np.sum(coefficient_upper * probabilities))
+    exact_lhs = abs(float(np.linalg.det(inputs))) * float(report["exact_margin"])
+    np.testing.assert_allclose(
+        enclosed_lhs,
+        exact_lhs,
+        atol=2e-13,
+    )
+
+
+def test_ando_witness_rejects_positive_effects_without_common_cp_map() -> None:
+    inputs = np.asarray(
+        [
+            [0.25, 0.10, 0.00, 0.00],
+            [0.25, 0.00, 0.10, 0.00],
+            [0.25, 0.00, 0.00, 0.10],
+            [0.25, 0.00, 0.00, 0.00],
+        ]
+    )
+    pulled, alpha, beta = known_non_cp_planar_pullbacks()
+    statistics = np.zeros((4, 4, 3), dtype=float)
+    statistics[:, 0, :] = inputs @ pulled
+    povm_witnesses, povm_audit = determinant_povm_witnesses(
+        inputs - 1e-8,
+        inputs + 1e-8,
+        inputs,
+        statistics,
+        2e-12,
+    )
+    ando_witnesses, ando_audit = determinant_ando_witnesses(
+        inputs - 1e-8,
+        inputs + 1e-8,
+        (alpha - 1e-8, alpha + 1e-8),
+        (beta - 1e-8, beta + 1e-8),
+        inputs,
+        statistics,
+        2e-12,
+    )
+    assert povm_audit["negative_effect_count"] == 0
+    assert not povm_witnesses
+    assert ando_audit["violated_direction_count"] == 1
+    assert ando_audit["robust_witness_count"] == 1
+    assert ando_witnesses[0]["kind"] == "planar-ando"
+    assert ando_witnesses[0]["violation"] > 1e-6
+
+
+def test_ando_enclosure_does_not_reject_a_physical_cp_map() -> None:
+    rng = np.random.default_rng(20260825)
+    inputs = np.asarray(
+        [
+            [0.25, 0.10, 0.00, 0.00],
+            [0.25, 0.00, 0.10, 0.00],
+            [0.25, 0.00, 0.00, 0.10],
+            [0.25, 0.00, 0.00, 0.00],
+        ]
+    )
+    alpha, beta = 1.61, 1.13
+    terminal = np.asarray(
+        [pauli_effect_matrix(row) for row in planar_effect_pauli(alpha, beta)]
+    )
+    kraus = rng.normal(size=(2, 2)) + 1j * rng.normal(size=(2, 2))
+    kraus /= 1.4 * np.linalg.svd(kraus, compute_uv=False)[0]
+    pulled_matrices = np.asarray(
+        [kraus.conj().T @ effect @ kraus for effect in terminal]
+    )
+    paulis = np.asarray(
+        [
+            np.eye(2),
+            [[0.0, 1.0], [1.0, 0.0]],
+            [[0.0, -1j], [1j, 0.0]],
+            [[1.0, 0.0], [0.0, -1.0]],
+        ],
+        dtype=complex,
+    )
+    pulled = np.asarray(
+        [
+            [
+                0.5
+                * np.trace(pulled_matrices[outcome] @ paulis[coordinate]).real
+                for outcome in range(3)
+            ]
+            for coordinate in range(4)
+        ]
+    )
+    probabilities = inputs @ pulled
+    statistics = np.zeros((4, 4, 3), dtype=float)
+    statistics[:, 0, :] = probabilities
+    witnesses, audit = determinant_ando_witnesses(
+        inputs - 2e-6,
+        inputs + 2e-6,
+        (alpha - 2e-6, alpha + 2e-6),
+        (beta - 2e-6, beta + 2e-6),
+        inputs,
+        statistics,
+        2e-12,
+    )
+    assert not witnesses
+    assert audit["robust_witness_count"] == 0
+    sign = 1 if np.linalg.det(inputs) > 0.0 else -1
+    for _ in range(20):
+        bloch = rng.normal(size=3)
+        bloch /= np.linalg.norm(bloch)
+        test = np.concatenate(([1.0], bloch))
+        phase = rng.uniform(0.0, 2.0 * math.pi)
+        _, coefficient_upper, _ = ando_witness_coefficient_bounds(
+            inputs - 2e-6,
+            inputs + 2e-6,
+            (alpha - 2e-6, alpha + 2e-6),
+            (beta - 2e-6, beta + 2e-6),
+            test,
+            phase,
+            sign,
+        )
+        assert float(np.sum(coefficient_upper * probabilities)) >= -2e-13
+
+
+def test_ando_margin_branching_targets_enclosure_gap() -> None:
+    inputs = np.asarray(
+        [
+            [0.25, 0.10, 0.00, 0.00],
+            [0.25, 0.00, 0.10, 0.00],
+            [0.25, 0.00, 0.00, 0.10],
+            [0.25, 0.00, 0.00, 0.00],
+        ]
+    )
+    pulled, alpha, beta = known_non_cp_planar_pullbacks()
+    statistics = np.zeros((4, 4, 3), dtype=float)
+    statistics[:, 0, :] = inputs @ pulled
+    lower = inputs - 0.003
+    upper = inputs + 0.003
+    witnesses, audit = determinant_ando_witnesses(
+        lower,
+        upper,
+        (alpha - 0.001, alpha + 0.001),
+        (beta - 0.001, beta + 0.001),
+        inputs,
+        statistics,
+        2e-12,
+    )
+    assert not witnesses
+    assert audit["violated_direction_count"] == 1
+    scores = ando_input_split_scores(
+        lower,
+        upper,
+        (alpha - 0.001, alpha + 0.001),
+        (beta - 0.001, beta + 0.001),
+        statistics,
+        audit,
+    )
+    assert np.max(scores) > 0.01

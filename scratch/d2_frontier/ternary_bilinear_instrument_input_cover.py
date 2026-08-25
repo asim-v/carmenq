@@ -47,6 +47,7 @@ from typing import Any
 
 import cvxpy as cp
 import numpy as np
+from scipy.optimize import minimize_scalar
 
 from ternary_common_povm_input_cover import (
     _compact_result,
@@ -60,11 +61,15 @@ from ternary_common_povm_input_cover import (
 from ternary_probability_cone_cover import TernaryConeOracle
 from terminal_reconstruction_enclosure import (
     Interval,
+    planar_reconstruction,
+    reconstruction_intervals,
     terminal_effect_anchor_and_errors,
 )
 
 
 DETERMINANT_NEAR_RELATIVE_GAP = 1.02
+ANDO_NEAR_RELATIVE_GAP = 1.4
+ANDO_SPLIT_SHORTLIST = 4
 MAX_DETERMINANT_BRANCH_STREAK = 1
 
 
@@ -328,6 +333,7 @@ def determinant_povm_witnesses(
         coefficients[:, y, t] = -upper_coefficients
         candidates.append(
             {
+                "kind": "positive-effect",
                 "coefficients": coefficients.tolist(),
                 "bound": 0.0,
                 "effect_index": index,
@@ -364,6 +370,272 @@ def determinant_povm_witnesses(
             float(negative_effects[0]["robust_lhs"]) if negative_effects else None
         ),
         "negative_effects": negative_effects,
+    }
+
+
+def planar_ando_direction(
+    pulled_effects: np.ndarray,
+    reconstruction: np.ndarray,
+    grid_size: int = 512,
+) -> dict[str, Any]:
+    """Return the strongest rank-one planar Ando violation found.
+
+    The columns of pulled_effects are Pauli coordinates of the three pulled
+    terminal effects for one instrument outcome. Complete positivity of a
+    common qubit instrument requires every positive test functional and
+    every planar phase to satisfy the corresponding Ando inequality. For a
+    fixed phase, maximisation over the Bloch vector is analytic.
+
+    This numerical search only chooses a separating direction. Rigorous
+    validity comes from the interval-enclosed cut built by
+    ando_witness_coefficient_bounds.
+    """
+
+    effects = np.asarray(pulled_effects, dtype=float)
+    reconstruction = np.asarray(reconstruction, dtype=float)
+    if effects.shape != (4, 3):
+        raise ValueError("pulled effects must have shape (4,3)")
+    if reconstruction.shape != (2, 3):
+        raise ValueError("reconstruction must have shape (2,3)")
+    if grid_size < 16:
+        raise ValueError("Ando phase grid must contain at least 16 points")
+
+    total = np.sum(effects, axis=1)
+    visible_x = effects @ reconstruction[0]
+    visible_y = effects @ reconstruction[1]
+
+    def exposed_violation(phase: float) -> float:
+        difference = (
+            math.cos(phase) * visible_x
+            + math.sin(phase) * visible_y
+            - total
+        )
+        return float(difference[0] + np.linalg.norm(difference[1:]))
+
+    phases = np.linspace(0.0, 2.0 * math.pi, grid_size, endpoint=False)
+    values = np.asarray([exposed_violation(phase) for phase in phases])
+    index = int(np.argmax(values))
+    step = 2.0 * math.pi / grid_size
+    centre = float(phases[index])
+    refinement = minimize_scalar(
+        lambda phase: -exposed_violation(float(phase)),
+        bounds=(centre - step, centre + step),
+        method="bounded",
+        options={"xatol": 1e-14},
+    )
+    phase = float(refinement.x) % (2.0 * math.pi)
+    difference = math.cos(phase) * visible_x + math.sin(phase) * visible_y - total
+    vector_norm = float(np.linalg.norm(difference[1:]))
+    direction = (
+        difference[1:] / vector_norm
+        if vector_norm > 1e-15
+        else np.zeros(3, dtype=float)
+    )
+    test = np.concatenate(([1.0], direction))
+    total_expectation = float(test @ total)
+    visible_expectations = np.asarray(
+        [float(test @ visible_x), float(test @ visible_y)]
+    )
+    exact_margin = float(
+        total_expectation
+        - math.cos(phase) * visible_expectations[0]
+        - math.sin(phase) * visible_expectations[1]
+    )
+    return {
+        "violation": -exact_margin,
+        "phase": phase,
+        "test_direction": test.tolist(),
+        "total_expectation": total_expectation,
+        "visible_expectations": visible_expectations.tolist(),
+        "exact_margin": exact_margin,
+    }
+
+
+def ando_witness_coefficient_bounds(
+    lower: np.ndarray,
+    upper: np.ndarray,
+    alpha_bounds: tuple[float, float],
+    beta_bounds: tuple[float, float],
+    test_direction: np.ndarray,
+    phase: float,
+    sign: int,
+) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
+    """Enclose every coefficient of a determinant-scaled Ando witness.
+
+    Cramer's rule expresses each tested pulled effect as signed
+    row-replacement determinants times observed probabilities. The planar
+    complete-positivity inequality couples all three terminal outcomes.
+    Interval enclosing both factors over the input and terminal boxes gives
+    a robust linear cut because every probability is nonnegative.
+    """
+
+    test = np.asarray(test_direction, dtype=float)
+    if test.shape != (4,):
+        raise ValueError("Ando test direction must have shape (4,)")
+    if sign not in {-1, 1}:
+        raise ValueError("determinant sign must be +1 or -1")
+    replacement = [
+        Interval(
+            *replacement_determinant_bounds(
+                lower,
+                upper,
+                row,
+                test,
+                sign,
+            )
+        )
+        for row in range(4)
+    ]
+    x_intervals, y_intervals = reconstruction_intervals(
+        alpha_bounds,
+        beta_bounds,
+    )
+    cosine = Interval.point(math.cos(float(phase)))
+    sine = Interval.point(math.sin(float(phase)))
+    terminal = [
+        Interval.point(1.0) - cosine * x_intervals[t] - sine * y_intervals[t]
+        for t in range(3)
+    ]
+    product = [
+        [replacement[z] * terminal[t] for t in range(3)]
+        for z in range(4)
+    ]
+    coefficient_lower = np.asarray(
+        [[product[z][t].lower for t in range(3)] for z in range(4)]
+    )
+    coefficient_upper = np.asarray(
+        [[product[z][t].upper for t in range(3)] for z in range(4)]
+    )
+    return coefficient_lower, coefficient_upper, {
+        "replacement_determinant_intervals": [
+            [item.lower, item.upper] for item in replacement
+        ],
+        "terminal_coefficient_intervals": [
+            [item.lower, item.upper] for item in terminal
+        ],
+        "coefficient_intervals": [
+            [
+                [product[z][t].lower, product[z][t].upper]
+                for t in range(3)
+            ]
+            for z in range(4)
+        ],
+    }
+
+
+def determinant_ando_witnesses(
+    lower: np.ndarray,
+    upper: np.ndarray,
+    alpha_bounds: tuple[float, float],
+    beta_bounds: tuple[float, float],
+    input_pauli: np.ndarray,
+    statistics: np.ndarray,
+    tolerance: float,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Build robust witnesses for one common planar CP instrument.
+
+    Unlike separate-effect POVM witnesses, each Ando cut couples all three
+    terminal outcomes for a fixed path outcome. A negative robust upper
+    envelope excludes every common Choi matrix throughout the complete input
+    and terminal parameter box.
+    """
+
+    determinant_box = determinant_vertex_bounds(lower, upper)
+    if determinant_box.lower > 0.0:
+        sign = 1
+    elif determinant_box.upper < 0.0:
+        sign = -1
+    else:
+        return [], {
+            "determinant_interval": [
+                float(determinant_box.lower),
+                float(determinant_box.upper),
+            ],
+            "determinant_bounds_method": "exhaustive-multiaffine-vertices",
+            "sign_definite": False,
+        }
+    matrix = np.asarray(input_pauli, dtype=float)
+    table = np.asarray(statistics, dtype=float)
+    if matrix.shape != (4, 4) or table.shape != (4, 4, 3):
+        raise ValueError("invalid Ando-witness point")
+    determinant = float(np.linalg.det(matrix))
+    if sign * determinant <= 0.0:
+        raise RuntimeError("candidate determinant disagrees with interval sign")
+    effects = np.linalg.solve(matrix, table.reshape(4, 12)).reshape(4, 4, 3)
+    midpoint_reconstruction = planar_reconstruction(
+        0.5 * (alpha_bounds[0] + alpha_bounds[1]),
+        0.5 * (beta_bounds[0] + beta_bounds[1]),
+    )
+    candidates: list[dict[str, Any]] = []
+    diagnostics: list[dict[str, Any]] = []
+    for outcome in range(4):
+        direction = planar_ando_direction(
+            effects[:, outcome, :],
+            midpoint_reconstruction,
+        )
+        if float(direction["violation"]) <= tolerance:
+            continue
+        test = np.asarray(direction["test_direction"], dtype=float)
+        phase = float(direction["phase"])
+        coefficient_lower, coefficient_upper, interval_audit = (
+            ando_witness_coefficient_bounds(
+                lower,
+                upper,
+                alpha_bounds,
+                beta_bounds,
+                test,
+                phase,
+                sign,
+            )
+        )
+        robust_lhs = float(np.sum(coefficient_upper * table[:, outcome, :]))
+        exact_lhs = float(abs(determinant) * float(direction["exact_margin"]))
+        diagnostic = {
+            "path_outcome": outcome,
+            **direction,
+            "determinant_scaled_margin": exact_lhs,
+            "robust_lhs": robust_lhs,
+            "enclosure_gap": robust_lhs - exact_lhs,
+            "robust": bool(robust_lhs < -tolerance),
+            **interval_audit,
+        }
+        diagnostics.append(diagnostic)
+        if robust_lhs >= -tolerance:
+            continue
+        coefficients = np.zeros((4, 4, 3), dtype=float)
+        coefficients[:, outcome, :] = -coefficient_upper
+        candidates.append(
+            {
+                "kind": "planar-ando",
+                "coefficients": coefficients.tolist(),
+                "bound": 0.0,
+                "path_outcome": outcome,
+                "phase": phase,
+                "test_direction": test.tolist(),
+                "exact_margin": float(direction["exact_margin"]),
+                "determinant_scaled_margin": exact_lhs,
+                "upper_coefficients": coefficient_upper.tolist(),
+                "robust_lhs": robust_lhs,
+                "violation": -robust_lhs,
+                "determinant_sign": sign,
+            }
+        )
+    candidates.sort(key=lambda item: float(item["violation"]), reverse=True)
+    diagnostics.sort(key=lambda item: float(item["robust_lhs"]))
+    return candidates, {
+        "determinant_interval": [
+            float(determinant_box.lower),
+            float(determinant_box.upper),
+        ],
+        "determinant_bounds_method": "exhaustive-multiaffine-vertices",
+        "candidate_determinant": determinant,
+        "sign_definite": True,
+        "violated_direction_count": len(diagnostics),
+        "robust_witness_count": len(candidates),
+        "minimum_robust_lhs": (
+            float(diagnostics[0]["robust_lhs"]) if diagnostics else None
+        ),
+        "violated_directions": diagnostics,
     }
 
 
@@ -440,6 +712,115 @@ def determinant_split_scores(
     return scores
 
 
+def ando_input_split_scores(
+    lower: np.ndarray,
+    upper: np.ndarray,
+    alpha_bounds: tuple[float, float],
+    beta_bounds: tuple[float, float],
+    statistics: np.ndarray,
+    ando_audit: dict[str, Any] | None,
+    maximum_directions: int = 1,
+    maximum_coordinates: int = ANDO_SPLIT_SHORTLIST,
+) -> np.ndarray:
+    """Score shortlisted input bisections by robust Ando improvement.
+
+    Cofactor sensitivity at the box midpoint cheaply ranks all sixteen input
+    coordinates. The strongest candidates are then bisected virtually and
+    their rigorous coefficient enclosures recomputed on both children. This
+    is only a branching heuristic: every later cut remains independently
+    certified on the complete child box where it is applied.
+    """
+
+    scores = np.zeros((4, 4), dtype=float)
+    if not ando_audit or not ando_audit.get("sign_definite"):
+        return scores
+    sign = 1 if float(ando_audit["candidate_determinant"]) > 0.0 else -1
+    table = np.asarray(statistics, dtype=float)
+    midpoint_matrix = 0.5 * (np.asarray(lower) + np.asarray(upper))
+    reconstruction = planar_reconstruction(
+        0.5 * (alpha_bounds[0] + alpha_bounds[1]),
+        0.5 * (beta_bounds[0] + beta_bounds[1]),
+    )
+    directions = [
+        item
+        for item in ando_audit.get("violated_directions", [])
+        if not bool(item.get("robust", False))
+    ][: max(0, int(maximum_directions))]
+    for item in directions:
+        outcome = int(item["path_outcome"])
+        test = np.asarray(item["test_direction"], dtype=float)
+        phase = float(item["phase"])
+        probabilities = np.maximum(table[:, outcome, :], 0.0)
+        terminal_coefficients = (
+            1.0
+            - math.cos(phase) * reconstruction[0]
+            - math.sin(phase) * reconstruction[1]
+        )
+        sensitivity = np.zeros((4, 4), dtype=float)
+        for row in range(4):
+            for coordinate in range(4):
+                half_width = 0.5 * float(upper[row, coordinate] - lower[row, coordinate])
+                if half_width <= 0.0:
+                    continue
+                for replaced_row in range(4):
+                    if replaced_row == row:
+                        continue
+                    matrix = midpoint_matrix.copy()
+                    matrix[replaced_row] = test
+                    minor = np.delete(
+                        np.delete(matrix, row, axis=0),
+                        coordinate,
+                        axis=1,
+                    )
+                    derivative = (
+                        sign
+                        * (-1.0 if (row + coordinate) % 2 else 1.0)
+                        * float(np.linalg.det(minor))
+                    )
+                    sensitivity[row, coordinate] += half_width * np.sum(
+                        np.abs(derivative * terminal_coefficients)
+                        * probabilities[replaced_row]
+                    )
+        ranked = np.argsort(sensitivity.ravel())[::-1]
+        selected = [
+            int(index)
+            for index in ranked[: max(0, int(maximum_coordinates))]
+            if sensitivity.ravel()[index] > 0.0
+        ]
+        parent_lhs = float(item["robust_lhs"])
+        scale = max(
+            -float(item["determinant_scaled_margin"]),
+            abs(parent_lhs),
+            1e-12,
+        )
+        for flat_index in selected:
+            row, coordinate = np.unravel_index(flat_index, (4, 4))
+            row = int(row)
+            coordinate = int(coordinate)
+            midpoint = 0.5 * (lower[row, coordinate] + upper[row, coordinate])
+            child_lhs: list[float] = []
+            for side in range(2):
+                child_lower = lower.copy()
+                child_upper = upper.copy()
+                if side == 0:
+                    child_upper[row, coordinate] = midpoint
+                else:
+                    child_lower[row, coordinate] = midpoint
+                _, coefficient_upper, _ = ando_witness_coefficient_bounds(
+                    child_lower,
+                    child_upper,
+                    alpha_bounds,
+                    beta_bounds,
+                    test,
+                    phase,
+                    sign,
+                )
+                child_lhs.append(float(np.sum(coefficient_upper * probabilities)))
+            improvement = parent_lhs - max(child_lhs)
+            scores[row, coordinate] += max(0.0, improvement) / scale
+    return scores
+
+
 def product_residual_scores(oracle: TernaryConeOracle) -> np.ndarray:
     """Measure where the current McCormick solution departs from a product.
 
@@ -498,6 +879,7 @@ def _assemble(
     max_witnesses: int,
     max_new_witnesses_per_node: int,
     witness_tolerance: float,
+    use_ando_witnesses: bool,
 ) -> dict[str, Any]:
     pending = [item[2] for item in sorted(pending_heap)]
     closed = sum(record.get("disposition") == "closed" for record in records)
@@ -522,7 +904,7 @@ def _assemble(
         "target": source["target"],
         "source": (
             "ternary spatial common-instrument and common-POVM McCormick "
-            "cover with determinant witnesses"
+            "cover with determinant-scaled POVM and Ando witnesses"
         ),
         "source_box": source["box"],
         "base_code": source["base_code"],
@@ -536,8 +918,11 @@ def _assemble(
         "max_witnesses": int(max_witnesses),
         "max_new_witnesses_per_node": int(max_new_witnesses_per_node),
         "witness_tolerance": float(witness_tolerance),
+        "planar_ando_witnesses": bool(use_ando_witnesses),
         "determinant_bounds_method": "exhaustive-multiaffine-vertices",
         "determinant_near_relative_gap": DETERMINANT_NEAR_RELATIVE_GAP,
+        "ando_near_relative_gap": ANDO_NEAR_RELATIVE_GAP,
+        "ando_split_shortlist": ANDO_SPLIT_SHORTLIST,
         "maximum_determinant_branch_streak": MAX_DETERMINANT_BRANCH_STREAK,
         "max_nodes": int(max_nodes),
         "solved_nodes": len(records),
@@ -548,6 +933,9 @@ def _assemble(
         "maximum_depth": max((int(record["depth"]) for record in records), default=0),
         "determinant_witness_count": int(
             sum(int(record.get("new_witnesses", 0)) for record in records)
+        ),
+        "planar_ando_witness_count": int(
+            sum(int(record.get("new_ando_witnesses", 0)) for record in records)
         ),
         "maximum_pending_bound": float(frontier_bound),
         "statuses_complete": bool(statuses_complete),
@@ -560,9 +948,10 @@ def _assemble(
         "scope": (
             "one continuous terminal cell and the selected Fourier spectral "
             "cell; all input--Choi and input--POVM products use convergent "
-            "McCormick envelopes; pure-prefix caps and determinant-scaled "
-            "common-POVM cuts are valid on complete input boxes; numerical "
-            "SDP bounds remain solver-conditional"
+            "McCormick envelopes; pure-prefix caps, determinant-scaled "
+            "common-POVM cuts, and optional planar Ando cuts are valid on "
+            "complete input and terminal boxes; numerical SDP bounds remain "
+            "solver-conditional"
         ),
     }
 
@@ -579,6 +968,7 @@ def cover_candidate_region(
     max_witnesses: int,
     max_new_witnesses_per_node: int,
     witness_tolerance: float,
+    use_ando_witnesses: bool,
     resume: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Cover one localised input region with spatial instrument cells."""
@@ -638,9 +1028,11 @@ def cover_candidate_region(
         purity_caps.value = box_purity_caps(lower, upper)
         witness_records = list(node.get("determinant_witnesses", []))
         new_witnesses = 0
+        new_ando_witnesses = 0
         oracle_solves = 0
         determinant_audit: dict[str, Any] | None = None
-        determinant_audit_solve = 0
+        ando_audit: dict[str, Any] | None = None
+        witness_audit_solve = 0
         while True:
             active_witnesses = tuple(
                 (
@@ -665,31 +1057,46 @@ def cover_candidate_region(
                 or len(witness_records) >= max_witnesses
             ):
                 break
+            input_pauli = np.column_stack(
+                [result["prefix"], result["input_bloch_vectors"]]
+            )
+            statistics = np.asarray(result["statistics"], dtype=float)
             candidate_witnesses, determinant_audit = determinant_povm_witnesses(
                 lower,
                 upper,
-                np.column_stack([result["prefix"], result["input_bloch_vectors"]]),
-                np.asarray(result["statistics"], dtype=float),
+                input_pauli,
+                statistics,
                 witness_tolerance,
             )
-            determinant_audit_solve = oracle_solves
+            if use_ando_witnesses:
+                ando_candidates, ando_audit = determinant_ando_witnesses(
+                    lower,
+                    upper,
+                    tuple(map(float, box["terminal_alpha"])),
+                    tuple(map(float, box["terminal_beta"])),
+                    input_pauli,
+                    statistics,
+                    witness_tolerance,
+                )
+                candidate_witnesses.extend(ando_candidates)
+            candidate_witnesses.sort(
+                key=lambda item: float(item["violation"]),
+                reverse=True,
+            )
+            witness_audit_solve = oracle_solves
             existing = {
-                (
-                    int(item["effect_index"]),
-                    tuple(
-                        int(round(value * 1e12)) for value in item["upper_coefficients"]
-                    ),
+                tuple(
+                    int(round(value * 1e12))
+                    for value in np.asarray(item["coefficients"]).ravel()
                 )
                 for item in witness_records
             }
             novel = [
                 item
                 for item in candidate_witnesses
-                if (
-                    int(item["effect_index"]),
-                    tuple(
-                        int(round(value * 1e12)) for value in item["upper_coefficients"]
-                    ),
+                if tuple(
+                    int(round(value * 1e12))
+                    for value in np.asarray(item["coefficients"]).ravel()
                 )
                 not in existing
             ]
@@ -702,20 +1109,37 @@ def cover_candidate_region(
             additions = novel[:capacity]
             witness_records.extend(additions)
             new_witnesses += len(additions)
+            new_ando_witnesses += sum(
+                item.get("kind") == "planar-ando" for item in additions
+            )
         bound = float(result["bound"])
         widths = upper - lower
         if (
             result["status"] in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE}
             and bound >= target
-            and determinant_audit_solve != oracle_solves
+            and witness_audit_solve != oracle_solves
         ):
+            input_pauli = np.column_stack(
+                [result["prefix"], result["input_bloch_vectors"]]
+            )
+            statistics = np.asarray(result["statistics"], dtype=float)
             _, determinant_audit = determinant_povm_witnesses(
                 lower,
                 upper,
-                np.column_stack([result["prefix"], result["input_bloch_vectors"]]),
-                np.asarray(result["statistics"], dtype=float),
+                input_pauli,
+                statistics,
                 witness_tolerance,
             )
+            if use_ando_witnesses:
+                _, ando_audit = determinant_ando_witnesses(
+                    lower,
+                    upper,
+                    tuple(map(float, box["terminal_alpha"])),
+                    tuple(map(float, box["terminal_beta"])),
+                    input_pauli,
+                    statistics,
+                    witness_tolerance,
+                )
         residual_scores = (
             product_residual_scores(oracle)
             if result["status"] in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE}
@@ -727,6 +1151,15 @@ def cover_candidate_region(
         near_determinant_margin = any(
             float(item["relative_enclosure_gap"]) <= DETERMINANT_NEAR_RELATIVE_GAP
             for item in negative_effects
+        )
+        ando_directions = (
+            ando_audit.get("violated_directions", []) if ando_audit else []
+        )
+        near_ando_margin = any(
+            float(item["enclosure_gap"])
+            / max(-float(item["determinant_scaled_margin"]), 1e-15)
+            <= ANDO_NEAR_RELATIVE_GAP
+            for item in ando_directions
         )
         determinant_branch_streak = int(node.get("determinant_branch_streak", 0))
         determinant_scores = (
@@ -742,6 +1175,22 @@ def cover_candidate_region(
             and (new_witnesses > 0 or near_determinant_margin)
             else np.zeros((4, 4), dtype=float)
         )
+        ando_scores = (
+            ando_input_split_scores(
+                lower,
+                upper,
+                tuple(map(float, box["terminal_alpha"])),
+                tuple(map(float, box["terminal_beta"])),
+                np.asarray(result["statistics"], dtype=float),
+                ando_audit,
+            )
+            if use_ando_witnesses
+            and result["status"] in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE}
+            and bound >= target
+            and determinant_branch_streak < MAX_DETERMINANT_BRANCH_STREAK
+            and (new_ando_witnesses > 0 or near_ando_margin)
+            else np.zeros((4, 4), dtype=float)
+        )
         record = {
             **node,
             "determinant_witnesses": witness_records,
@@ -750,11 +1199,15 @@ def cover_candidate_region(
             "maximum_row_l1_width": float(np.max(np.sum(widths, axis=1))),
             "maximum_product_residual": float(np.max(residual_scores)),
             "maximum_determinant_split_score": float(np.max(determinant_scores)),
+            "maximum_ando_split_score": float(np.max(ando_scores)),
             "near_determinant_margin": bool(near_determinant_margin),
+            "near_ando_margin": bool(near_ando_margin),
             "determinant_branch_streak": determinant_branch_streak,
             "oracle_solves": oracle_solves,
             "new_witnesses": new_witnesses,
+            "new_ando_witnesses": new_ando_witnesses,
             "determinant_audit": determinant_audit,
+            "ando_audit": ando_audit,
         }
         records.append(record)
         if top_solution is None or bound > float(top_solution["bound"]):
@@ -777,24 +1230,34 @@ def cover_candidate_region(
             record["disposition"] = "solver-unresolved"
             unresolved.append(record)
         else:
-            determinant_eligible = determinant_scores.copy()
-            determinant_eligible[widths <= minimum_width] = -math.inf
+            margin_scores = np.maximum(determinant_scores, ando_scores)
+            margin_eligible = margin_scores.copy()
+            margin_eligible[widths <= minimum_width] = -math.inf
             residual_eligible = residual_scores.copy()
             residual_eligible[widths <= minimum_width] = -math.inf
-            use_determinant_branch = (
-                np.any(np.isfinite(determinant_eligible))
-                and float(np.max(determinant_eligible)) > 1e-12
+            use_margin_branch = (
+                np.any(np.isfinite(margin_eligible))
+                and float(np.max(margin_eligible)) > 1e-12
                 and determinant_branch_streak < MAX_DETERMINANT_BRANCH_STREAK
-                and (new_witnesses > 0 or near_determinant_margin)
+                and (
+                    new_witnesses > 0
+                    or near_determinant_margin
+                    or near_ando_margin
+                )
             )
-            if use_determinant_branch:
+            if use_margin_branch:
                 row, coordinate = np.unravel_index(
-                    int(np.argmax(determinant_eligible)),
-                    determinant_eligible.shape,
+                    int(np.argmax(margin_eligible)),
+                    margin_eligible.shape,
                 )
                 row = int(row)
                 coordinate = int(coordinate)
-                record["branching_rule"] = "determinant-margin"
+                record["branching_rule"] = (
+                    "ando-margin"
+                    if ando_scores[row, coordinate]
+                    > determinant_scores[row, coordinate]
+                    else "determinant-margin"
+                )
             elif (
                 np.any(np.isfinite(residual_eligible))
                 and float(np.max(residual_eligible)) > 1e-10
@@ -835,7 +1298,8 @@ def cover_candidate_region(
                     child["determinant_witnesses"] = witness_records
                     child["determinant_branch_streak"] = (
                         determinant_branch_streak + 1
-                        if record["branching_rule"] == "determinant-margin"
+                        if record["branching_rule"]
+                        in {"determinant-margin", "ando-margin"}
                         else 0
                     )
                     heapq.heappush(pending, (-bound, next_identifier, child))
@@ -853,6 +1317,7 @@ def cover_candidate_region(
                     "bound": bound,
                     "maximum_coordinate_width": record["maximum_coordinate_width"],
                     "new_witnesses": new_witnesses,
+                    "new_ando_witnesses": new_ando_witnesses,
                     "disposition": record["disposition"],
                 }
             ),
@@ -877,6 +1342,7 @@ def cover_candidate_region(
                     max_witnesses,
                     max_new_witnesses_per_node,
                     witness_tolerance,
+                    use_ando_witnesses,
                 ),
             )
 
@@ -896,6 +1362,7 @@ def cover_candidate_region(
         max_witnesses,
         max_new_witnesses_per_node,
         witness_tolerance,
+        use_ando_witnesses,
     )
     _write_checkpoint(output, payload)
     return payload
@@ -915,6 +1382,7 @@ def main() -> None:
     parser.add_argument("--max-witnesses", type=int, default=24)
     parser.add_argument("--max-new-witnesses-per-node", type=int, default=4)
     parser.add_argument("--witness-tolerance", type=float, default=2e-9)
+    parser.add_argument("--planar-ando-witnesses", action="store_true")
     parser.add_argument("--top-spectral-cell", action="store_true")
     args = parser.parse_args()
 
@@ -942,6 +1410,7 @@ def main() -> None:
         args.max_witnesses,
         args.max_new_witnesses_per_node,
         args.witness_tolerance,
+        args.planar_ando_witnesses,
         resume,
     )
     print(
