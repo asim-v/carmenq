@@ -244,6 +244,64 @@ def test_spectral_cover_builds_one_mixed_integer_selector_family() -> None:
     assert oracle.common_contraction_selectors[0].shape == (25,)
 
 
+def test_fixed_common_effective_povm_builds_one_joint_effect_family() -> None:
+    fixed_input = np.asarray(
+        [
+            [0.25, 0.10, 0.00, 0.00],
+            [0.25, 0.00, 0.10, 0.00],
+            [0.25, 0.00, 0.00, 0.10],
+            [0.25, 0.00, 0.00, 0.00],
+        ]
+    )
+    oracle = TernaryConeOracle(
+        0.55,
+        (0, 1, 2, 3),
+        (),
+        (),
+        0.79,
+        0.7573,
+        fixed_common_povm_input=fixed_input,
+    )
+    assert oracle.effective_povm is not None
+    assert oracle.effective_povm.shape == (12, 4)
+    assert len(oracle.input_vectors) == 4
+    assert not oracle.problem.is_mixed_integer()
+
+
+def test_common_effective_povm_neighbourhood_uses_valid_probability_envelope() -> None:
+    rng = np.random.default_rng(20260824)
+    radii = rng.uniform(0.0, 0.02, size=(4, 4))
+    for z in range(4):
+        for _ in range(50):
+            a0 = rng.uniform(0.0, 1.0)
+            direction = rng.normal(size=3)
+            direction /= np.linalg.norm(direction)
+            effect = np.append(a0, rng.uniform(0.0, a0) * direction)
+            delta = rng.uniform(-radii[z], radii[z])
+            assert abs(float(delta @ effect)) <= np.sum(radii[z]) * a0 + 1e-15
+
+    anchor = np.asarray(
+        [
+            [0.25, 0.10, 0.00, 0.00],
+            [0.25, 0.00, 0.10, 0.00],
+            [0.25, 0.00, 0.00, 0.10],
+            [0.25, 0.00, 0.00, 0.00],
+        ]
+    )
+    oracle = TernaryConeOracle(
+        0.55,
+        (0, 1, 2, 3),
+        (),
+        (),
+        0.79,
+        0.7573,
+        common_povm_input_anchor=anchor,
+        common_povm_input_radii=np.full((4, 4), 1e-3),
+    )
+    assert oracle.effective_povm is not None
+    assert not oracle.input_vectors
+
+
 def test_shared_separator_extracts_all_open_first_generation_branches() -> None:
     payload = {
         "nodes": [
@@ -396,3 +454,5 @@ def test_common_effective_povm_frontier_artifacts_recompute_exactly() -> None:
     assert summary["source_open_cells"] == 815
     assert summary["depth4_open_cells"] == 2216
     assert summary["negative_effect_count"] == 10
+    assert summary["certified_row_l1_radius"] == 0.0871
+    assert summary["certified_neighbourhood_bound"] < 0.758

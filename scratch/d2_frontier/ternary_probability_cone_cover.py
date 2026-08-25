@@ -217,6 +217,9 @@ class TernaryConeOracle:
         projective_support_lines: tuple[tuple[float, float], ...] = (),
         common_contractions: tuple[dict[str, object], ...] = (),
         terminal_reconstruction: tuple[object, object] | None = None,
+        fixed_common_povm_input: np.ndarray | None = None,
+        common_povm_input_anchor: np.ndarray | None = None,
+        common_povm_input_radii: np.ndarray | None = None,
     ) -> None:
         self.pairs = pairs
         self.coordinate_cases = coordinate_cases
@@ -344,12 +347,77 @@ class TernaryConeOracle:
         # envelope.  The measured L1 form is terminal-geometry independent;
         # the optional reconstructed form below retains two visible Bloch
         # coordinates with a box-safe terminal-geometry error budget.
+        if fixed_common_povm_input is not None and common_povm_input_anchor is not None:
+            raise ValueError("choose a fixed or neighbourhood common-POVM input")
+        fixed_input = None
+        if fixed_common_povm_input is not None:
+            fixed_input = np.asarray(fixed_common_povm_input, dtype=float)
+            if fixed_input.shape != (4, 4) or not np.all(np.isfinite(fixed_input)):
+                raise ValueError("fixed common-POVM input must have shape (4,4)")
+            if np.any(fixed_input[:, 0] < np.linalg.norm(fixed_input[:, 1:], axis=1) - 1e-10):
+                raise ValueError("fixed common-POVM inputs must be positive")
+        povm_anchor = fixed_input
+        povm_radii = np.zeros((4, 4), dtype=float)
+        if common_povm_input_anchor is not None:
+            povm_anchor = np.asarray(common_povm_input_anchor, dtype=float)
+            if povm_anchor.shape != (4, 4) or not np.all(np.isfinite(povm_anchor)):
+                raise ValueError("common-POVM input anchor must have shape (4,4)")
+            if common_povm_input_radii is None:
+                raise ValueError("common-POVM input radii are required with an anchor")
+            povm_radii = np.asarray(common_povm_input_radii, dtype=float)
+            if (
+                povm_radii.shape != (4, 4)
+                or not np.all(np.isfinite(povm_radii))
+                or np.any(povm_radii < 0.0)
+            ):
+                raise ValueError("common-POVM input radii must be finite and nonnegative")
         self.input_vectors = (
-            [cp.Variable(3) for _ in OUTCOMES] if common_contractions else []
+            [cp.Variable(3) for _ in OUTCOMES]
+            if common_contractions or fixed_input is not None
+            else []
         )
         for z in OUTCOMES:
             if self.input_vectors:
                 constraints.append(cp.SOC(self.prefix[z], self.input_vectors[z]))
+                if fixed_input is not None:
+                    constraints.extend(
+                        (
+                            self.prefix[z] == fixed_input[z, 0],
+                            self.input_vectors[z] == fixed_input[z, 1:],
+                        )
+                    )
+        self.effective_povm: cp.Variable | None = None
+        if povm_anchor is not None:
+            # Every common instrument followed by the terminal POVM induces
+            # one twelve-outcome POVM F_(y,t) on the input.  At fixed input
+            # states this exact compatibility condition is an SOCP.
+            self.effective_povm = cp.Variable((12, 4))
+            constraints.append(
+                cp.sum(self.effective_povm, axis=0)
+                == np.asarray([1.0, 0.0, 0.0, 0.0])
+            )
+            for y in OUTCOMES:
+                for t in range(3):
+                    index = 3 * y + t
+                    constraints.append(
+                        cp.SOC(
+                            self.effective_povm[index, 0],
+                            self.effective_povm[index, 1:],
+                        )
+                    )
+                    for z in OUTCOMES:
+                        constraints.append(
+                            self.statistics[z, y, t]
+                            <= povm_anchor[z] @ self.effective_povm[index]
+                            + float(np.sum(povm_radii[z]))
+                            * self.effective_povm[index, 0]
+                        )
+                        constraints.append(
+                            self.statistics[z, y, t]
+                            >= povm_anchor[z] @ self.effective_povm[index]
+                            - float(np.sum(povm_radii[z]))
+                            * self.effective_povm[index, 0]
+                        )
         self.common_contraction_values: list[cp.Expression] = []
         self.common_contraction_selectors: list[cp.Variable] = []
         if terminal_reconstruction is not None:
@@ -1040,6 +1108,10 @@ class TernaryConeOracle:
                     ],
                 }
             )
+            if self.effective_povm is not None:
+                result["effective_povm"] = np.asarray(
+                    self.effective_povm.value
+                ).tolist()
             if self.conditional_behavior is not None:
                 result["conditional_behavior"] = np.asarray(
                     self.conditional_behavior.value

@@ -32,6 +32,8 @@ def validate() -> dict[str, Any]:
         "ternary_reconstructed_depth4_g2_top_leaf_bbb_p1_s92_l055.json"
     )
     archived_audit = _load("common_effective_povm_audit_depth4_top_l055.json")
+    fixed_slice = _load("ternary_fixed_common_povm_depth4_top_l055.json")
+    neighbourhood = _load("ternary_common_povm_neighborhood_bisection_l055.json")
 
     expected = (
         (shared, "crossed_solve_count", 2156, "open_crossed_cells", 246),
@@ -81,6 +83,20 @@ def validate() -> dict[str, Any]:
     if recomputed["common_effective_povm"]:
         raise AssertionError("the depth-four maximiser passed the common POVM audit")
 
+    if not fixed_slice["closed_at_target"] or not np.isclose(
+        float(fixed_slice["common_povm_bound"]),
+        0.7202822292251839,
+        atol=2e-9,
+    ):
+        raise AssertionError("fixed-input common-POVM slice did not reproduce")
+    rows = {float(row["row_l1_radius"]): row for row in neighbourhood["rows"]}
+    if not rows[0.0871]["closed_at_target"]:
+        raise AssertionError("the retained common-POVM neighbourhood did not close")
+    if rows[0.0872]["closed_at_target"]:
+        raise AssertionError("the first open neighbourhood radius unexpectedly closed")
+    if not np.isclose(float(rows[0.0871]["bound"]), 0.7579750191382169, atol=2e-9):
+        raise AssertionError("unexpected retained neighbourhood bound")
+
     return {
         "logical_status": "adaptive separator frontier rejected by kill criterion",
         "source_open_cells": int(refined["open_refined_cells"]),
@@ -89,7 +105,10 @@ def validate() -> dict[str, Any]:
         "depth4_bound": float(depth4["maximum_crossed_bound"]),
         "effective_povm_minimum_margin": float(recomputed["minimum_margin"]),
         "negative_effect_count": int(recomputed["negative_effect_count"]),
-        "next_method": "joint determinant-scaled common-effective-POVM localiser",
+        "fixed_input_common_povm_bound": float(fixed_slice["common_povm_bound"]),
+        "certified_row_l1_radius": 0.0871,
+        "certified_neighbourhood_bound": float(rows[0.0871]["bound"]),
+        "next_method": "cover the relevant input-basis region by robust common-POVM boxes",
     }
 
 

@@ -128,8 +128,10 @@ arbitrary-depth spectral engine shows where that strategy stops scaling: a
 fourth separator expands the selected cell's open frontier from 815 to 2,216
 without improving its `0.76351459` maximum.  The unique effective POVM at the
 maximiser has ten nonpositive effects, with worst eigenvalue margin `-0.15326`.
-This gives a concrete next formulation---the finite determinant-scaled
-common-POVM localiser---and a documented reason not to add blind cuts.  See
+The joint common-POVM model lowers the fixed-basis slice to `0.72028223` and
+certifies a continuous 16-coordinate box of row-wise `L1` radius `0.0871` at
+upper bound `0.75797502`.  This gives a concrete path toward an input-basis
+cover and a documented reason not to add blind cuts.  See
 [`notes/common_effective_povm_frontier.md`](notes/common_effective_povm_frontier.md).
 
 ## Explore the order-sensitive theorem

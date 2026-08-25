@@ -28,6 +28,15 @@ This suggests a sharper route: impose the finite common-effective-POVM
 criterion jointly, rather than discover its separating hyperplanes one at a
 time.
 
+That route has now passed its first continuous test.  With the maximising
+input basis fixed, the joint common-POVM SOCP gives `0.7202822292`.  A robust
+probability envelope then covers a full coordinate neighbourhood around that
+basis.  A box with coordinate semiradius `0.021775`---equivalently, row-wise
+`L1` radius `0.0871`---has upper bound `0.7579750191`, below target.  At radius
+`0.0872` the same relaxation gives `0.7580118581`.  These are
+solver-conditional bounds; `0.0871` is retained as the conservative tested
+radius, not as a solver-independent optimal threshold.
+
 ## Exact common-effective-POVM criterion
 
 Let four subnormalised qubit states be written in Pauli coordinates as
@@ -220,8 +229,76 @@ Unit tests include a physical POVM, a nonpositive unique reconstruction with
 nonnegative sampled statistics, nested cube-face refinement, and legacy-to-
 arbitrary-depth frontier conversion.
 
-The next implementation target is the determinant-scaled twelve-SOC
-localiser on one fixed-sign nonsingular terminal cell, followed by a separate
-singular-stratum cover.  Only if that remains above `0.758` should the model
-pay the higher cost of the full four Choi-matrix inequalities for the flagged
-instrument.
+The fixed-basis driver is
+`scratch/d2_frontier/ternary_fixed_common_povm_upper.py`; the continuous-box
+driver is `scratch/d2_frontier/ternary_common_povm_neighborhood_sweep.py`.
+Their retained outputs are
+`ternary_fixed_common_povm_depth4_top_l055.json` and
+`ternary_common_povm_neighborhood_bisection_l055.json`.
+
+The next implementation target is a cover of the relevant input-basis region
+by robust common-POVM boxes, followed by a separate singular-stratum cover.
+Only if that outer set remains above `0.758` should the model pay the higher
+cost of the full four Choi-matrix inequalities for the flagged instrument.
+
+## A convex continuous neighbourhood
+
+The polynomial localiser is exact but not immediately convex when the input
+basis varies.  A simpler outer relaxation already converts the fixed-basis
+result into a continuous certificate.
+
+Choose an anchor matrix `R0` and coordinate radii `d[z,mu]`.  For a positive
+effect with Pauli coordinates
+
+\[
+  a_k=(a_{0k},\mathbf a_k),
+  \qquad a_{0k}\geq\|\mathbf a_k\|_2,
+\]
+
+positivity implies `|a_{mu,k}| <= a_{0k}` for every coordinate.  Every input
+matrix in the box
+
+\[
+  |R_{z\mu}-R^0_{z\mu}|\leq d_{z\mu}
+\]
+
+therefore obeys
+
+\[
+  \left|(R_z-R_z^0)\cdot a_k\right|
+  \leq
+  \left(\sum_{\mu=0}^3d_{z\mu}\right)a_{0k}.
+\]
+
+It is sufficient to introduce one common positive POVM and impose the affine
+envelope
+
+\[
+  \left|q_{zk}-R_z^0\cdot a_k\right|
+  \leq D_z a_{0k},
+  \qquad D_z=\sum_\mu d_{z\mu}.
+\]
+
+Every physical input basis in the coordinate box is feasible in this model,
+so its optimum is a valid outer bound for the whole box.  The formulation is
+an SOCP; it needs neither a determinant-sign branch nor angular spectral
+products.  It can include nonphysical matrices in the box, which only makes
+the upper relaxation safer and possibly looser.
+
+For the depth-four anchor, uniform coordinate radii give:
+
+| row-wise `L1` radius | common-POVM upper bound | target status |
+|---:|---:|:---|
+| `0` | `0.7202822297` | closed |
+| `0.03` | `0.7345539271` | closed |
+| `0.08` | `0.7553027277` | closed |
+| `0.0870` | `0.7579381580` | closed |
+| `0.0871` | `0.7579750191` | closed |
+| `0.08715` | `0.7579934410` | numerically closed, too close for the retained margin |
+| `0.0872` | `0.7580118581` | open |
+| `0.09` | `0.7590345293` | open |
+
+All reported bounds already include the existing `2e-6` objective safety
+allowance.  The `0.0871` row is retained because its remaining margin is about
+`2.50e-5`; no claim is made that the transition digits are rigorous beyond
+the declared solver-conditional calculation.
