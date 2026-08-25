@@ -114,6 +114,114 @@ def planar_reconstruction(alpha: float, beta: float) -> np.ndarray:
     return np.vstack([x, y])
 
 
+def planar_effect_pauli(alpha: float, beta: float) -> np.ndarray:
+    """Return Pauli coordinates of the canonical ternary POVM effects.
+
+    Every row ``(a0, ax, ay, az)`` represents
+    ``E = a0 I + ax X + ay Y + az Z``.  The three rank-one effects sum to
+    identity and use the same output-plane convention as
+    :func:`planar_reconstruction`.
+    """
+
+    denominator = alpha + beta - 1.0
+    w0 = alpha / denominator
+    w1 = beta / denominator
+    w2 = (alpha + beta - 2.0) / denominator
+    cosine = 1.0 - 2.0 / alpha - 2.0 / beta + 2.0 / (alpha * beta)
+    sine = math.sqrt(max(0.0, 1.0 - cosine * cosine))
+    if denominator <= 0.0 or min(w0, w1, w2) < 0.0 or sine <= 0.0:
+        raise ValueError("the terminal POVM is projectively degenerate")
+    return 0.5 * np.asarray(
+        [
+            [w0, w0, 0.0, 0.0],
+            [w1, w1 * cosine, w1 * sine, 0.0],
+            [w2, -(w0 + w1 * cosine), -w1 * sine, 0.0],
+        ]
+    )
+
+
+def effect_intervals(
+    alpha_bounds: tuple[float, float],
+    beta_bounds: tuple[float, float],
+) -> tuple[tuple[Interval, ...], ...]:
+    """Outward-enclose every canonical terminal-effect Pauli coordinate."""
+
+    alpha = Interval(*map(float, alpha_bounds))
+    beta = Interval(*map(float, beta_bounds))
+    denominator = alpha + beta - ONE
+    w0 = alpha / denominator
+    w1 = beta / denominator
+    w2 = (alpha + beta - TWO) / denominator
+    cosine = ONE - TWO / alpha - TWO / beta + TWO / (alpha * beta)
+    sine_squared = ONE - cosine.square()
+    if sine_squared.lower <= 0.0:
+        raise ValueError("terminal box reaches a degenerate projective edge")
+    sine = sine_squared.sqrt()
+    half = Interval.point(0.5)
+    zero = Interval.point(0.0)
+    return (
+        (half * w0, half * w0, zero, zero),
+        (half * w1, half * w1 * cosine, half * w1 * sine, zero),
+        (
+            half * w2,
+            -half * (w0 + w1 * cosine),
+            -half * w1 * sine,
+            zero,
+        ),
+    )
+
+
+def terminal_effect_anchor_and_errors(
+    alpha_bounds: tuple[float, float],
+    beta_bounds: tuple[float, float],
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, dict[str, object]]:
+    """Return a terminal-effect anchor and operator-norm error radii.
+
+    If ``E_t`` is any canonical effect in the supplied parameter box and
+    ``E_t^0`` is the returned midpoint anchor, then
+
+    ``||E_t - E_t^0||_infinity <= errors[t]``.
+
+    ``norm_upper[t]`` also encloses ``||E_t||_infinity``.  Both bounds are
+    outward rounded and are suitable for robust common-instrument tubes.
+    """
+
+    alpha = 0.5 * (alpha_bounds[0] + alpha_bounds[1])
+    beta = 0.5 * (beta_bounds[0] + beta_bounds[1])
+    anchor = planar_effect_pauli(alpha, beta)
+    intervals = effect_intervals(alpha_bounds, beta_bounds)
+    errors = np.empty(3, dtype=float)
+    norm_upper = np.empty(3, dtype=float)
+    payload: list[list[list[float]]] = []
+    for outcome, row in enumerate(intervals):
+        payload.append([[item.lower, item.upper] for item in row])
+        deviations = np.asarray(
+            [
+                max(
+                    abs(item.lower - anchor[outcome, coordinate]),
+                    abs(item.upper - anchor[outcome, coordinate]),
+                )
+                for coordinate, item in enumerate(row)
+            ]
+        )
+        errors[outcome] = up(
+            float(deviations[0] + np.linalg.norm(deviations[1:]))
+        )
+        scalar_upper = max(abs(row[0].lower), abs(row[0].upper))
+        vector_upper = math.sqrt(
+            sum(max(abs(item.lower), abs(item.upper)) ** 2 for item in row[1:])
+        )
+        norm_upper[outcome] = up(scalar_upper + vector_upper)
+    return anchor, errors, norm_upper, {
+        "anchor_parameters": [alpha, beta],
+        "anchor_effect_pauli": anchor.tolist(),
+        "coefficient_intervals": payload,
+        "operator_norm_errors": errors.tolist(),
+        "operator_norm_upper": norm_upper.tolist(),
+        "rounding": "IEEE-754 nextafter outward after every interval operation",
+    }
+
+
 def reconstruction_intervals(
     alpha_bounds: tuple[float, float],
     beta_bounds: tuple[float, float],

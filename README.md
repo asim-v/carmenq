@@ -134,6 +134,17 @@ upper bound `0.75797502`.  This gives a concrete path toward an input-basis
 cover and a documented reason not to add blind cuts.  See
 [`notes/common_effective_povm_frontier.md`](notes/common_effective_povm_frontier.md).
 
+That input-basis route now has an exact determinant-sign implementation.
+Cramer's rule converts positivity of a recovered effect into inherited linear
+cuts valid on a complete input box, while exhaustive multi-affine vertex
+evaluation removes the severe dependency inflation of ordinary determinant
+intervals.  In the 1,000-node `lambda=0.55` pilot, all twenty leading cells
+are certified nonsingular and 827 robust cuts are generated without a solver
+failure.  The maximum pending bound is nevertheless `0.7633741152`, so scalar
+common-POVM cuts do not close the `0.758` target.  The theorem, compact audit,
+reproduction command, and matrix-valued next step are in
+[`notes/determinant_scaled_common_povm_witnesses.md`](notes/determinant_scaled_common_povm_witnesses.md).
+
 ## Explore the order-sensitive theorem
 
 Version 2.2 adds a robust bounded-memory result that depends on temporal order rather than only on terminal memory dimension. Two rank-two check matrices represent the same code up to a coordinate permutation. The grouped order reaches return fidelity `0.5` at perfect syndrome audit; the interleaved order has the exact and attained ceiling `0.25` under the declared one-qubit streaming interface. A causal list-decoding theorem now certifies that their support functions remain strictly separated throughout the interior interval `3/7 < audit_weight < 1`.

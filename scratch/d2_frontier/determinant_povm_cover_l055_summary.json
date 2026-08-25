@@ -1,0 +1,407 @@
+{
+  "schema": "carmenq.determinant-povm-cover-summary.v1",
+  "checkpoint": {
+    "filename": "ternary_exactdet_hybrid_instrument_topcell_pilot_l055.json",
+    "sha256": "4c9e782273bed0bea70bfc91945988052e516b5e9b78e18c7aea8f0bd5108d07",
+    "bytes": 22985259
+  },
+  "runtime": {
+    "python": "3.10.5",
+    "numpy": "2.2.6",
+    "cvxpy": "1.7.5",
+    "installed_solvers": [
+      "CLARABEL",
+      "OSQP",
+      "SCIP",
+      "SCIPY",
+      "SCS"
+    ]
+  },
+  "problem": {
+    "support_weight": 0.55,
+    "target": 0.758,
+    "base_code": "bbb",
+    "top_spectral_cell": true,
+    "scope": "one continuous terminal cell and the selected Fourier spectral cell; all input--Choi and input--POVM products use convergent McCormick envelopes; pure-prefix caps and determinant-scaled common-POVM cuts are valid on complete input boxes; numerical SDP bounds remain solver-conditional"
+  },
+  "configuration": {
+    "bound_safety": 2e-06,
+    "minimum_width": 1e-06,
+    "max_witnesses": 24,
+    "max_new_witnesses_per_node": 4,
+    "witness_tolerance": 2e-09,
+    "determinant_bounds_method": "exhaustive-multiaffine-vertices",
+    "determinant_near_relative_gap": 1.02,
+    "maximum_determinant_branch_streak": 1,
+    "max_nodes": 1000
+  },
+  "run": {
+    "solved_nodes": 1000,
+    "closed_nodes": 33,
+    "split_nodes": 967,
+    "pending_nodes": 935,
+    "unresolved_nodes": 0,
+    "maximum_depth": 23,
+    "determinant_witness_count": 827,
+    "maximum_pending_bound": 0.7633741152384063,
+    "statuses_complete": true,
+    "complete": false
+  },
+  "accounting_audit": {
+    "dispositions": {
+      "closed": 33,
+      "split": 967
+    },
+    "branching_rules": {
+      "determinant-margin": 223,
+      "none": 33,
+      "product-residual": 744
+    },
+    "records_with_new_witnesses": 310,
+    "sign_definite_audits": 924,
+    "robust_witness_nodes": 59,
+    "near_margin_nodes": 363
+  },
+  "leading_pending_determinants": {
+    "cell_count": 20,
+    "ordinary_interval_sign_indefinite": 20,
+    "vertex_sign_counts": {
+      "positive": 20
+    },
+    "minimum_certified_absolute_determinant": 4.505888900724824e-05,
+    "cells": [
+      {
+        "identifier": 1930,
+        "parent": 1219,
+        "depth": 15,
+        "parent_bound": 0.7633741152384063,
+        "ordinary_interval": [
+          -0.004904709041365484,
+          0.021769186527536597
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0008498770404927436,
+          0.017490874741641054
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1211,
+        "parent": 329,
+        "depth": 12,
+        "parent_bound": 0.7633740680321645,
+        "ordinary_interval": [
+          -0.00618188402932052,
+          0.02742577777814006
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0007046896119892196,
+          0.022457511336353205
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1212,
+        "parent": 329,
+        "depth": 12,
+        "parent_bound": 0.7633740680321645,
+        "ordinary_interval": [
+          -0.005962478894376632,
+          0.025608409940392735
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0006769034605930079,
+          0.020915996407423858
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1199,
+        "parent": 1197,
+        "depth": 14,
+        "parent_bound": 0.7633732307236311,
+        "ordinary_interval": [
+          -0.005089034759765648,
+          0.028086633287847076
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0013859387871647782,
+          0.023271048560755514
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1200,
+        "parent": 1197,
+        "depth": 14,
+        "parent_bound": 0.7633732307236311,
+        "ordinary_interval": [
+          -0.005376695046545143,
+          0.029396619795895033
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0014729278647490876,
+          0.024302158767275213
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 167,
+        "parent": 163,
+        "depth": 9,
+        "parent_bound": 0.7633726473100816,
+        "ordinary_interval": [
+          -0.0060698872258754775,
+          0.034779533509200614
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0013258430452773283,
+          0.02856391335748192
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 168,
+        "parent": 163,
+        "depth": 9,
+        "parent_bound": 0.7633726473100816,
+        "ordinary_interval": [
+          -0.00715870170899726,
+          0.03096361861547435
+        ],
+        "exhaustive_vertex_enclosure": [
+          4.505888900724824e-05,
+          0.025432022859607786
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1449,
+        "parent": 1447,
+        "depth": 14,
+        "parent_bound": 0.7633723031479444,
+        "ordinary_interval": [
+          -0.002765261658828384,
+          0.02794695237880589
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0032676657164862825,
+          0.023216641686298466
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 1
+      },
+      {
+        "identifier": 1450,
+        "parent": 1447,
+        "depth": 14,
+        "parent_bound": 0.7633723031479444,
+        "ordinary_interval": [
+          -0.003822281842330863,
+          0.025292760787127774
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0024807519988249305,
+          0.021042807646160528
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 1
+      },
+      {
+        "identifier": 1909,
+        "parent": 357,
+        "depth": 15,
+        "parent_bound": 0.7633721968089912,
+        "ordinary_interval": [
+          -0.0012308768780463473,
+          0.033752695588128406
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0050666824237145655,
+          0.02809694561826202
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1910,
+        "parent": 357,
+        "depth": 15,
+        "parent_bound": 0.7633721968089912,
+        "ordinary_interval": [
+          -0.002893442423536245,
+          0.029247541756729292
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.003148914127492014,
+          0.02384629100846284
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1469,
+        "parent": 275,
+        "depth": 14,
+        "parent_bound": 0.7633714082703543,
+        "ordinary_interval": [
+          -0.0013138966219101804,
+          0.03140888065593895
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.004149743998231067,
+          0.026441205828010905
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 4
+      },
+      {
+        "identifier": 1470,
+        "parent": 275,
+        "depth": 14,
+        "parent_bound": 0.7633714082703543,
+        "ordinary_interval": [
+          -0.002366152266556386,
+          0.028770842145589736
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0032179202500536956,
+          0.024118422233077537
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 4
+      },
+      {
+        "identifier": 1905,
+        "parent": 1775,
+        "depth": 17,
+        "parent_bound": 0.7633711033085849,
+        "ordinary_interval": [
+          -0.001019261871374,
+          0.026228237436519673
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0036434065108929613,
+          0.02199035425324443
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 7
+      },
+      {
+        "identifier": 1906,
+        "parent": 1775,
+        "depth": 17,
+        "parent_bound": 0.7633711033085849,
+        "ordinary_interval": [
+          -0.0026077170986109604,
+          0.022126872785481064
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0018914819443410064,
+          0.018012891343796578
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 7
+      },
+      {
+        "identifier": 1735,
+        "parent": 1587,
+        "depth": 15,
+        "parent_bound": 0.7633707374103301,
+        "ordinary_interval": [
+          -0.002900801411442345,
+          0.01875687698905751
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0005802098123007152,
+          0.01568488908183986
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1736,
+        "parent": 1587,
+        "depth": 15,
+        "parent_bound": 0.7633707374103301,
+        "ordinary_interval": [
+          -0.0026040420774497836,
+          0.018281528987612723
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0007617872223520833,
+          0.015381746253662941
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1731,
+        "parent": 1559,
+        "depth": 15,
+        "parent_bound": 0.7633707370159285,
+        "ordinary_interval": [
+          -0.0018822767379124675,
+          0.020866231921624803
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0021711708138708076,
+          0.017297951638044134
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1732,
+        "parent": 1559,
+        "depth": 15,
+        "parent_bound": 0.7633707370159285,
+        "ordinary_interval": [
+          -0.0027944714836965023,
+          0.01793467800478269
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0010827883806988775,
+          0.0144902994627928
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      },
+      {
+        "identifier": 1729,
+        "parent": 1583,
+        "depth": 15,
+        "parent_bound": 0.7633707369209372,
+        "ordinary_interval": [
+          -0.0026717893135244394,
+          0.020946518958895544
+        ],
+        "exhaustive_vertex_enclosure": [
+          0.0016983504203459754,
+          0.017236750909958763
+        ],
+        "vertex_sign": "positive",
+        "inherited_witnesses": 0
+      }
+    ]
+  },
+  "comparison_to_target": {
+    "base_localisation_bound": 0.7635145905297471,
+    "base_gap": 0.005514590529747121,
+    "remaining_gap": 0.005374115238406252,
+    "bound_reduction": 0.0001404752913408691,
+    "fraction_of_initial_gap_removed": 0.025473385663560916
+  },
+  "conclusion": {
+    "target_closed": false,
+    "logical_status": "determinant-POVM cuts valid but insufficient at node budget",
+    "next_relaxation": "coupled matrix-valued common-instrument positivity, not additional scalar common-POVM cuts"
+  }
+}

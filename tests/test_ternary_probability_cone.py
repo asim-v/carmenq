@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import math
 import sys
 from pathlib import Path
@@ -15,14 +16,34 @@ from common_effective_povm_audit import audit_common_effective_povm  # noqa: E40
 from fourier_behavior_cap_cover import cube_face_caps  # noqa: E402
 from ternary_probability_cone_cover import (  # noqa: E402
     TernaryConeOracle,
+    choi_probability_coefficients,
+    pauli_effect_matrix,
+    pauli_state_matrix,
     projective_comparison_bonus,
     terminal_weight_intervals,
     terminal_weights,
 )
 from terminal_reconstruction_enclosure import (  # noqa: E402
+    planar_effect_pauli,
     planar_reconstruction,
     reconstruction_anchor_and_errors,
+    terminal_effect_anchor_and_errors,
 )
+from ternary_common_instrument_input_cover import (  # noqa: E402
+    MeasuredInstrumentProjectionOracle,
+    _coefficient_parameters,
+    instrument_tube_data,
+    robust_witness_error,
+)
+from ternary_bilinear_instrument_input_cover import (  # noqa: E402
+    box_purity_caps,
+    determinant_interval,
+    determinant_povm_witnesses,
+    determinant_split_scores,
+    determinant_vertex_bounds,
+    replacement_determinant_bounds,
+)
+from carmenq.common_instrument import apply_choi, choi_from_kraus  # noqa: E402
 from validate_terminal_reconstructed_frontier import validate  # noqa: E402
 from validate_common_effective_povm_frontier import (  # noqa: E402
     validate as validate_common_povm_frontier,
@@ -31,6 +52,10 @@ from ternary_frontier_separator_cover import open_source_cells  # noqa: E402
 from ternary_extend_separator_frontier import normalise_frontier  # noqa: E402
 from ternary_refine_last_separator_cover import cube_face_children  # noqa: E402
 from ternary_shared_separator_cover import extract_shared_frontier  # noqa: E402
+from summarize_determinant_povm_cover import (  # noqa: E402
+    SCHEMA as DETERMINANT_SUMMARY_SCHEMA,
+    validate_accounting as validate_determinant_accounting,
+)
 
 
 def canonical_three_effect_povm(weights: np.ndarray) -> np.ndarray:
@@ -61,7 +86,8 @@ def canonical_three_effect_povm(weights: np.ndarray) -> np.ndarray:
     )
     effects = np.asarray(
         [
-            0.5 * weights[index]
+            0.5
+            * weights[index]
             * (identity + np.tensordot(vectors[index], paulis, axes=1))
             for index in range(3)
         ]
@@ -103,9 +129,7 @@ def test_probability_range_obeys_homogenized_inellipse() -> None:
         weights = np.asarray(terminal_weights(alpha, beta))
         effects = canonical_three_effect_povm(weights)
         operator = random_positive_operator(rng)
-        q = np.asarray(
-            [np.trace(operator @ effects[t]).real for t in range(3)]
-        )
+        q = np.asarray([np.trace(operator @ effects[t]).real for t in range(3)])
         scale = float(q.sum())
         x, y = float(q[0]), float(q[1])
         polynomial = (
@@ -162,17 +186,12 @@ def test_planar_reconstruction_recovers_visible_bloch_coordinates() -> None:
     for _ in range(100):
         beta = rng.uniform(1.02, 1.30)
         alpha = rng.uniform(max(beta, 1.05), 1.95)
-        effects = canonical_three_effect_povm(
-            np.asarray(terminal_weights(alpha, beta))
-        )
+        effects = canonical_three_effect_povm(np.asarray(terminal_weights(alpha, beta)))
         coefficients = rng.normal(size=4)
         operator = 0.5 * (
-            coefficients[0] * identity
-            + np.tensordot(coefficients[1:], paulis, axes=1)
+            coefficients[0] * identity + np.tensordot(coefficients[1:], paulis, axes=1)
         )
-        measured = np.asarray(
-            [np.trace(effect @ operator).real for effect in effects]
-        )
+        measured = np.asarray([np.trace(effect @ operator).real for effect in effects])
         assert np.allclose(measured.sum(), coefficients[0], atol=2e-12)
         assert np.allclose(
             planar_reconstruction(alpha, beta) @ measured,
@@ -190,20 +209,264 @@ def test_outward_reconstruction_column_errors_cover_random_box_points() -> None:
         beta_half = rng.uniform(1e-5, 3e-3)
         alpha_bounds = (alpha_center - alpha_half, alpha_center + alpha_half)
         beta_bounds = (beta_center - beta_half, beta_center + beta_half)
-        anchor, errors, _ = reconstruction_anchor_and_errors(
-            alpha_bounds, beta_bounds
-        )
+        anchor, errors, _ = reconstruction_anchor_and_errors(alpha_bounds, beta_bounds)
         for _ in range(30):
             alpha = rng.uniform(*alpha_bounds)
             beta = rng.uniform(*beta_bounds)
             difference = planar_reconstruction(alpha, beta) - anchor
-            assert np.all(
-                np.linalg.norm(difference, axis=0) <= errors + 2e-15
-            )
+            assert np.all(np.linalg.norm(difference, axis=0) <= errors + 2e-15)
             signed = rng.normal(size=3)
             assert np.linalg.norm(difference @ signed) <= (
                 errors @ np.abs(signed) + 2e-14
             )
+
+
+def test_terminal_effect_operator_errors_cover_random_box_points() -> None:
+    rng = np.random.default_rng(173205)
+    for _ in range(20):
+        beta_center = rng.uniform(1.05, 1.22)
+        alpha_center = rng.uniform(beta_center + 0.05, 1.88)
+        alpha_half = rng.uniform(1e-5, 3e-3)
+        beta_half = rng.uniform(1e-5, 2e-3)
+        alpha_bounds = (alpha_center - alpha_half, alpha_center + alpha_half)
+        beta_bounds = (beta_center - beta_half, beta_center + beta_half)
+        anchor, errors, norm_upper, _ = terminal_effect_anchor_and_errors(
+            alpha_bounds, beta_bounds
+        )
+        anchor_matrices = [pauli_effect_matrix(row) for row in anchor]
+        assert np.linalg.norm(sum(anchor_matrices) - np.eye(2)) < 2e-13
+        for _ in range(20):
+            effects = planar_effect_pauli(
+                rng.uniform(*alpha_bounds), rng.uniform(*beta_bounds)
+            )
+            for t in range(3):
+                matrix = pauli_effect_matrix(effects[t])
+                assert (
+                    np.linalg.norm(matrix - anchor_matrices[t], ord=2)
+                    <= errors[t] + 3e-14
+                )
+                assert np.linalg.norm(matrix, ord=2) <= norm_upper[t] + 3e-14
+
+
+def test_shared_choi_probability_coefficients_match_direct_evaluation() -> None:
+    rng = np.random.default_rng(223607)
+    input_pauli = np.asarray(
+        [
+            [0.30, 0.06, 0.01, -0.02],
+            [0.27, -0.03, 0.05, 0.01],
+            [0.23, 0.02, -0.04, 0.03],
+            [0.20, -0.01, -0.02, -0.04],
+        ]
+    )
+    effects = planar_effect_pauli(1.75, 1.16)
+    coefficients = choi_probability_coefficients(input_pauli, effects)
+    operator = rng.normal(size=(2, 2)) + 1j * rng.normal(size=(2, 2))
+    choi = choi_from_kraus([operator])
+    for z in range(4):
+        state = pauli_state_matrix(input_pauli[z])
+        output = apply_choi(choi, state)
+        for t in range(3):
+            direct = float(np.trace(pauli_effect_matrix(effects[t]) @ output).real)
+            linear = float(np.sum(coefficients[z, t] * choi).real)
+            assert np.isclose(direct, linear, atol=3e-13)
+
+
+def test_robust_shared_instrument_tube_contains_physical_perturbations() -> None:
+    rng = np.random.default_rng(244949)
+    anchor = np.asarray(
+        [
+            [0.30, 0.06, 0.01, -0.02],
+            [0.27, -0.03, 0.05, 0.01],
+            [0.23, 0.02, -0.04, 0.03],
+            [0.20, -0.01, -0.02, -0.04],
+        ]
+    )
+    coordinate_radii = np.full((4, 4), 0.003)
+    lower = anchor - coordinate_radii
+    upper = anchor + coordinate_radii
+    alpha_bounds = (1.748, 1.752)
+    beta_bounds = (1.158, 1.162)
+    terminal_anchor, terminal_errors, terminal_norm_upper, _ = (
+        terminal_effect_anchor_and_errors(alpha_bounds, beta_bounds)
+    )
+    tube = instrument_tube_data(
+        lower,
+        upper,
+        terminal_anchor,
+        terminal_errors,
+        terminal_norm_upper,
+    )
+
+    raw_kraus = [
+        rng.normal(size=(2, 2)) + 1j * rng.normal(size=(2, 2)) for _ in range(4)
+    ]
+    normalizer = sum(item.conj().T @ item for item in raw_kraus)
+    eigenvalues, eigenvectors = np.linalg.eigh(normalizer)
+    inverse_root = (eigenvectors / np.sqrt(eigenvalues)) @ eigenvectors.conj().T
+    kraus = [item @ inverse_root for item in raw_kraus]
+    choi = [choi_from_kraus([item]) for item in kraus]
+    assert (
+        np.linalg.norm(sum(item.conj().T @ item for item in kraus) - np.eye(2)) < 2e-13
+    )
+
+    actual_pauli = rng.uniform(lower, upper)
+    actual_effects = planar_effect_pauli(
+        rng.uniform(*alpha_bounds), rng.uniform(*beta_bounds)
+    )
+    q0 = np.empty((4, 4, 3), dtype=float)
+    q = np.empty_like(q0)
+    for z in range(4):
+        state0 = pauli_state_matrix(tube["anchor"][z])
+        state = pauli_state_matrix(actual_pauli[z])
+        for y in range(4):
+            output0 = apply_choi(choi[y], state0)
+            output = apply_choi(choi[y], state)
+            for t in range(3):
+                q0[z, y, t] = np.trace(
+                    pauli_effect_matrix(terminal_anchor[t]) @ output0
+                ).real
+                q[z, y, t] = np.trace(
+                    pauli_effect_matrix(actual_effects[t]) @ output
+                ).real
+                assert abs(q[z, y, t] - q0[z, y, t]) <= (
+                    tube["probability_radii"][z, t] * np.trace(choi[y]).real + 3e-13
+                )
+        assert np.sum(np.abs(q[z] - q0[z])) <= tube["row_radii"][z] + 3e-13
+
+
+def test_common_instrument_tube_builds_one_realified_shared_choi_family() -> None:
+    inputs = np.asarray(
+        [
+            [0.30, 0.06, 0.01, -0.02],
+            [0.27, -0.03, 0.05, 0.01],
+            [0.23, 0.02, -0.04, 0.03],
+            [0.20, -0.01, -0.02, -0.04],
+        ]
+    )
+    coefficients = choi_probability_coefficients(
+        inputs, planar_effect_pauli(1.75, 1.16)
+    )
+    oracle = TernaryConeOracle(
+        0.55,
+        (0, 1, 2, 3),
+        (),
+        (),
+        0.79,
+        0.7573,
+        common_instrument_probability_coefficients=coefficients,
+        common_instrument_probability_radii=np.full((4, 3), 1e-3),
+        common_instrument_row_radii=np.full(4, 2e-3),
+    )
+    assert len(oracle.common_instrument_choi) == 4
+    assert all(
+        real.shape == (4, 4) and imaginary.shape == (4, 4)
+        for real, imaginary in oracle.common_instrument_choi
+    )
+    assert oracle.problem.is_dpp()
+    assert not oracle.problem.is_mixed_integer()
+
+
+def test_measured_instrument_projection_accepts_a_physical_table() -> None:
+    rng = np.random.default_rng(264575)
+    inputs = np.asarray(
+        [
+            [0.30, 0.06, 0.01, -0.02],
+            [0.27, -0.03, 0.05, 0.01],
+            [0.23, 0.02, -0.04, 0.03],
+            [0.20, -0.01, -0.02, -0.04],
+        ]
+    )
+    effects = planar_effect_pauli(1.75, 1.16)
+    raw_kraus = [
+        rng.normal(size=(2, 2)) + 1j * rng.normal(size=(2, 2)) for _ in range(4)
+    ]
+    normalizer = sum(item.conj().T @ item for item in raw_kraus)
+    eigenvalues, eigenvectors = np.linalg.eigh(normalizer)
+    inverse_root = (eigenvectors / np.sqrt(eigenvalues)) @ eigenvectors.conj().T
+    choi = [choi_from_kraus([item @ inverse_root]) for item in raw_kraus]
+    coefficients = choi_probability_coefficients(inputs, effects)
+    statistics = np.asarray(
+        [
+            [
+                [np.sum(coefficients[z, t] * choi[y]).real for t in range(3)]
+                for y in range(4)
+            ]
+            for z in range(4)
+        ]
+    )
+    parameters = _coefficient_parameters()
+    for z in range(4):
+        for t in range(3):
+            parameters[z][t][0].value = coefficients[z, t].real
+            parameters[z][t][1].value = coefficients[z, t].imag
+    projection = MeasuredInstrumentProjectionOracle(parameters).project(
+        statistics, 1e-9, 2e-7
+    )
+    assert projection["status"] in {"optimal", "optimal_inaccurate"}
+    assert projection["compatible"]
+    assert projection["distance"] < 2e-7
+
+
+def test_witness_specific_robust_error_contains_physical_motion() -> None:
+    rng = np.random.default_rng(282843)
+    anchor = np.asarray(
+        [
+            [0.30, 0.06, 0.01, -0.02],
+            [0.27, -0.03, 0.05, 0.01],
+            [0.23, 0.02, -0.04, 0.03],
+            [0.20, -0.01, -0.02, -0.04],
+        ]
+    )
+    coordinate_radii = np.full((4, 4), 0.002)
+    lower = anchor - coordinate_radii
+    upper = anchor + coordinate_radii
+    alpha_bounds = (1.749, 1.751)
+    beta_bounds = (1.159, 1.161)
+    terminal_anchor, terminal_errors, terminal_norm_upper, _ = (
+        terminal_effect_anchor_and_errors(alpha_bounds, beta_bounds)
+    )
+    tube = instrument_tube_data(
+        lower,
+        upper,
+        terminal_anchor,
+        terminal_errors,
+        terminal_norm_upper,
+    )
+    witness = rng.normal(size=(4, 4, 3))
+    error, _ = robust_witness_error(witness, tube, terminal_anchor, terminal_errors)
+    raw_kraus = [
+        rng.normal(size=(2, 2)) + 1j * rng.normal(size=(2, 2)) for _ in range(4)
+    ]
+    normalizer = sum(item.conj().T @ item for item in raw_kraus)
+    eigenvalues, eigenvectors = np.linalg.eigh(normalizer)
+    inverse_root = (eigenvectors / np.sqrt(eigenvalues)) @ eigenvectors.conj().T
+    choi = [choi_from_kraus([item @ inverse_root]) for item in raw_kraus]
+    actual_inputs = rng.uniform(lower, upper)
+    actual_effects = planar_effect_pauli(
+        rng.uniform(*alpha_bounds), rng.uniform(*beta_bounds)
+    )
+    anchor_coefficients = choi_probability_coefficients(tube["anchor"], terminal_anchor)
+    actual_coefficients = choi_probability_coefficients(actual_inputs, actual_effects)
+    anchor_statistics = np.asarray(
+        [
+            [
+                [np.sum(anchor_coefficients[z, t] * choi[y]).real for t in range(3)]
+                for y in range(4)
+            ]
+            for z in range(4)
+        ]
+    )
+    actual_statistics = np.asarray(
+        [
+            [
+                [np.sum(actual_coefficients[z, t] * choi[y]).real for t in range(3)]
+                for y in range(4)
+            ]
+            for z in range(4)
+        ]
+    )
+    motion = float(np.sum(witness * (actual_statistics - anchor_statistics)))
+    assert abs(motion) <= error + 5e-13
 
 
 def test_terminal_reconstructed_frontier_artifacts_are_self_consistent() -> None:
@@ -215,12 +478,8 @@ def test_terminal_reconstructed_frontier_artifacts_are_self_consistent() -> None
 
 
 def test_spectral_cover_builds_one_mixed_integer_selector_family() -> None:
-    caps = tuple(
-        np.append(normal, cosine) for normal, cosine in cube_face_caps(2)
-    )
-    anchor, errors, _ = reconstruction_anchor_and_errors(
-        (1.92, 1.93), (1.14, 1.15)
-    )
+    caps = tuple(np.append(normal, cosine) for normal, cosine in cube_face_caps(2))
+    anchor, errors, _ = reconstruction_anchor_and_errors((1.92, 1.93), (1.14, 1.15))
     oracle = TernaryConeOracle(
         0.55,
         (0, 1, 2, 3),
@@ -360,9 +619,7 @@ def test_frontier_filter_preserves_scalar_and_bloch_product_cells() -> None:
 
 def test_nested_cube_face_children_partition_each_coarse_chart_cell() -> None:
     all_children = [
-        child
-        for parent in range(24)
-        for child in cube_face_children(parent, 2, 4)
+        child for parent in range(24) for child in cube_face_children(parent, 2, 4)
     ]
     assert len(all_children) == 96
     assert sorted(all_children) == list(range(96))
@@ -456,3 +713,191 @@ def test_common_effective_povm_frontier_artifacts_recompute_exactly() -> None:
     assert summary["negative_effect_count"] == 10
     assert summary["certified_row_l1_radius"] == 0.0871
     assert summary["certified_neighbourhood_bound"] < 0.758
+
+
+def test_pure_prefix_caps_enclose_every_box_corner() -> None:
+    lower = np.asarray(
+        [
+            [0.20, 0.08, -0.02, 0.03],
+            [0.22, -0.03, 0.10, 0.02],
+            [0.24, 0.01, -0.04, 0.12],
+            [0.18, -0.09, -0.03, 0.01],
+        ]
+    )
+    upper = lower + np.asarray([0.02, 0.01, 0.015, 0.012])
+    caps = box_purity_caps(lower, upper)
+    for row in range(4):
+        normal = caps[row, :3]
+        cosine = caps[row, 3]
+        assert np.linalg.norm(normal) > 0.999999999
+        for bits in range(8):
+            corner = np.asarray(
+                [
+                    upper[row, coordinate + 1]
+                    if bits & (1 << coordinate)
+                    else lower[row, coordinate + 1]
+                    for coordinate in range(3)
+                ]
+            )
+            assert normal @ corner + 2e-16 >= cosine * np.linalg.norm(corner)
+
+
+def test_row_replacement_determinant_bounds_are_vertex_exact() -> None:
+    center = np.asarray(
+        [
+            [0.25, 0.10, 0.00, 0.00],
+            [0.25, 0.00, 0.10, 0.00],
+            [0.25, 0.00, 0.00, 0.10],
+            [0.25, 0.00, 0.00, 0.00],
+        ]
+    )
+    lower = center - 0.003
+    upper = center + 0.003
+    replacement = np.asarray([1.0, -1.0, 0.0, 0.0])
+    certified_lower, certified_upper = replacement_determinant_bounds(
+        lower, upper, 2, replacement, -1
+    )
+    values = []
+    free_rows = (0, 1, 3)
+    for choices in np.ndindex(16, 16, 16):
+        matrix = center.copy()
+        matrix[2] = replacement
+        for position, row in enumerate(free_rows):
+            bits = choices[position]
+            matrix[row] = [
+                upper[row, coordinate]
+                if bits & (1 << coordinate)
+                else lower[row, coordinate]
+                for coordinate in range(4)
+            ]
+        values.append(-float(np.linalg.det(matrix)))
+    assert certified_lower <= min(values)
+    assert certified_upper >= max(values)
+    assert certified_lower > min(values) - 2e-14
+    assert certified_upper < max(values) + 2e-14
+
+
+def test_full_vertex_determinant_bound_removes_interval_dependency() -> None:
+    center = np.asarray(
+        [
+            [0.25, 0.10, 0.00, 0.00],
+            [0.25, 0.00, 0.10, 0.00],
+            [0.25, 0.00, 0.00, 0.10],
+            [0.25, 0.00, 0.00, 0.00],
+        ]
+    )
+    lower = center - 0.015
+    upper = center + 0.015
+    dependency_bound = determinant_interval(lower, upper)
+    vertex_bound = determinant_vertex_bounds(lower, upper)
+    assert dependency_bound.lower < 0.0 < dependency_bound.upper
+    assert vertex_bound.upper < -9.9e-6
+    assert vertex_bound.lower < vertex_bound.upper
+
+
+def test_determinant_witness_rejects_a_nonpositive_common_povm_robustly() -> None:
+    inputs = np.asarray(
+        [
+            [0.25, 0.10, 0.00, 0.00],
+            [0.25, 0.00, 0.10, 0.00],
+            [0.25, 0.00, 0.00, 0.10],
+            [0.25, 0.00, 0.00, 0.00],
+        ]
+    )
+    effects = np.zeros((4, 12))
+    effects[:, 0] = [0.05, 0.08, 0.0, 0.0]
+    effects[:, 1] = [0.05, -0.08, 0.0, 0.0]
+    effects[0, 2:] = 0.09
+    statistics = (inputs @ effects).reshape(4, 4, 3)
+    witnesses, audit = determinant_povm_witnesses(
+        inputs - 1e-6,
+        inputs + 1e-6,
+        inputs,
+        statistics,
+        2e-12,
+    )
+    assert audit["sign_definite"]
+    assert audit["negative_effect_count"] == 2
+    assert audit["robust_witness_count"] == 2
+    assert {item["effect_index"] for item in witnesses} == {0, 1}
+    assert min(item["violation"] for item in witnesses) > 7e-6
+
+
+def test_determinant_margin_branching_targets_a_useful_bisection() -> None:
+    inputs = np.asarray(
+        [
+            [0.25, 0.10, 0.00, 0.00],
+            [0.25, 0.00, 0.10, 0.00],
+            [0.25, 0.00, 0.00, 0.10],
+            [0.25, 0.00, 0.00, 0.00],
+        ]
+    )
+    effects = np.zeros((4, 12))
+    effects[:, 0] = [0.05, 0.08, 0.0, 0.0]
+    effects[:, 1] = [0.05, -0.08, 0.0, 0.0]
+    effects[0, 2:] = 0.09
+    statistics = (inputs @ effects).reshape(4, 4, 3)
+    lower = inputs - 0.003
+    upper = inputs + 0.003
+    witnesses, audit = determinant_povm_witnesses(
+        lower, upper, inputs, statistics, 2e-12
+    )
+    assert not witnesses
+    assert audit["minimum_robust_lhs"] > 0.0
+    scores = determinant_split_scores(
+        lower, upper, statistics, audit, maximum_effects=1
+    )
+    assert np.max(scores) > 0.1
+
+
+def test_determinant_cover_tree_accounting_recomputes_from_records() -> None:
+    payload = {
+        "records": [
+            {
+                "identifier": 0,
+                "disposition": "split",
+                "branching_rule": "product-residual",
+                "new_witnesses": 1,
+                "determinant_audit": {"sign_definite": True},
+            },
+            {
+                "identifier": 1,
+                "disposition": "closed",
+                "new_witnesses": 0,
+            },
+        ],
+        "pending": [{"identifier": 2, "parent_bound": 0.76}],
+        "unresolved": [],
+        "solved_nodes": 2,
+        "closed_nodes": 1,
+        "split_nodes": 1,
+        "pending_nodes": 1,
+        "unresolved_nodes": 0,
+        "determinant_witness_count": 1,
+        "maximum_pending_bound": 0.76,
+    }
+    audit = validate_determinant_accounting(payload)
+    assert audit["dispositions"] == {"closed": 1, "split": 1}
+    assert audit["branching_rules"] == {"none": 1, "product-residual": 1}
+    assert audit["sign_definite_audits"] == 1
+
+
+def test_compact_determinant_cover_summary_records_open_status() -> None:
+    path = (
+        ROOT
+        / "scratch"
+        / "d2_frontier"
+        / "determinant_povm_cover_l055_summary.json"
+    )
+    summary = json.loads(path.read_text(encoding="utf-8"))
+    assert summary["schema"] == DETERMINANT_SUMMARY_SCHEMA
+    assert summary["run"]["solved_nodes"] == 1000
+    assert summary["run"]["unresolved_nodes"] == 0
+    assert summary["run"]["maximum_pending_bound"] > summary["problem"]["target"]
+    assert summary["leading_pending_determinants"][
+        "ordinary_interval_sign_indefinite"
+    ] == 20
+    assert summary["leading_pending_determinants"]["vertex_sign_counts"] == {
+        "positive": 20
+    }
+    assert not summary["conclusion"]["target_closed"]

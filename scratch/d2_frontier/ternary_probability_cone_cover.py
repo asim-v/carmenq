@@ -196,6 +196,79 @@ def selected_normalised(
     return probability[z, y] - projective_statistics[z, y, t]
 
 
+def pauli_state_matrix(row: np.ndarray) -> np.ndarray:
+    """Convert ``(trace, x, y, z)`` to a subnormalised qubit matrix."""
+
+    value = np.asarray(row, dtype=float)
+    if value.shape != (4,):
+        raise ValueError("a state Pauli row must have shape (4,)")
+    return 0.5 * np.asarray(
+        [
+            [value[0] + value[3], value[1] - 1j * value[2]],
+            [value[1] + 1j * value[2], value[0] - value[3]],
+        ],
+        dtype=complex,
+    )
+
+
+def pauli_effect_matrix(row: np.ndarray) -> np.ndarray:
+    """Convert ``(a0, ax, ay, az)`` to ``a0 I + a.sigma``."""
+
+    value = np.asarray(row, dtype=float)
+    if value.shape != (4,):
+        raise ValueError("an effect Pauli row must have shape (4,)")
+    return np.asarray(
+        [
+            [value[0] + value[3], value[1] - 1j * value[2]],
+            [value[1] + 1j * value[2], value[0] - value[3]],
+        ],
+        dtype=complex,
+    )
+
+
+def choi_probability_coefficients(
+    input_pauli: np.ndarray, terminal_effect_pauli: np.ndarray
+) -> np.ndarray:
+    """Return coefficients for all anchor probabilities of one Choi matrix.
+
+    For an input-major Choi matrix ``J``, the returned array ``C`` obeys
+
+    ``Tr[E_t Phi_J(rho_z)] = sum(C[z,t] * J)``.
+    """
+
+    inputs = np.asarray(input_pauli, dtype=float)
+    effects = np.asarray(terminal_effect_pauli, dtype=float)
+    if inputs.shape != (4, 4) or effects.shape != (3, 4):
+        raise ValueError("expected input shape (4,4) and effect shape (3,4)")
+    states = [pauli_state_matrix(row) for row in inputs]
+    matrices = [pauli_effect_matrix(row) for row in effects]
+    return np.asarray(
+        [
+            [np.kron(states[z], matrices[t].T) for t in range(3)]
+            for z in range(4)
+        ]
+    )
+
+
+def choi_probability_basis_coefficients(
+    terminal_effect_pauli: np.ndarray,
+) -> np.ndarray:
+    """Return the coefficient tensor linear in an input Pauli row.
+
+    If ``x`` is one input Pauli row and ``J`` is an input-major Choi
+    matrix, the returned array ``B`` obeys
+
+    ``Tr[E_t Phi_J(rho(x))] = sum_mu x[mu] sum(B[mu,t] * J)``.
+
+    This form lets a spatial relaxation retain every input--Choi product
+    instead of replacing the entire input box by one norm radius.
+    """
+
+    return choi_probability_coefficients(
+        np.eye(4, dtype=float), terminal_effect_pauli
+    )
+
+
 class TernaryConeOracle:
     """DPP SOCP for one chart cell and variable terminal-weight box."""
 
@@ -218,8 +291,20 @@ class TernaryConeOracle:
         common_contractions: tuple[dict[str, object], ...] = (),
         terminal_reconstruction: tuple[object, object] | None = None,
         fixed_common_povm_input: np.ndarray | None = None,
-        common_povm_input_anchor: np.ndarray | None = None,
-        common_povm_input_radii: np.ndarray | None = None,
+        common_povm_input_anchor: object | None = None,
+        common_povm_input_radii: object | None = None,
+        common_povm_trace_radii: object | None = None,
+        common_povm_bilinear: bool = False,
+        input_pauli_lower: object | None = None,
+        input_pauli_upper: object | None = None,
+        input_purity_caps: object | None = None,
+        build_input_region_problem: bool = False,
+        common_instrument_probability_coefficients: object | None = None,
+        common_instrument_probability_radii: object | None = None,
+        common_instrument_row_radii: object | None = None,
+        common_instrument_terminal_effect_anchor: object | None = None,
+        common_instrument_terminal_effect_errors: object | None = None,
+        max_common_instrument_witnesses: int = 0,
     ) -> None:
         self.pairs = pairs
         self.coordinate_cases = coordinate_cases
@@ -347,8 +432,17 @@ class TernaryConeOracle:
         # envelope.  The measured L1 form is terminal-geometry independent;
         # the optional reconstructed form below retains two visible Bloch
         # coordinates with a box-safe terminal-geometry error budget.
-        if fixed_common_povm_input is not None and common_povm_input_anchor is not None:
-            raise ValueError("choose a fixed or neighbourhood common-POVM input")
+        povm_modes = sum(
+            (
+                fixed_common_povm_input is not None,
+                common_povm_input_anchor is not None,
+                bool(common_povm_bilinear),
+            )
+        )
+        if povm_modes > 1:
+            raise ValueError(
+                "choose a fixed, neighbourhood, or bilinear common-POVM model"
+            )
         fixed_input = None
         if fixed_common_povm_input is not None:
             fixed_input = np.asarray(fixed_common_povm_input, dtype=float)
@@ -356,29 +450,243 @@ class TernaryConeOracle:
                 raise ValueError("fixed common-POVM input must have shape (4,4)")
             if np.any(fixed_input[:, 0] < np.linalg.norm(fixed_input[:, 1:], axis=1) - 1e-10):
                 raise ValueError("fixed common-POVM inputs must be positive")
-        povm_anchor = fixed_input
-        povm_radii = np.zeros((4, 4), dtype=float)
+        povm_anchor: object | None = fixed_input
+        povm_radii: object = np.zeros((4, 4), dtype=float)
+        povm_trace_radii: object | None = None
         if common_povm_input_anchor is not None:
-            povm_anchor = np.asarray(common_povm_input_anchor, dtype=float)
-            if povm_anchor.shape != (4, 4) or not np.all(np.isfinite(povm_anchor)):
+            povm_anchor = (
+                common_povm_input_anchor
+                if isinstance(common_povm_input_anchor, cp.Parameter)
+                else np.asarray(common_povm_input_anchor, dtype=float)
+            )
+            if povm_anchor.shape != (4, 4):
                 raise ValueError("common-POVM input anchor must have shape (4,4)")
+            if not isinstance(povm_anchor, cp.Parameter) and not np.all(
+                np.isfinite(povm_anchor)
+            ):
+                raise ValueError("common-POVM input anchor must be finite")
             if common_povm_input_radii is None:
                 raise ValueError("common-POVM input radii are required with an anchor")
-            povm_radii = np.asarray(common_povm_input_radii, dtype=float)
-            if (
-                povm_radii.shape != (4, 4)
-                or not np.all(np.isfinite(povm_radii))
-                or np.any(povm_radii < 0.0)
-            ):
+            povm_radii = (
+                common_povm_input_radii
+                if isinstance(common_povm_input_radii, cp.Parameter)
+                else np.asarray(common_povm_input_radii, dtype=float)
+            )
+            if povm_radii.shape != (4, 4):
+                raise ValueError("common-POVM input radii must have shape (4,4)")
+            if isinstance(povm_radii, cp.Parameter):
+                if not povm_radii.is_nonneg():
+                    raise ValueError("common-POVM radius parameter must be nonnegative")
+            elif not np.all(np.isfinite(povm_radii)) or np.any(povm_radii < 0.0):
                 raise ValueError("common-POVM input radii must be finite and nonnegative")
+            if common_povm_trace_radii is not None:
+                povm_trace_radii = (
+                    common_povm_trace_radii
+                    if isinstance(common_povm_trace_radii, cp.Parameter)
+                    else np.asarray(common_povm_trace_radii, dtype=float)
+                )
+                if povm_trace_radii.shape != (4,):
+                    raise ValueError("common-POVM trace radii must have shape (4,)")
+                if isinstance(povm_trace_radii, cp.Parameter):
+                    if not povm_trace_radii.is_nonneg():
+                        raise ValueError(
+                            "common-POVM trace-radius parameter must be nonnegative"
+                        )
+                elif not np.all(np.isfinite(povm_trace_radii)) or np.any(
+                    povm_trace_radii < 0.0
+                ):
+                    raise ValueError(
+                        "common-POVM trace radii must be finite and nonnegative"
+                    )
+        elif common_povm_trace_radii is not None:
+            raise ValueError("common-POVM trace radii require an input anchor")
+        instrument_arguments = (
+            common_instrument_probability_coefficients,
+            common_instrument_probability_radii,
+            common_instrument_row_radii,
+        )
+        if any(item is not None for item in instrument_arguments) and not all(
+            item is not None for item in instrument_arguments
+        ):
+            raise ValueError(
+                "a common-instrument tube requires anchor inputs, terminal "
+                "probability coefficients, probability radii, and row radii"
+            )
+        instrument_coefficients: list[list[tuple[object, object]]] | None = None
+        instrument_probability_radii: object | None = None
+        instrument_row_radii: object | None = None
+        if common_instrument_probability_coefficients is not None:
+            raw_coefficients = common_instrument_probability_coefficients
+            if isinstance(raw_coefficients, np.ndarray):
+                if raw_coefficients.shape != (4, 3, 4, 4):
+                    raise ValueError(
+                        "common-instrument coefficients must have shape (4,3,4,4)"
+                    )
+                instrument_coefficients = [
+                    [
+                        (
+                            np.asarray(raw_coefficients[z, t].real),
+                            np.asarray(raw_coefficients[z, t].imag),
+                        )
+                        for t in range(3)
+                    ]
+                    for z in OUTCOMES
+                ]
+            else:
+                try:
+                    instrument_coefficients = [
+                        [
+                            (
+                                raw_coefficients[z][t][0],
+                                raw_coefficients[z][t][1],
+                            )
+                            for t in range(3)
+                        ]
+                        for z in OUTCOMES
+                    ]
+                except (IndexError, KeyError, TypeError) as error:
+                    raise ValueError(
+                        "common-instrument coefficients must be a 4 by 3 family"
+                    ) from error
+            instrument_probability_radii = (
+                common_instrument_probability_radii
+                if isinstance(common_instrument_probability_radii, cp.Parameter)
+                else np.asarray(common_instrument_probability_radii, dtype=float)
+            )
+            instrument_row_radii = (
+                common_instrument_row_radii
+                if isinstance(common_instrument_row_radii, cp.Parameter)
+                else np.asarray(common_instrument_row_radii, dtype=float)
+            )
+            for row in instrument_coefficients:
+                for coefficient_pair in row:
+                    for coefficient in coefficient_pair:
+                        if coefficient.shape != (4, 4):
+                            raise ValueError(
+                                "every common-instrument coefficient part must "
+                                "have shape (4,4)"
+                            )
+                        if not isinstance(coefficient, cp.Parameter) and not np.all(
+                            np.isfinite(np.asarray(coefficient))
+                        ):
+                            raise ValueError(
+                                "common-instrument coefficients must be finite"
+                            )
+            if instrument_probability_radii.shape != (4, 3):
+                raise ValueError("probability radii must have shape (4,3)")
+            if instrument_row_radii.shape != (4,):
+                raise ValueError("row radii must have shape (4,)")
+            for value, name in (
+                (instrument_probability_radii, "probability"),
+                (instrument_row_radii, "row"),
+            ):
+                if isinstance(value, cp.Parameter):
+                    if not value.is_nonneg():
+                        raise ValueError(
+                            f"common-instrument {name} radii must be nonnegative"
+                        )
+                elif not np.all(np.isfinite(value)) or np.any(value < 0.0):
+                    raise ValueError(
+                        f"common-instrument {name} radii must be finite and nonnegative"
+                    )
+        bilinear_arguments = (
+            common_instrument_terminal_effect_anchor,
+            common_instrument_terminal_effect_errors,
+        )
+        if any(item is not None for item in bilinear_arguments) and not all(
+            item is not None for item in bilinear_arguments
+        ):
+            raise ValueError(
+                "a bilinear common-instrument model requires both the terminal "
+                "effect anchor and its operator-norm errors"
+            )
+        if instrument_coefficients is not None and any(
+            item is not None for item in bilinear_arguments
+        ):
+            raise ValueError(
+                "choose either the norm-tube or bilinear common-instrument model"
+            )
+        bilinear_effects: np.ndarray | None = None
+        bilinear_errors: np.ndarray | None = None
+        bilinear_coefficients: np.ndarray | None = None
+        if common_instrument_terminal_effect_anchor is not None:
+            bilinear_effects = np.asarray(
+                common_instrument_terminal_effect_anchor, dtype=float
+            )
+            bilinear_errors = np.asarray(
+                common_instrument_terminal_effect_errors, dtype=float
+            )
+            if bilinear_effects.shape != (3, 4):
+                raise ValueError("terminal effect anchor must have shape (3,4)")
+            if bilinear_errors.shape != (3,):
+                raise ValueError("terminal effect errors must have shape (3,)")
+            if (
+                not np.all(np.isfinite(bilinear_effects))
+                or not np.all(np.isfinite(bilinear_errors))
+                or np.any(bilinear_errors < 0.0)
+            ):
+                raise ValueError("terminal effect data must be finite and nonnegative")
+            bilinear_coefficients = choi_probability_basis_coefficients(
+                bilinear_effects
+            )
+        if (input_pauli_lower is None) != (input_pauli_upper is None):
+            raise ValueError("both input Pauli bounds must be supplied together")
+        pauli_lower: object | None = None
+        pauli_upper: object | None = None
+        if input_pauli_lower is not None:
+            pauli_lower = (
+                input_pauli_lower
+                if isinstance(input_pauli_lower, cp.Parameter)
+                else np.asarray(input_pauli_lower, dtype=float)
+            )
+            pauli_upper = (
+                input_pauli_upper
+                if isinstance(input_pauli_upper, cp.Parameter)
+                else np.asarray(input_pauli_upper, dtype=float)
+            )
+            if pauli_lower.shape != (4, 4) or pauli_upper.shape != (4, 4):
+                raise ValueError("input Pauli bounds must have shape (4,4)")
+            if not isinstance(pauli_lower, cp.Parameter) and (
+                not np.all(np.isfinite(pauli_lower))
+                or not np.all(np.isfinite(pauli_upper))
+                or np.any(pauli_lower > pauli_upper)
+            ):
+                raise ValueError("input Pauli bounds must be finite and ordered")
+        purity_caps: object | None = None
+        if input_purity_caps is not None:
+            purity_caps = (
+                input_purity_caps
+                if isinstance(input_purity_caps, cp.Parameter)
+                else np.asarray(input_purity_caps, dtype=float)
+            )
+            if purity_caps.shape != (4, 4):
+                raise ValueError("input purity caps must have shape (4,4)")
+            if not isinstance(purity_caps, cp.Parameter) and not np.all(
+                np.isfinite(purity_caps)
+            ):
+                raise ValueError("input purity caps must be finite")
         self.input_vectors = (
             [cp.Variable(3) for _ in OUTCOMES]
-            if common_contractions or fixed_input is not None
+            if (
+                common_contractions
+                or fixed_input is not None
+                or pauli_lower is not None
+                or build_input_region_problem
+                or instrument_coefficients is not None
+                or bilinear_coefficients is not None
+                or purity_caps is not None
+                or common_povm_bilinear
+            )
             else []
         )
         for z in OUTCOMES:
             if self.input_vectors:
                 constraints.append(cp.SOC(self.prefix[z], self.input_vectors[z]))
+                if purity_caps is not None:
+                    constraints.append(
+                        purity_caps[z, :3] @ self.input_vectors[z]
+                        >= purity_caps[z, 3] * self.prefix[z]
+                    )
                 if fixed_input is not None:
                     constraints.extend(
                         (
@@ -386,8 +694,24 @@ class TernaryConeOracle:
                             self.input_vectors[z] == fixed_input[z, 1:],
                         )
                     )
+        self.input_pauli: cp.Expression | None = None
+        if self.input_vectors:
+            self.input_pauli = cp.vstack(
+                [
+                    cp.hstack([self.prefix[z], self.input_vectors[z]])
+                    for z in OUTCOMES
+                ]
+            )
+            if pauli_lower is not None:
+                constraints.extend(
+                    (
+                        self.input_pauli >= pauli_lower,
+                        self.input_pauli <= pauli_upper,
+                    )
+                )
         self.effective_povm: cp.Variable | None = None
-        if povm_anchor is not None:
+        self.common_povm_products: list[list[cp.Variable]] = []
+        if povm_anchor is not None or common_povm_bilinear:
             # Every common instrument followed by the terminal POVM induces
             # one twelve-outcome POVM F_(y,t) on the input.  At fixed input
             # states this exact compatibility condition is an SOCP.
@@ -405,19 +729,296 @@ class TernaryConeOracle:
                             self.effective_povm[index, 1:],
                         )
                     )
-                    for z in OUTCOMES:
-                        constraints.append(
-                            self.statistics[z, y, t]
-                            <= povm_anchor[z] @ self.effective_povm[index]
-                            + float(np.sum(povm_radii[z]))
-                            * self.effective_povm[index, 0]
+                    if povm_anchor is not None:
+                        for z in OUTCOMES:
+                            radius = cp.sum(povm_radii[z])
+                            constraints.append(
+                                self.statistics[z, y, t]
+                                <= povm_anchor[z] @ self.effective_povm[index]
+                                + radius * self.effective_povm[index, 0]
+                            )
+                            constraints.append(
+                                self.statistics[z, y, t]
+                                >= povm_anchor[z] @ self.effective_povm[index]
+                                - radius * self.effective_povm[index, 0]
+                            )
+            if povm_anchor is not None and povm_trace_radii is not None:
+                for z in OUTCOMES:
+                    anchor_statistics = cp.hstack(
+                        [
+                            povm_anchor[z] @ self.effective_povm[index]
+                            for index in range(12)
+                        ]
+                    )
+                    constraints.append(
+                        cp.norm1(
+                            cp.reshape(self.statistics[z], (12,), order="C")
+                            - anchor_statistics
                         )
-                        constraints.append(
-                            self.statistics[z, y, t]
-                            >= povm_anchor[z] @ self.effective_povm[index]
-                            - float(np.sum(povm_radii[z]))
-                            * self.effective_povm[index, 0]
+                        <= povm_trace_radii[z]
+                    )
+            if common_povm_bilinear:
+                if pauli_lower is None or pauli_upper is None or self.input_pauli is None:
+                    raise ValueError(
+                        "the bilinear common-POVM model requires input bounds"
+                    )
+                self.common_povm_products = [
+                    [cp.Variable(4) for _ in range(12)] for _ in OUTCOMES
+                ]
+                effect_lower = np.asarray([0.0, -1.0, -1.0, -1.0])
+                effect_upper = np.ones(4)
+                for z in OUTCOMES:
+                    for y in OUTCOMES:
+                        for t in range(3):
+                            index = 3 * y + t
+                            effect = self.effective_povm[index]
+                            product = self.common_povm_products[z][index]
+                            for mu in range(4):
+                                input_coordinate = self.input_pauli[z, mu]
+                                lower = pauli_lower[z, mu]
+                                upper = pauli_upper[z, mu]
+                                effect_minimum = effect_lower[mu]
+                                effect_maximum = effect_upper[mu]
+                                constraints.extend(
+                                    (
+                                        product[mu]
+                                        >= lower * effect[mu]
+                                        + effect_minimum * input_coordinate
+                                        - lower * effect_minimum,
+                                        product[mu]
+                                        >= upper * effect[mu]
+                                        + effect_maximum * input_coordinate
+                                        - upper * effect_maximum,
+                                        product[mu]
+                                        <= upper * effect[mu]
+                                        + effect_minimum * input_coordinate
+                                        - upper * effect_minimum,
+                                        product[mu]
+                                        <= lower * effect[mu]
+                                        + effect_maximum * input_coordinate
+                                        - lower * effect_maximum,
+                                    )
+                                )
+                            constraints.append(
+                                self.statistics[z, y, t] == cp.sum(product)
+                            )
+        self.common_instrument_choi: list[tuple[cp.Variable, cp.Variable]] = []
+        self.common_instrument_anchor_statistics: list[list[list[cp.Expression]]] = []
+        self.common_instrument_products: list[
+            list[list[tuple[cp.Variable, cp.Variable]]]
+        ] = []
+        if instrument_coefficients is not None or bilinear_coefficients is not None:
+            self.common_instrument_choi = [
+                (
+                    cp.Variable((4, 4), symmetric=True),
+                    cp.Variable((4, 4)),
+                )
+                for _ in OUTCOMES
+            ]
+            for real, imaginary in self.common_instrument_choi:
+                constraints.extend(
+                    (
+                        imaginary + imaginary.T == 0.0,
+                        cp.bmat(
+                            [
+                                [real, -imaginary],
+                                [imaginary, real],
+                            ]
                         )
+                        >> 0,
+                    )
+                )
+            for i in range(2):
+                for j in range(2):
+                    partial_trace_real = sum(
+                        self.common_instrument_choi[y][0][2 * i, 2 * j]
+                        + self.common_instrument_choi[y][0][2 * i + 1, 2 * j + 1]
+                        for y in OUTCOMES
+                    )
+                    partial_trace_imaginary = sum(
+                        self.common_instrument_choi[y][1][2 * i, 2 * j]
+                        + self.common_instrument_choi[y][1][2 * i + 1, 2 * j + 1]
+                        for y in OUTCOMES
+                    )
+                    constraints.extend(
+                        (
+                            partial_trace_real == (1.0 if i == j else 0.0),
+                            partial_trace_imaginary == 0.0,
+                        )
+                    )
+            if instrument_coefficients is not None:
+                for z in OUTCOMES:
+                    row_predictions: list[list[cp.Expression]] = []
+                    flattened_predictions: list[cp.Expression] = []
+                    for y in OUTCOMES:
+                        choi_real, choi_imaginary = self.common_instrument_choi[y]
+                        choi_trace = cp.trace(choi_real)
+                        outcome_predictions: list[cp.Expression] = []
+                        for t in range(3):
+                            coefficient_real, coefficient_imaginary = (
+                                instrument_coefficients[z][t]
+                            )
+                            prediction = cp.sum(
+                                cp.multiply(coefficient_real, choi_real)
+                                - cp.multiply(
+                                    coefficient_imaginary, choi_imaginary
+                                )
+                            )
+                            radius = (
+                                instrument_probability_radii[z, t] * choi_trace
+                            )
+                            constraints.extend(
+                                (
+                                    self.statistics[z, y, t] - prediction <= radius,
+                                    prediction - self.statistics[z, y, t] <= radius,
+                                )
+                            )
+                            outcome_predictions.append(prediction)
+                            flattened_predictions.append(prediction)
+                        row_predictions.append(outcome_predictions)
+                    constraints.append(
+                        cp.norm1(
+                            cp.reshape(self.statistics[z], (12,), order="C")
+                            - cp.hstack(flattened_predictions)
+                        )
+                        <= instrument_row_radii[z]
+                    )
+                    self.common_instrument_anchor_statistics.append(row_predictions)
+            else:
+                if pauli_lower is None or pauli_upper is None or self.input_pauli is None:
+                    raise ValueError(
+                        "the bilinear common-instrument model requires input bounds"
+                    )
+                real_lower = -np.ones((4, 4), dtype=float)
+                real_upper = np.ones((4, 4), dtype=float)
+                imaginary_lower = -np.ones((4, 4), dtype=float)
+                imaginary_upper = np.ones((4, 4), dtype=float)
+                np.fill_diagonal(real_lower, 0.0)
+                np.fill_diagonal(imaginary_lower, 0.0)
+                np.fill_diagonal(imaginary_upper, 0.0)
+                self.common_instrument_products = [
+                    [
+                        [
+                            (
+                                cp.Variable((4, 4), symmetric=True),
+                                cp.Variable((4, 4)),
+                            )
+                            for _ in OUTCOMES
+                        ]
+                        for _ in range(4)
+                    ]
+                    for _ in OUTCOMES
+                ]
+                for z in OUTCOMES:
+                    for mu in range(4):
+                        input_coordinate = self.input_pauli[z, mu]
+                        lower = pauli_lower[z, mu]
+                        upper = pauli_upper[z, mu]
+                        for y in OUTCOMES:
+                            choi_real, choi_imaginary = self.common_instrument_choi[y]
+                            product_real, product_imaginary = (
+                                self.common_instrument_products[z][mu][y]
+                            )
+                            constraints.append(
+                                product_imaginary + product_imaginary.T == 0.0
+                            )
+                            for product, choi_part, part_lower, part_upper in (
+                                (
+                                    product_real,
+                                    choi_real,
+                                    real_lower,
+                                    real_upper,
+                                ),
+                                (
+                                    product_imaginary,
+                                    choi_imaginary,
+                                    imaginary_lower,
+                                    imaginary_upper,
+                                ),
+                            ):
+                                constraints.extend(
+                                    (
+                                        product
+                                        >= lower * choi_part
+                                        + cp.multiply(part_lower, input_coordinate)
+                                        - lower * part_lower,
+                                        product
+                                        >= upper * choi_part
+                                        + cp.multiply(part_upper, input_coordinate)
+                                        - upper * part_upper,
+                                        product
+                                        <= upper * choi_part
+                                        + cp.multiply(part_lower, input_coordinate)
+                                        - upper * part_lower,
+                                        product
+                                        <= lower * choi_part
+                                        + cp.multiply(part_upper, input_coordinate)
+                                        - lower * part_upper,
+                                    )
+                                )
+                anchor_statistics = cp.Variable((4, 4, 3), nonneg=True)
+                self.common_instrument_anchor_statistics = [
+                    [
+                        [anchor_statistics[z, y, t] for t in range(3)]
+                        for y in OUTCOMES
+                    ]
+                    for z in OUTCOMES
+                ]
+                for z in OUTCOMES:
+                    for y in OUTCOMES:
+                        for t in range(3):
+                            prediction = sum(
+                                cp.sum(
+                                    cp.multiply(
+                                        bilinear_coefficients[mu, t].real,
+                                        self.common_instrument_products[z][mu][y][0],
+                                    )
+                                    - cp.multiply(
+                                        bilinear_coefficients[mu, t].imag,
+                                        self.common_instrument_products[z][mu][y][1],
+                                    )
+                                )
+                                for mu in range(4)
+                            )
+                            constraints.append(anchor_statistics[z, y, t] == prediction)
+                            error = bilinear_errors[t] * self.probability[z, y]
+                            constraints.extend(
+                                (
+                                    self.statistics[z, y, t]
+                                    - anchor_statistics[z, y, t]
+                                    <= error,
+                                    anchor_statistics[z, y, t]
+                                    - self.statistics[z, y, t]
+                                    <= error,
+                                    anchor_statistics[z, y, t]
+                                    <= self.probability[z, y],
+                                )
+                            )
+                        constraints.append(
+                            cp.sum(anchor_statistics[z, y])
+                            == self.probability[z, y]
+                        )
+        self.max_common_instrument_witnesses = int(
+            max_common_instrument_witnesses
+        )
+        if self.max_common_instrument_witnesses < 0:
+            raise ValueError("maximum common-instrument witnesses cannot be negative")
+        self.common_instrument_witness_coefficients: cp.Parameter | None = None
+        self.common_instrument_witness_bounds: cp.Parameter | None = None
+        if self.max_common_instrument_witnesses:
+            self.common_instrument_witness_coefficients = cp.Parameter(
+                (self.max_common_instrument_witnesses, 48)
+            )
+            self.common_instrument_witness_bounds = cp.Parameter(
+                self.max_common_instrument_witnesses
+            )
+            flat_statistics = cp.reshape(self.statistics, (48,), order="C")
+            constraints.extend(
+                self.common_instrument_witness_coefficients[index]
+                @ flat_statistics
+                <= self.common_instrument_witness_bounds[index]
+                for index in range(self.max_common_instrument_witnesses)
+            )
         self.common_contraction_values: list[cp.Expression] = []
         self.common_contraction_selectors: list[cp.Variable] = []
         if terminal_reconstruction is not None:
@@ -929,6 +1530,22 @@ class TernaryConeOracle:
         self.problem = cp.Problem(cp.Maximize(self.score), constraints)
         if not self.problem.is_dpp():
             raise RuntimeError("ternary probability-cone oracle is not DPP")
+        self.input_region_problem: cp.Problem | None = None
+        self.input_region_score_floor: cp.Parameter | None = None
+        self.input_region_direction: cp.Parameter | None = None
+        if build_input_region_problem:
+            if self.input_pauli is None:
+                raise RuntimeError("input-region oracle requires Pauli variables")
+            self.input_region_score_floor = cp.Parameter()
+            self.input_region_direction = cp.Parameter((4, 4))
+            self.input_region_problem = cp.Problem(
+                cp.Maximize(
+                    cp.sum(cp.multiply(self.input_region_direction, self.input_pauli))
+                ),
+                [*constraints, self.score >= self.input_region_score_floor],
+            )
+            if not self.input_region_problem.is_dpp():
+                raise RuntimeError("input-region support oracle is not DPP")
 
     @staticmethod
     def assign_soc(
@@ -986,6 +1603,9 @@ class TernaryConeOracle:
         behavior_conditions: tuple[
             tuple[int, tuple[float, float, float, float]], ...
         ] = (),
+        common_instrument_witnesses: tuple[
+            tuple[np.ndarray, float], ...
+        ] = (),
     ) -> dict[str, Any]:
         intervals = terminal_weight_intervals(box)
         self.weight_lower.value = np.asarray([item[0] for item in intervals])
@@ -1025,6 +1645,33 @@ class TernaryConeOracle:
                 for z, coefficient in enumerate(vector):
                     coefficients[index, z, y, t] = coefficient
             self.branch_coefficients.value = coefficients
+        if len(common_instrument_witnesses) > self.max_common_instrument_witnesses:
+            return {"status": "instrument_witness_overflow", "bound": math.inf}
+        if self.common_instrument_witness_coefficients is not None:
+            witness_coefficients = np.zeros(
+                (self.max_common_instrument_witnesses, 48), dtype=float
+            )
+            witness_bounds = np.zeros(
+                self.max_common_instrument_witnesses, dtype=float
+            )
+            for index, (coefficient, bound) in enumerate(
+                common_instrument_witnesses
+            ):
+                vector = np.asarray(coefficient, dtype=float)
+                if vector.shape == (4, 4, 3):
+                    vector = vector.reshape(48)
+                if vector.shape != (48,) or not np.all(np.isfinite(vector)):
+                    raise ValueError(
+                        "common-instrument witness must be a finite 4x4x3 array"
+                    )
+                if not np.isfinite(bound):
+                    raise ValueError("common-instrument witness bound must be finite")
+                witness_coefficients[index] = vector
+                witness_bounds[index] = float(bound)
+            self.common_instrument_witness_coefficients.value = witness_coefficients
+            self.common_instrument_witness_bounds.value = witness_bounds
+        elif common_instrument_witnesses:
+            return {"status": "instrument_witness_overflow", "bound": math.inf}
         maximum = intervals[0][1]
         self.cap_weights.value = np.asarray(
             [maximum, maximum, max(0.0, 2.0 - 2.0 * maximum), 0.0]
@@ -1112,6 +1759,21 @@ class TernaryConeOracle:
                 result["effective_povm"] = np.asarray(
                     self.effective_povm.value
                 ).tolist()
+            if self.common_instrument_choi:
+                result["common_instrument_choi"] = [
+                    {
+                        "real": np.asarray(real.value).tolist(),
+                        "imag": np.asarray(imaginary.value).tolist(),
+                    }
+                    for real, imaginary in self.common_instrument_choi
+                ]
+                result["common_instrument_anchor_statistics"] = [
+                    [
+                        [float(value.value) for value in outcome]
+                        for outcome in row
+                    ]
+                    for row in self.common_instrument_anchor_statistics
+                ]
             if self.conditional_behavior is not None:
                 result["conditional_behavior"] = np.asarray(
                     self.conditional_behavior.value
@@ -1136,6 +1798,77 @@ class TernaryConeOracle:
                     constraint,
                 ) in self.exact_projective_constraints
             ]
+        return result
+
+    def solve_input_support(
+        self,
+        score_floor: float,
+        direction: np.ndarray,
+        safety: float = 2e-6,
+        capture: bool = False,
+    ) -> dict[str, Any]:
+        """Maximise a linear input-Pauli functional above a score floor.
+
+        Call :meth:`solve` once first to assign the terminal-cell parameters.
+        Reusing this DPP problem for multiple directions then gives a box that
+        contains every relaxed input capable of reaching ``score_floor``.
+        """
+
+        if (
+            self.input_region_problem is None
+            or self.input_region_score_floor is None
+            or self.input_region_direction is None
+            or self.input_pauli is None
+        ):
+            raise RuntimeError("input-region support problem was not requested")
+        vector = np.asarray(direction, dtype=float)
+        if vector.shape != (4, 4) or not np.all(np.isfinite(vector)):
+            raise ValueError("input support direction must be a finite (4,4) matrix")
+        if not np.isfinite(score_floor):
+            raise ValueError("input support score floor must be finite")
+        if not np.isfinite(safety) or safety < 0.0:
+            raise ValueError("input support safety must be finite and nonnegative")
+        self.input_region_score_floor.value = float(score_floor)
+        self.input_region_direction.value = vector
+        try:
+            if self.behavior_disjunctions or self.common_contraction_selectors:
+                self.input_region_problem.solve(
+                    solver="SCIP",
+                    verbose=False,
+                    scip_params={
+                        "limits/time": self.mip_time_limit,
+                        "numerics/feastol": 1e-8,
+                        "numerics/epsilon": 1e-9,
+                        "display/verblevel": 0,
+                    },
+                    ignore_dpp=False,
+                )
+            else:
+                self.input_region_problem.solve(
+                    solver="CLARABEL",
+                    tol_gap_abs=2e-8,
+                    tol_gap_rel=2e-8,
+                    tol_feas=2e-8,
+                    max_iter=1000,
+                    warm_start=True,
+                    ignore_dpp=False,
+                )
+        except cp.SolverError as error:
+            return {"status": "solver_error", "error": str(error), "bound": math.inf}
+        status = self.input_region_problem.status
+        if status in {cp.INFEASIBLE, cp.INFEASIBLE_INACCURATE}:
+            return {"status": status, "bound": -math.inf}
+        if status not in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE}:
+            return {"status": status, "bound": math.inf}
+        result: dict[str, Any] = {
+            "status": status,
+            "raw_value": float(self.input_region_problem.value),
+            "bound": float(self.input_region_problem.value) + safety,
+            "score": float(self.score.value),
+            "iterations": self.input_region_problem.solver_stats.num_iters,
+        }
+        if capture:
+            result["input_pauli"] = np.asarray(self.input_pauli.value).tolist()
         return result
 
 

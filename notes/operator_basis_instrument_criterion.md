@@ -159,6 +159,15 @@ criterion is mathematically complete away from \(\delta=0\); exploiting it
 requires a stronger matrix localizer or verified spatial subdivision, not
 more unassisted pairwise trace-norm cuts.
 
+A first verified spatial subdivision now uses the scalar shadow of this
+criterion.  Positivity of each pulled-back terminal effect is converted by
+Cramer's rule into a linear inequality valid over a complete sign-definite
+input box.  Exhaustive multi-affine determinant bounds remove a false
+singular-stratum diagnosis in all twenty leading cells, but the resulting
+1,000-node pilot remains above target.  The proposition, numerical audit, and
+reason the next cut must retain matrix-valued Choi positivity are documented
+in `determinant_scaled_common_povm_witnesses.md`.
+
 ## Implementation
 
 `reconstruct_common_instrument_from_basis` returns the unique transfer and
