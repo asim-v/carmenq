@@ -1,0 +1,219 @@
+{
+  "schema": "carmenq.spectral-cap-cluster-cover-summary.v1",
+  "scope": "one fixed terminal box and one fixed base Fourier angular cell; complete adaptive cover of its reconstructed spectral subcells",
+  "epistemic_status": "solver-conditional numerical certificate; not a solver-independent interval or rational-dual certificate",
+  "source": {
+    "path": "scratch\\d2_frontier\\ternary_reconstructed_depth4_g2_top_leaf_bbb_p1_s92_l055.json",
+    "sha256": "8d314683c074d0aa59f5cac2677941f908d4d22350ed8187165f1f643a005884",
+    "cell_count": 21190,
+    "statuses_complete": true
+  },
+  "checkpoint": {
+    "path": "scratch\\d2_frontier\\spectral_cap_cluster_cover_l055.json",
+    "sha256": "f827f5ad1962d30ccc2d99ac6a02415699dbfbaa7110a9c5f2773966edde436e",
+    "schema": "carmenq.spectral-cap-cluster-cover.v1"
+  },
+  "target": 0.758,
+  "complete": true,
+  "selected_base_angular_cell_closed": true,
+  "aggregate_upper_bound": 0.7579979090029844,
+  "margin_below_target": 2.090997015646856e-06,
+  "limiting_component": "source-preclosed-spectral-cell",
+  "limiting_source_cell": {
+    "source_index": 15818,
+    "bound": 0.7579979090029844,
+    "source_cell": 608,
+    "branches": [
+      "bloch",
+      "bloch",
+      "scalar-negative",
+      "bloch"
+    ],
+    "caps": [
+      8,
+      53,
+      null,
+      8
+    ],
+    "status": "optimal"
+  },
+  "cluster_cover": {
+    "source_open_cells": 2216,
+    "cluster_nodes": 382,
+    "root_face_clusters": 66,
+    "angular_split_nodes": 158,
+    "closed_clusters": 224,
+    "closed_source_open_cells": 2216,
+    "unresolved_nodes": 0,
+    "maximum_cluster_upper_bound": 0.7579919715540884,
+    "maximum_cluster_margin": 8.028445911634208e-06,
+    "cap_containment_audits": 1282,
+    "closure_methods": {
+      "cluster-root-state-choi-ppt": 224
+    },
+    "patterns": {
+      "-b-+": {
+        "closed_clusters": 3,
+        "angular_splits": 0,
+        "source_open_cells_closed": 12,
+        "maximum_closed_cluster_size": 8
+      },
+      "-b-b": {
+        "closed_clusters": 10,
+        "angular_splits": 0,
+        "source_open_cells_closed": 128,
+        "maximum_closed_cluster_size": 45
+      },
+      "-bbb": {
+        "closed_clusters": 68,
+        "angular_splits": 56,
+        "source_open_cells_closed": 485,
+        "maximum_closed_cluster_size": 34
+      },
+      "b+-b": {
+        "closed_clusters": 1,
+        "angular_splits": 0,
+        "source_open_cells_closed": 2,
+        "maximum_closed_cluster_size": 2
+      },
+      "b+bb": {
+        "closed_clusters": 3,
+        "angular_splits": 0,
+        "source_open_cells_closed": 60,
+        "maximum_closed_cluster_size": 53
+      },
+      "bb-+": {
+        "closed_clusters": 6,
+        "angular_splits": 0,
+        "source_open_cells_closed": 73,
+        "maximum_closed_cluster_size": 46
+      },
+      "bb-b": {
+        "closed_clusters": 45,
+        "angular_splits": 29,
+        "source_open_cells_closed": 697,
+        "maximum_closed_cluster_size": 56
+      },
+      "bbb+": {
+        "closed_clusters": 2,
+        "angular_splits": 0,
+        "source_open_cells_closed": 7,
+        "maximum_closed_cluster_size": 6
+      },
+      "bbbb": {
+        "closed_clusters": 86,
+        "angular_splits": 73,
+        "source_open_cells_closed": 752,
+        "maximum_closed_cluster_size": 55
+      }
+    },
+    "solver_statuses": {
+      "infeasible": 1,
+      "optimal": 12599,
+      "optimal_inaccurate": 388
+    }
+  },
+  "numerical_audit": {
+    "monotonicity_inversions_above_1e-8": 2,
+    "maximum_monotonicity_inversion": 9.62352821981538e-05,
+    "largest_inversions": [
+      {
+        "parent": 176,
+        "child": 179,
+        "excess": 9.62352821981538e-05
+      },
+      {
+        "parent": 252,
+        "child": 254,
+        "excess": 9.529578572031738e-06
+      }
+    ],
+    "requires_precision_recheck": true
+  },
+  "worst_closed_clusters": [
+    {
+      "bound": 0.7579919715540884,
+      "identifier": 148,
+      "pattern": "bb-b",
+      "source_open_cell_count": 10,
+      "cartesian_child_cell_count": 12,
+      "closure_method": "cluster-root-state-choi-ppt"
+    },
+    {
+      "bound": 0.7579893561097751,
+      "identifier": 309,
+      "pattern": "bbbb",
+      "source_open_cell_count": 15,
+      "cartesian_child_cell_count": 24,
+      "closure_method": "cluster-root-state-choi-ppt"
+    },
+    {
+      "bound": 0.7579809921220906,
+      "identifier": 223,
+      "pattern": "-bbb",
+      "source_open_cell_count": 6,
+      "cartesian_child_cell_count": 12,
+      "closure_method": "cluster-root-state-choi-ppt"
+    },
+    {
+      "bound": 0.7579461922932661,
+      "identifier": 214,
+      "pattern": "-bbb",
+      "source_open_cell_count": 7,
+      "cartesian_child_cell_count": 8,
+      "closure_method": "cluster-root-state-choi-ppt"
+    },
+    {
+      "bound": 0.7579175076838338,
+      "identifier": 130,
+      "pattern": "bbbb",
+      "source_open_cell_count": 19,
+      "cartesian_child_cell_count": 24,
+      "closure_method": "cluster-root-state-choi-ppt"
+    },
+    {
+      "bound": 0.7578885754953891,
+      "identifier": 15,
+      "pattern": "bb-b",
+      "source_open_cell_count": 42,
+      "cartesian_child_cell_count": 60,
+      "closure_method": "cluster-root-state-choi-ppt"
+    },
+    {
+      "bound": 0.757841080747349,
+      "identifier": 308,
+      "pattern": "bbbb",
+      "source_open_cell_count": 14,
+      "cartesian_child_cell_count": 36,
+      "closure_method": "cluster-root-state-choi-ppt"
+    },
+    {
+      "bound": 0.757829592501925,
+      "identifier": 238,
+      "pattern": "-bbb",
+      "source_open_cell_count": 6,
+      "cartesian_child_cell_count": 6,
+      "closure_method": "cluster-root-state-choi-ppt"
+    },
+    {
+      "bound": 0.7577924708998466,
+      "identifier": 233,
+      "pattern": "-bbb",
+      "source_open_cell_count": 9,
+      "cartesian_child_cell_count": 12,
+      "closure_method": "cluster-root-state-choi-ppt"
+    },
+    {
+      "bound": 0.7577712393779178,
+      "identifier": 257,
+      "pattern": "-bbb",
+      "source_open_cell_count": 7,
+      "cartesian_child_cell_count": 8,
+      "closure_method": "cluster-root-state-choi-ppt"
+    }
+  ],
+  "interpretation": {
+    "proved_at_this_numerical_level": "the selected base angular cell is strictly below 0.758 in the stated common-instrument relaxation",
+    "not_proved": "the complete terminal leaf, the complete terminal strip, or a solver-independent theorem"
+  }
+}

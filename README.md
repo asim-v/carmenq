@@ -134,6 +134,17 @@ upper bound `0.75797502`.  This gives a concrete path toward an input-basis
 cover and a documented reason not to add blind cuts.  See
 [`notes/common_effective_povm_frontier.md`](notes/common_effective_povm_frontier.md).
 
+The selected variable-terminal angular cell is now completely closed at the
+same target, conditional on the recorded conic solver bounds.  Exact
+state--Choi PSD and input-PPT product localizers reduce the former 797-node
+hard cell to one root solve, while a proved spherical-cap clustering rule
+compresses all 2,216 open spectral subcells into 382 adaptive nodes (224 closed
+clusters, 158 angular splits, no pending or unresolved node).  Combined with
+the previously closed source cells, the resulting upper bound is
+`0.7579979090`.  The scope, tensor lemma, strict audit, numerical caveat, and
+reproduction commands are in
+[`notes/state_choi_ppt_cluster_completion.md`](notes/state_choi_ppt_cluster_completion.md).
+
 That input-basis route now has an exact determinant-sign implementation.
 Cramer's rule converts positivity of a recovered effect into inherited linear
 cuts valid on a complete input box, while exhaustive multi-affine vertex

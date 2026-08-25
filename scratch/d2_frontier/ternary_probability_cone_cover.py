@@ -307,6 +307,8 @@ class TernaryConeOracle:
         common_instrument_terminal_effect_errors: object | None = None,
         common_instrument_product_trace_rules: bool = False,
         common_instrument_product_psd_sandwiches: bool = False,
+        common_instrument_product_state_choi_psd: bool = False,
+        common_instrument_product_state_choi_ppt: bool = False,
         max_common_instrument_witnesses: int = 0,
     ) -> None:
         self.pairs = pairs
@@ -639,6 +641,8 @@ class TernaryConeOracle:
         if (
             common_instrument_product_trace_rules
             or common_instrument_product_psd_sandwiches
+            or common_instrument_product_state_choi_psd
+            or common_instrument_product_state_choi_ppt
         ) and bilinear_coefficients is None:
             raise ValueError(
                 "common-instrument product localizers require the bilinear model"
@@ -841,6 +845,7 @@ class TernaryConeOracle:
         self.common_instrument_products: list[
             list[list[tuple[cp.Variable, cp.Variable]]]
         ] = []
+        self.common_instrument_state_choi_localizers: list[cp.Expression] = []
         if instrument_coefficients is not None or bilinear_coefficients is not None:
             self.common_instrument_choi = [
                 (
@@ -1059,6 +1064,72 @@ class TernaryConeOracle:
                                             partial_trace_imaginary == 0.0,
                                         )
                                     )
+                if (
+                    common_instrument_product_state_choi_psd
+                    or common_instrument_product_state_choi_ppt
+                ):
+                    # Exact products P_mu=x_mu J also retain the joint cone
+                    # structure of the input state and the Choi matrix.  In
+                    # Pauli coordinates,
+                    #
+                    #   2 rho(x) tensor J =
+                    #     [[P0+P3, P1-iP2],
+                    #      [P1+iP2, P0-P3]] >= 0.
+                    #
+                    # This LMI is affine in the lifted products.  It couples
+                    # all four Pauli coordinates at once, unlike coordinate-
+                    # wise McCormick or PSD-sandwich constraints.
+                    transpose_choices = []
+                    if common_instrument_product_state_choi_psd:
+                        transpose_choices.append(False)
+                    if common_instrument_product_state_choi_ppt:
+                        transpose_choices.append(True)
+                    for z in OUTCOMES:
+                        for y in OUTCOMES:
+                            product_parts = [
+                                self.common_instrument_products[z][mu][y]
+                                for mu in range(4)
+                            ]
+                            real = [part[0] for part in product_parts]
+                            imaginary = [part[1] for part in product_parts]
+                            for transpose_input in transpose_choices:
+                                # Transposing the input qubit changes the sign
+                                # of its Pauli-y coordinate.  Both choices are
+                                # positive at an exact product point because
+                                # rho tensor J is separable across this split.
+                                sign = -1.0 if transpose_input else 1.0
+                                upper_right_real = real[1] + sign * imaginary[2]
+                                upper_right_imaginary = (
+                                    imaginary[1] - sign * real[2]
+                                )
+                                tensor_real = cp.bmat(
+                                    [
+                                        [real[0] + real[3], upper_right_real],
+                                        [upper_right_real.T, real[0] - real[3]],
+                                    ]
+                                )
+                                tensor_imaginary = cp.bmat(
+                                    [
+                                        [
+                                            imaginary[0] + imaginary[3],
+                                            upper_right_imaginary,
+                                        ],
+                                        [
+                                            -upper_right_imaginary.T,
+                                            imaginary[0] - imaginary[3],
+                                        ],
+                                    ]
+                                )
+                                realified = cp.bmat(
+                                    [
+                                        [tensor_real, -tensor_imaginary],
+                                        [tensor_imaginary, tensor_real],
+                                    ]
+                                )
+                                constraints.append(realified >> 0)
+                                self.common_instrument_state_choi_localizers.append(
+                                    realified
+                                )
                 anchor_statistics = cp.Variable((4, 4, 3), nonneg=True)
                 self.common_instrument_anchor_statistics = [
                     [

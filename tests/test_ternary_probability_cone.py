@@ -49,10 +49,14 @@ from ternary_bilinear_instrument_input_cover import (  # noqa: E402
 )
 from carmenq.common_instrument import apply_choi, choi_from_kraus  # noqa: E402
 from validate_terminal_reconstructed_frontier import validate  # noqa: E402
+from validate_spectral_cap_cluster_summary import (  # noqa: E402
+    validate as validate_spectral_cap_cluster_summary,
+)
 from validate_common_effective_povm_frontier import (  # noqa: E402
     validate as validate_common_povm_frontier,
 )
 from ternary_frontier_separator_cover import open_source_cells  # noqa: E402
+from spectral_product_localizer_batch import enclosing_scaled_cap  # noqa: E402
 from ternary_extend_separator_frontier import normalise_frontier  # noqa: E402
 from ternary_refine_last_separator_cover import cube_face_children  # noqa: E402
 from ternary_shared_separator_cover import extract_shared_frontier  # noqa: E402
@@ -410,6 +414,73 @@ def test_common_product_localizers_hold_for_exact_physical_products() -> None:
     )
 
 
+def test_state_choi_tensor_localizer_is_exact_and_positive() -> None:
+    rng = np.random.default_rng(20260825)
+    raw_kraus = [
+        rng.normal(size=(2, 2)) + 1j * rng.normal(size=(2, 2)) for _ in range(4)
+    ]
+    normalizer = sum(item.conj().T @ item for item in raw_kraus)
+    eigenvalues, eigenvectors = np.linalg.eigh(normalizer)
+    inverse_root = (eigenvectors / np.sqrt(eigenvalues)) @ eigenvectors.conj().T
+    choi = [choi_from_kraus([item @ inverse_root]) for item in raw_kraus]
+    input_pauli = np.asarray([0.31, 0.08, -0.04, 0.05])
+    state = pauli_state_matrix(input_pauli)
+
+    for matrix in choi:
+        products = [coordinate * matrix for coordinate in input_pauli]
+        tensor_localizer = np.block(
+            [
+                [products[0] + products[3], products[1] - 1j * products[2]],
+                [products[1] + 1j * products[2], products[0] - products[3]],
+            ]
+        )
+        np.testing.assert_allclose(
+            tensor_localizer,
+            2.0 * np.kron(state, matrix),
+            atol=3e-15,
+        )
+        realification = np.block(
+            [
+                [tensor_localizer.real, -tensor_localizer.imag],
+                [tensor_localizer.imag, tensor_localizer.real],
+            ]
+        )
+        assert np.linalg.eigvalsh(realification).min() >= -2e-14
+        transposed_localizer = np.block(
+            [
+                [products[0] + products[3], products[1] + 1j * products[2]],
+                [products[1] - 1j * products[2], products[0] - products[3]],
+            ]
+        )
+        np.testing.assert_allclose(
+            transposed_localizer,
+            2.0 * np.kron(state.T, matrix),
+            atol=3e-15,
+        )
+        transposed_realification = np.block(
+            [
+                [transposed_localizer.real, -transposed_localizer.imag],
+                [transposed_localizer.imag, transposed_localizer.real],
+            ]
+        )
+        assert np.linalg.eigvalsh(transposed_realification).min() >= -2e-14
+
+
+def test_enclosing_spectral_cap_proves_child_cap_containment() -> None:
+    indices = (89, 90, 93, 94)
+    scaled, audit = enclosing_scaled_cap(4, indices)
+    center = np.asarray(audit["normal"], dtype=float)
+    cosine = float(audit["cosine"])
+    radius = float(audit["angular_radius"])
+    np.testing.assert_allclose(scaled, center / cosine, atol=2e-15)
+    assert 0.0 < cosine < cube_face_caps(4)[0][1]
+    for index in indices:
+        normal, child_cosine = cube_face_caps(4)[index]
+        center_distance = math.acos(float(np.clip(center @ normal, -1.0, 1.0)))
+        child_radius = math.acos(float(child_cosine))
+        assert center_distance + child_radius <= radius + 2e-15
+
+
 def test_bilinear_oracle_builds_dpp_common_product_localizers() -> None:
     center = np.asarray(
         [
@@ -444,9 +515,12 @@ def test_bilinear_oracle_builds_dpp_common_product_localizers() -> None:
         common_povm_product_sum_rules=True,
         common_instrument_product_trace_rules=True,
         common_instrument_product_psd_sandwiches=True,
+        common_instrument_product_state_choi_psd=True,
+        common_instrument_product_state_choi_ppt=True,
     )
     assert strengthened.problem.is_dpp()
     assert not strengthened.problem.is_mixed_integer()
+    assert len(strengthened.common_instrument_state_choi_localizers) == 32
     assert len(strengthened.problem.constraints) >= len(baseline.problem.constraints) + 250
 
 
@@ -559,6 +633,14 @@ def test_terminal_reconstructed_frontier_artifacts_are_self_consistent() -> None
         "strict local strengthening; target remains open"
     )
     assert summary["global_status"] == "continuous terminal strip still open"
+
+
+def test_spectral_cap_cluster_summary_is_self_consistent() -> None:
+    summary = validate_spectral_cap_cluster_summary()
+    assert summary["selected_base_angular_cell_closed"] is True
+    assert summary["aggregate_upper_bound"] < summary["target"]
+    assert summary["cluster_cover"]["closed_source_open_cells"] == 2216
+    assert summary["cluster_cover"]["unresolved_nodes"] == 0
 
 
 def test_spectral_cover_builds_one_mixed_integer_selector_family() -> None:
