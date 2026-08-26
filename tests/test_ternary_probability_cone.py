@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import math
 import sys
+from fractions import Fraction
 from pathlib import Path
 
 import numpy as np
@@ -16,10 +17,15 @@ from common_effective_povm_audit import audit_common_effective_povm  # noqa: E40
 from fourier_behavior_cap_cover import cube_face_caps  # noqa: E402
 from ternary_probability_cone_cover import (  # noqa: E402
     TernaryConeOracle,
+    binary64_product_down,
+    binary64_product_up,
     choi_probability_coefficients,
     pauli_effect_matrix,
     pauli_state_matrix,
     projective_comparison_bonus,
+    rational_to_binary64_down,
+    rational_to_binary64_up,
+    terminal_beta_cap,
     terminal_weight_intervals,
     terminal_weights,
 )
@@ -131,6 +137,62 @@ def test_horwitz_weights_and_interval_enclosure() -> None:
         intervals = terminal_weight_intervals(box)
         for weight, (lower, upper) in zip(weights, intervals, strict=True):
             assert lower - 2e-15 <= weight <= upper + 2e-15
+
+
+def test_directed_binary64_helpers_enclose_exact_rationals() -> None:
+    values = (
+        Fraction(1, 3),
+        Fraction(11, 20),
+        Fraction(-7, 19),
+        Fraction(2**80 + 1, 2**81),
+    )
+    for value in values:
+        lower = Fraction.from_float(rational_to_binary64_down(value))
+        upper = Fraction.from_float(rational_to_binary64_up(value))
+        assert lower <= value <= upper
+
+    left = float(Fraction(17, 31))
+    right = float(Fraction(13, 29))
+    exact_product = Fraction.from_float(left) * Fraction.from_float(right)
+    assert Fraction.from_float(binary64_product_down(left, right)) <= exact_product
+    assert exact_product <= Fraction.from_float(binary64_product_up(left, right))
+
+
+def test_source_15818_horwitz_box_is_enclosed_exactly() -> None:
+    box = {
+        "terminal_alpha": (1.923828125, 1.92578125),
+        "terminal_beta": (1.1453718354430378, 1.149525316455696),
+    }
+    intervals = terminal_weight_intervals(box)
+    al, au = map(Fraction.from_float, box["terminal_alpha"])
+    bl, bu = map(Fraction.from_float, box["terminal_beta"])
+    exact_intervals = (
+        (al / (al + bu - 1), au / (au + bl - 1)),
+        (bl / (au + bl - 1), bu / (al + bu - 1)),
+        (
+            1 - 1 / (al + bl - 1),
+            1 - 1 / (au + bu - 1),
+        ),
+    )
+    for (stored_lower, stored_upper), (exact_lower, exact_upper) in zip(
+        intervals, exact_intervals, strict=True
+    ):
+        assert Fraction.from_float(stored_lower) <= exact_lower
+        assert exact_upper <= Fraction.from_float(stored_upper)
+
+
+def test_terminal_caps_are_exact_outer_bounds() -> None:
+    maximum = 0.79
+    exact_maximum = Fraction.from_float(maximum)
+    exact_beta_cap = 1 + 2 * (1 - exact_maximum) / exact_maximum
+    stored_beta_cap = Fraction.from_float(terminal_beta_cap(maximum))
+    assert exact_beta_cap <= stored_beta_cap
+
+    stored_third = rational_to_binary64_up(2 - 2 * exact_maximum)
+    assert 2 - 2 * exact_maximum <= Fraction.from_float(stored_third)
+    assert Fraction(1, 3) <= Fraction.from_float(
+        rational_to_binary64_up(Fraction(1, 3))
+    )
 
 
 def test_probability_range_obeys_homogenized_inellipse() -> None:

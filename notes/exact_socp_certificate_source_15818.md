@@ -86,11 +86,11 @@ The exact archived value is
 $$
   U=b^\mathsf{T}z
   =\frac{
-    2323251235560640692765186324170448172025567705991486731
+    580812808889032592765723436703891690776891320554313167
   }{
-    3064991081731777716716694054300618367237478244367204352
+    766247770432944429179173513575154591809369561091801088
   }
-  \approx 0.7579960833843471.
+  \approx 0.7579960833828755.
 $$
 
 Consequently,
@@ -100,16 +100,21 @@ $$
   \qquad
   \frac{379}{500}-U
   =\frac{
-    1500549005852063258471123677568792555100404856770977
+    375137392410569011260823259436226826350844159007213
   }{
-    383123885216472214589586756787577295904684780545900544000
+    95780971304118053647396689196894323976171195136475136000
   }
-  \approx 3.916615652934885\times10^{-6}.
+  \approx 3.916617124496003\times10^{-6}.
 $$
 
 All coefficients used in these equalities are exact rationals. A canonical
 binary64 coefficient is interpreted by `float.as_integer_ratio()`, so neither
 the exporter nor Lean silently treats a decimal printout as exact.
+
+The source builder now rounds every proof-producing terminal interval endpoint
+outward. `source15818_horwitz_outer_enclosure` independently proves in Lean
+that the six stored rational endpoints enclose the three exact Horwitz weights
+for every real parameter pair in the entire source-15818 terminal box.
 
 The concrete Lean proof checks the dimension sum; the objective and column
 array sizes; membership of the witness in the product dual cone; all 274 exact
@@ -144,10 +149,12 @@ by SHA-256 and record identifiers. The exporter reruns
 interprets every resulting binary64 coefficient exactly, verifies the source
 metadata and canonical digest, and emits the formal object only after its own
 independent rational audit succeeds. Those checks are valuable reproducibility
-evidence, but Lean does not yet prove that the Python reconstruction and
+evidence, but Lean does not yet prove that the full Python reconstruction and
 canonicalizer output are semantically equivalent to the intended physical
-feasible set. Cap containment, enclosure soundness, branch coverage, outward
-rounding, and the physical-to-canonical map remain separate open obligations.
+feasible set. The terminal Horwitz interval sub-bridge is now formalized.
+Spectral-cap containment, reconstruction enclosure, branch coverage, the
+remaining source constraints, canonicalization, and the complete
+physical-to-canonical map remain open obligations.
 
 ### Important serialization boundary
 
@@ -165,19 +172,21 @@ graph. Together with the checker and weak-duality modules, it is a self-containe
 formal artifact: a third party can check the theorem without trusting a
 numerical solver or regenerating (A,b,c) from the JSON.
 
-Self-contained arithmetic is not self-contained semantics. Lean currently
-proves the theorem for the data written in `CertificateData`; it does not prove
-that those data are the canonical image of source record 15818, that the
-canonicalizer preserves the optimization problem, or that the source cell is
-a sound enclosure of the intended physical strategies. Those are the open
-semantic, canonicalizer, and enclosure bridges.
+Self-contained arithmetic is not the complete semantics. Lean proves the
+terminal Horwitz box enclosure and the theorem for the data written in
+`CertificateData`; it does not yet prove that all of those data are the
+canonical image of source record 15818, that the canonicalizer preserves the
+optimization problem, or that every remaining source constraint soundly
+encloses the intended physical strategies. Those are the residual semantic,
+canonicalizer, and enclosure bridges.
 
 ## What the certificate does not prove
 
 The exact result should not be cited as any of the following:
 
-- a proof that the source box, spectral caps, branch split, or terminal
-  reconstruction encloses all physically admissible common instruments;
+- a proof that the spectral caps, branch split, terminal reconstruction, or
+  remaining source constraints enclose all physically admissible common
+  instruments; only the terminal Horwitz-weight box link is formalized;
 - a proof for the full selected base cell, all of its source cells, an entire
   terminal leaf or strip, the whole interior frontier, or the global benchmark;
 - an exact symbolic theorem for ideal physical constants—the certified
@@ -193,9 +202,9 @@ The exact result should not be cited as any of the following:
 
 The correct citation is: **a kernel-checked exact strict upper bound, with
 decoded weak duality for every feasible point, for the rational canonical SOCP
-literally encoded in `source15818Data`; its identification with the intended
-source-cell and physical problem remains conditional on the unformalized
-source-to-canonical and enclosure bridge.**
+literally encoded in `source15818Data`, plus an exact terminal Horwitz-box
+enclosure; identification with the intended physical problem remains
+conditional on the residual source-to-canonical and enclosure bridges.**
 
 ## Archived evidence and verification
 
@@ -205,6 +214,9 @@ The proof-related files are:
   identity, sparse exact ray decomposition, rational upper, and audit metadata;
 - `scratch/d2_frontier/export_exact_socp_certificate_lean.py`: deterministic
   reconstruction, independent exact audit, and Lean-data/proof generator;
+- `formal/CarmenQExact/Horwitz.lean`: exact parameter monotonicities and the
+  source-15818 theorem enclosing all three terminal weights in their directed
+  binary64 intervals;
 - `formal/CarmenQExact/Source15818DualData.lean` and the numbered stationarity
   modules: the shared exact dual, sparse column, and objective atoms;
 - `formal/CarmenQExact/Source15818Data.lean`: the assembler for the complete

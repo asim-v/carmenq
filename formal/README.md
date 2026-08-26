@@ -27,8 +27,8 @@ membership, all 274 stationarity equations, and the strict exact bound
 
 $$
 \operatorname{certifiedUpper}=
-\frac{2323251235560640692765186324170448172025567705991486731}
-     {3064991081731777716716694054300618367237478244367204352}
+\frac{580812808889032592765723436703891690776891320554313167}
+     {766247770432944429179173513575154591809369561091801088}
 <\frac{379}{500}.
 $$
 
@@ -52,10 +52,21 @@ the single object checked by Lean. The Python exporter rebuilds that graph from
 the pinned source and checks it before emission; Lean then checks the emitted
 object independently.
 
-This does not formalize the semantic bridge from the physical model through
-the source construction, enclosure arguments, and CVXPY canonicalizer to the
-literal `CertificateData`. Consequently, this certificate is an exact theorem
-for one encoded canonical program, not a proof of the full physical frontier.
+## First source-to-canonical bridge
+
+`CarmenQExact/Horwitz.lean` proves the exact monotonicities of all three
+Horwitz weights and the theorem `source15818_horwitz_outer_enclosure`. For
+every real `(alpha, beta)` in the stored source-15818 box, the theorem places
+all three mathematical weights inside the six exact rational endpoints used
+by the corrected canonical program. The Python builder obtains those binary64
+endpoints by directed outward rounding; exact tests compare their rational
+values without tolerances.
+
+This closes the terminal-parameter interval link, but not the whole semantic
+bridge. The spectral-cap containment, terminal reconstruction inequalities,
+branch coverage, source constraint encoding, and CVXPY canonicalizer still
+need proofs connecting the physical feasible set to the literal
+`CertificateData`. The current result is not a proof of the full frontier.
 
 ## Verification
 

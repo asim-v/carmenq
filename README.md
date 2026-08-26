@@ -152,11 +152,13 @@ literal rational canonical SOCP. Lean checks the complete sparse program, the
 product-cone dual witness, all 274 stationarity identities, and the exact bound
 
 $$
-  U=0.7579960833843471\ldots < 379/500.
+  U=0.7579960833828755\ldots < 379/500.
 $$
 
-This closes the conic arithmetic and weak-duality step for that encoded cell;
-it does not yet formalize the upstream physical enclosure or canonicalizer.
+The canonical program now uses directed outward binary64 rounding. Lean also
+proves that its six terminal Horwitz-weight endpoints enclose every parameter
+pair in the stored source box. The remaining spectral-cap, reconstruction,
+branch-coverage, and canonicalizer bridges are not yet formalized.
 See [`notes/exact_socp_certificate_source_15818.md`](notes/exact_socp_certificate_source_15818.md)
 and [`formal/README.md`](formal/README.md). Reproduce it with
 `python scripts/verify_lean_exact.py --workers 3 --heavy-workers 1`.

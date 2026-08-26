@@ -25,6 +25,7 @@ dual validation before they are proof-grade.
 from __future__ import annotations
 
 import argparse
+from fractions import Fraction
 import heapq
 import json
 import math
@@ -88,9 +89,44 @@ TERMINAL_BETA = "terminal_beta"
 _ORACLE_CACHE: dict[tuple[Any, ...], "TernaryConeOracle"] = {}
 
 
+def rational_to_binary64_down(value: Fraction) -> float:
+    """Return a binary64 value no greater than an exact rational."""
+
+    candidate = float(value)
+    if Fraction.from_float(candidate) > value:
+        candidate = float(np.nextafter(candidate, -math.inf))
+    if Fraction.from_float(candidate) > value:
+        raise ArithmeticError("failed to round a rational downward to binary64")
+    return candidate
+
+
+def rational_to_binary64_up(value: Fraction) -> float:
+    """Return a binary64 value no smaller than an exact rational."""
+
+    candidate = float(value)
+    if Fraction.from_float(candidate) < value:
+        candidate = float(np.nextafter(candidate, math.inf))
+    if Fraction.from_float(candidate) < value:
+        raise ArithmeticError("failed to round a rational upward to binary64")
+    return candidate
+
+
+def binary64_product_down(left: float, right: float) -> float:
+    return rational_to_binary64_down(
+        Fraction.from_float(float(left)) * Fraction.from_float(float(right))
+    )
+
+
+def binary64_product_up(left: float, right: float) -> float:
+    return rational_to_binary64_up(
+        Fraction.from_float(float(left)) * Fraction.from_float(float(right))
+    )
+
+
 def terminal_beta_cap(maximum_weight_floor: float) -> float:
-    ratio = (1.0 - maximum_weight_floor) / maximum_weight_floor
-    return 1.0 + 2.0 * ratio
+    maximum = Fraction.from_float(float(maximum_weight_floor))
+    ratio = (1 - maximum) / maximum
+    return rational_to_binary64_up(1 + 2 * ratio)
 
 
 def terminal_weights(alpha: float, beta: float) -> tuple[float, float, float]:
@@ -170,17 +206,21 @@ def terminal_domain_intersects(
 
 
 def terminal_weight_intervals(box: Box) -> tuple[tuple[float, float], ...]:
-    al, au = box[TERMINAL_ALPHA]
-    bl, bu = box[TERMINAL_BETA]
+    al, au = (Fraction.from_float(float(value)) for value in box[TERMINAL_ALPHA])
+    bl, bu = (Fraction.from_float(float(value)) for value in box[TERMINAL_BETA])
     # The monotonicities are exact on A,B >= 1.
-    w0 = (al / (al + bu - 1.0), au / (au + bl - 1.0))
-    w1 = (bl / (au + bl - 1.0), bu / (al + bu - 1.0))
+    w0 = (al / (al + bu - 1), au / (au + bl - 1))
+    w1 = (bl / (au + bl - 1), bu / (al + bu - 1))
     w2 = (
-        1.0 - 1.0 / (al + bl - 1.0),
-        1.0 - 1.0 / (au + bu - 1.0),
+        1 - 1 / (al + bl - 1),
+        1 - 1 / (au + bu - 1),
     )
     return tuple(
-        (max(0.0, lower), min(1.0, upper)) for lower, upper in (w0, w1, w2)
+        (
+            rational_to_binary64_down(max(Fraction(0), lower)),
+            rational_to_binary64_up(min(Fraction(1), upper)),
+        )
+        for lower, upper in (w0, w1, w2)
     )
 
 
@@ -1791,7 +1831,10 @@ class TernaryConeOracle:
         self.terminal_alpha_upper.value = au
         self.terminal_beta_lower.value = bl
         self.terminal_beta_upper.value = bu
-        rank_upper = (1.0, 0.5, 1.0 / 3.0, 0.25)
+        # These bounds are part of a proof-producing relaxation.  In
+        # particular, nearest-binary64 evaluation of 1/3 lies *below* the
+        # mathematical value and would silently shrink the feasible set.
+        rank_upper = (1.0, 0.5, rational_to_binary64_up(Fraction(1, 3)), 0.25)
         prior_lower = np.zeros(4, dtype=float)
         prior_upper = np.ones(4, dtype=float)
         for rank, z in enumerate(self.prefix_order):
@@ -1802,11 +1845,22 @@ class TernaryConeOracle:
                 prior_lower[z], prior_upper[z] = box[f"prior_{z}"]
         self.prior_lower.value = prior_lower
         self.prior_upper.value = prior_upper
-        self.mccormick_lower_cross.value = np.outer(
-            np.asarray([item[0] for item in intervals]), prior_upper
+        weight_lower = np.asarray([item[0] for item in intervals])
+        weight_upper = np.asarray([item[1] for item in intervals])
+        self.mccormick_lower_cross.value = np.asarray(
+            [
+                [
+                    binary64_product_down(weight_lower[t], prior_upper[z])
+                    for z in OUTCOMES
+                ]
+                for t in range(3)
+            ]
         )
-        self.mccormick_upper_cross.value = np.outer(
-            np.asarray([item[1] for item in intervals]), prior_upper
+        self.mccormick_upper_cross.value = np.asarray(
+            [
+                [binary64_product_up(weight_upper[t], prior_upper[z]) for z in OUTCOMES]
+                for t in range(3)
+            ]
         )
         if len(behavior_conditions) > self.max_behavior_conditions:
             return {"status": "condition_overflow", "bound": math.inf}
@@ -1847,12 +1901,11 @@ class TernaryConeOracle:
         elif common_instrument_witnesses:
             return {"status": "instrument_witness_overflow", "bound": math.inf}
         maximum = intervals[0][1]
-        self.cap_weights.value = np.asarray(
-            [maximum, maximum, max(0.0, 2.0 - 2.0 * maximum), 0.0]
+        third_cap = rational_to_binary64_up(
+            max(Fraction(0), 2 - 2 * Fraction.from_float(float(maximum)))
         )
-        self.assign_family(
-            0, box[TERMINAL_ALPHA], box[TERMINAL_BETA]
-        )
+        self.cap_weights.value = np.asarray([maximum, maximum, third_cap, 0.0])
+        self.assign_family(0, box[TERMINAL_ALPHA], box[TERMINAL_BETA])
         for pair_index in range(len(self.pairs)):
             center_chart = self.coordinate_cases[pair_index] == "center"
             self.assign_family(
