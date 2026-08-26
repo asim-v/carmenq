@@ -212,8 +212,8 @@ def test_archived_source_15818_certificate_has_pinned_scope_and_integrity() -> N
     margin = _fraction(exact["margin"])
     assert target == Fraction(379, 500)
     assert upper == Fraction(
-        580812808889032592765723436703891690776891320554313167,
-        766247770432944429179173513575154591809369561091801088,
+        1161625617776817804636132569745984328794723998120992987,
+        1532495540865888858358347027150309183618739122183602176,
     )
     assert margin == target - upper
     assert upper < target
@@ -227,10 +227,10 @@ def test_archived_source_15818_certificate_has_pinned_scope_and_integrity() -> N
     }
 
     recovery = exact["recovery"]
-    assert recovery["candidate_columns"] == 956
-    assert recovery["active_columns"] == 956
+    assert recovery["candidate_columns"] == 957
+    assert recovery["active_columns"] == 957
     assert recovery["rank"] == 274
-    assert recovery["free_parameters"] == 682
+    assert recovery["free_parameters"] == 683
     assert recovery["basis_recovery"] == "FLINT RREF plus positive nullspace LP"
 
     selected = exact["selected_rays"]

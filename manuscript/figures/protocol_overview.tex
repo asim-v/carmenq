@@ -19,7 +19,9 @@
 
   \draw[qwire] (source) -- node[above,black,font=\footnotesize]{$A_i$} (dev);
   \draw[qwire] (dev) -- node[above,black,font=\footnotesize]{$B_i$} (vault);
-  \draw[wire] (vault) -- node[above,black,font=\footnotesize]{repeat $n$ slots} (commit);
+  \draw[wire] (vault) -- (commit);
+  \node[font=\footnotesize,text=gray!80,fill=white,inner xsep=2pt,inner ysep=1pt]
+    at ($(vault.east)!0.5!(commit.west)+(0,0.56)$) {repeat $n$ slots};
   \draw[wire] (commit) -- (coin);
   \draw[wire] (coin) -- (audit.west);
   \draw[wire] (coin) -- (return.west);

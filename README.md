@@ -152,13 +152,24 @@ literal rational canonical SOCP. Lean checks the complete sparse program, the
 product-cone dual witness, all 274 stationarity identities, and the exact bound
 
 $$
-  U=0.7579960833828755\ldots < 379/500.
+  U=0.7579960833820616\ldots < 379/500.
 $$
 
-The canonical program now uses directed outward binary64 rounding. Lean also
-proves that its six terminal Horwitz-weight endpoints enclose every parameter
-pair in the stored source box. The remaining spectral-cap, reconstruction,
-branch-coverage, and canonicalizer bridges are not yet formalized.
+The canonical program uses directed outward binary64 rounding, including a
+32-ULP safety inflation for completed-square SOC radii. Lean proves the
+Horwitz interval enclosure, terminal reconstruction bounds, spectral-cap
+containment, exhaustive branch selection, and the algebraic source-constraint
+lemmas. An independent exact-rational audit certifies all 29 inellipse anchors
+and the coefficientwise lower relaxation. A provenance audit maps all 1,142
+source constraints and 164 implicit variable-domain constraints to all 1,306
+canonical constraints and independently recompiles the canonical data on the
+274-coordinate basis.
+
+The end-to-end Lean interface is intentionally conditional: the two external
+projective support lines at weights `0.55` and `0.60` remain numerical SCIP
+certificates, and the CVXPY lowering is audited rather than kernel-formalized.
+Accordingly, this is an exact theorem for the literal local SOCP and a
+conditional local physical bridge, not yet an unconditional global frontier.
 See [`notes/exact_socp_certificate_source_15818.md`](notes/exact_socp_certificate_source_15818.md)
 and [`formal/README.md`](formal/README.md). Reproduce it with
 `python scripts/verify_lean_exact.py --workers 3 --heavy-workers 1`.

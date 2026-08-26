@@ -10,7 +10,11 @@ and proves a strict objective bound below (379/500=0.758).
 `source15818DecodedWeakDuality` gives the exact upper bound for every feasible
 point of the decoded program, and `source15818DecodedStrictTarget` gives the
 strict target inequality.
-This is not a proof of the full physical frontier theorem.
+`source15818_conditional_physical_frontier` now assembles the corresponding
+physical statement when supplied with an explicit feasible embedding and two
+named projective-line premises. Those premises are not hidden: their current
+artifacts are numerical SCIP covers. This is therefore not an unconditional
+proof of the full physical frontier theorem.
 
 This distinction is part of the result, not a disclaimer to be removed later.
 The formal certificate closes the floating-point arithmetic and conic
@@ -86,11 +90,11 @@ The exact archived value is
 $$
   U=b^\mathsf{T}z
   =\frac{
-    580812808889032592765723436703891690776891320554313167
+    1161625617776817804636132569745984328794723998120992987
   }{
-    766247770432944429179173513575154591809369561091801088
+    1532495540865888858358347027150309183618739122183602176
   }
-  \approx 0.7579960833828755.
+  \approx 0.7579960833820616.
 $$
 
 Consequently,
@@ -100,11 +104,11 @@ $$
   \qquad
   \frac{379}{500}-U
   =\frac{
-    375137392410569011260823259436226826350844159007213
+    750274940743749936809604243754048535032061772182801
   }{
-    95780971304118053647396689196894323976171195136475136000
+    191561942608236107294793378393788647952342390272950272000
   }
-  \approx 3.916617124496003\times10^{-6}.
+  \approx 3.916617938450015\times10^{-6}.
 $$
 
 All coefficients used in these equalities are exact rationals. A canonical
@@ -115,6 +119,29 @@ The source builder now rounds every proof-producing terminal interval endpoint
 outward. `source15818_horwitz_outer_enclosure` independently proves in Lean
 that the six stored rational endpoints enclose the three exact Horwitz weights
 for every real parameter pair in the entire source-15818 terminal box.
+Completed-square SOC radii are additionally advanced by 32 binary64 ULPs.
+The independent `Fraction` audit checks the resulting perturbation rather than
+assuming it harmless: all 29 anchor relaxations are outer, with minimum exact
+margin
+
+$$
+\frac{13479967549230269}
+{81129638414606681695789005144064}>0,
+$$
+
+and the coefficientwise lower completion has exact excess
+
+$$
+-\frac{187039510876414829}
+{324518553658426726783156020576256}<0.
+$$
+
+The Lean bridge layer proves the Horwitz bounds, terminal reconstruction
+interval arithmetic and three-column error budget, all five source-cell
+spectral-cap containments, and exhaustiveness of the scalar-positive,
+scalar-negative, and Bloch-dominant branches. It also proves the generic
+ordered-simplex, McCormick, Hellinger-SOC, Horwitz inellipse, tangent-remainder,
+and coefficientwise-relaxation identities used by the source model.
 
 The concrete Lean proof checks the dimension sum; the objective and column
 array sizes; membership of the witness in the product dual cone; all 274 exact
@@ -148,13 +175,21 @@ by SHA-256 and record identifiers. The exporter reruns
 `build_localisation_oracle`, `set_cell_caps`, and CVXPY canonicalization,
 interprets every resulting binary64 coefficient exactly, verifies the source
 metadata and canonical digest, and emits the formal object only after its own
-independent rational audit succeeds. Those checks are valuable reproducibility
-evidence, but Lean does not yet prove that the full Python reconstruction and
-canonicalizer output are semantically equivalent to the intended physical
-feasible set. The terminal Horwitz interval sub-bridge is now formalized.
-Spectral-cap containment, reconstruction enclosure, branch coverage, the
-remaining source constraints, canonicalization, and the complete
-physical-to-canonical map remain open obligations.
+independent rational audit succeeds.
+
+The separate canonicalization audit follows the actual reduction chain
+`FlipObjective -> Dcp2Cone -> CvxAttr2Constr -> ConeMatrixStuffing -> CLARABEL`.
+It maps every one of the 1,142 explicit source constraints plus 164 implicit
+domain constraints to the 1,306 canonical constraints and all 3,173 rows. It
+then evaluates the canonical expressions at zero and on every one of the 274
+coordinate basis vectors, recovering the archived right-hand side and
+objective exactly and the sparse matrix to maximum absolute discrepancy
+`1.1102230246251565e-16`. The canonical-data SHA-256 is
+`0861e28c987a2fdf03864ec8f753f70698e8cd3e8ba3b241ba715379acf0f1cf`;
+the provenance-manifest SHA-256 is
+`6f1ec1704c952520b3f677d8ad2388bd5730d3080e9ad98c8f0243e390b14064`.
+This is strong executable evidence, not a kernel proof of CVXPY's
+canonicalizer.
 
 ### Important serialization boundary
 
@@ -172,22 +207,25 @@ graph. Together with the checker and weak-duality modules, it is a self-containe
 formal artifact: a third party can check the theorem without trusting a
 numerical solver or regenerating (A,b,c) from the JSON.
 
-Self-contained arithmetic is not the complete semantics. Lean proves the
-terminal Horwitz box enclosure and the theorem for the data written in
-`CertificateData`; it does not yet prove that all of those data are the
-canonical image of source record 15818, that the canonicalizer preserves the
-optimization problem, or that every remaining source constraint soundly
-encloses the intended physical strategies. Those are the residual semantic,
-canonicalizer, and enclosure bridges.
+Self-contained arithmetic is not the complete semantics. Lean now proves the
+local cap, reconstruction, branch, and generic source-constraint lemmas and
+the theorem for the data written in `CertificateData`. The executable audit
+links every source constraint to canonical rows and recompiles their affine
+action. Lean still does not verify CVXPY's reduction implementation, nor does
+the repository contain exact witnesses for the two projective support covers
+that delimit the source box. `PhysicalBridge.lean` therefore exposes those
+support bounds and the physical-to-canonical embedding as fields, so no
+unproved numerical statement enters the kernel as an axiom.
 
 ## What the certificate does not prove
 
 The exact result should not be cited as any of the following:
 
-- a proof that the spectral caps, branch split, terminal reconstruction, or
-  remaining source constraints enclose all physically admissible common
-  instruments; only the terminal Horwitz-weight box link is formalized;
-- a proof for the full selected base cell, all of its source cells, an entire
+- a kernel proof of CVXPY's canonicalization or of the recorded SCIP dual
+  bounds for the projective support lines at weights `0.55` and `0.60`;
+- an unconditional proof that every physically admissible common instrument
+  has the `Source15818Embedding` required by the conditional Lean theorem;
+- a proof for all source cells, an entire
   terminal leaf or strip, the whole interior frontier, or the global benchmark;
 - an exact symbolic theorem for ideal physical constants—the certified
   coefficients are the exact rational values of binary64 canonical data;
@@ -202,9 +240,11 @@ The exact result should not be cited as any of the following:
 
 The correct citation is: **a kernel-checked exact strict upper bound, with
 decoded weak duality for every feasible point, for the rational canonical SOCP
-literally encoded in `source15818Data`, plus an exact terminal Horwitz-box
-enclosure; identification with the intended physical problem remains
-conditional on the residual source-to-canonical and enclosure bridges.**
+literally encoded in `source15818Data`; kernel-checked local cap,
+reconstruction, branch, and source-constraint lemmas; exact-rational enclosure
+and provenance audits; and an end-to-end physical theorem whose projective
+support and embedding assumptions are explicit. The unconditional global
+frontier remains open.**
 
 ## Archived evidence and verification
 
@@ -217,6 +257,13 @@ The proof-related files are:
 - `formal/CarmenQExact/Horwitz.lean`: exact parameter monotonicities and the
   source-15818 theorem enclosing all three terminal weights in their directed
   binary64 intervals;
+- `formal/CarmenQExact/TerminalReconstruction.lean`, `SpectralCaps.lean`, and
+  `SpectralBranches.lean`: exact reconstruction enclosures, cap containment,
+  and exhaustive branch selection;
+- `formal/CarmenQExact/SourceConstraints.lean`: exact generic simplex,
+  McCormick, Hellinger-SOC, inellipse, and outer-relaxation lemmas;
+- `formal/CarmenQExact/PhysicalBridge.lean`: the data-carrying conditional
+  physical theorem with both projective-line assumptions exposed;
 - `formal/CarmenQExact/Source15818DualData.lean` and the numbered stationarity
   modules: the shared exact dual, sparse column, and objective atoms;
 - `formal/CarmenQExact/Source15818Data.lean`: the assembler for the complete
@@ -233,8 +280,14 @@ The proof-related files are:
 - `scratch/d2_frontier/exact_socp_dual_certificate.py` and
   `exact_socp_dual_certificate_flint_positive.py`: exact auditing and the
   rational recovery route used to discover the archived witness;
+- `scratch/d2_frontier/audit_source15818_enclosures.py`: exact-rational audit
+  of all anchor and coefficientwise completed-square SOCs;
+- `scratch/d2_frontier/audit_source15818_canonicalization.py`: complete
+  source-constraint provenance and independent affine-expression evaluation;
 - `tests/test_exact_socp_dual_certificate.py`: toy audit/rejection tests,
   archive invariants, stored-ray cone checks, and source-hash verification.
+- `tests/test_source15818_semantic_audits.py`: regression tests for both
+  semantic audits and their pinned digests.
 
 To verify the formal result from the repository root, run:
 
@@ -252,7 +305,8 @@ available on `PATH`; lower either worker count on a memory-constrained machine.
 The focused Python tests remain useful:
 
 ```console
-python -m pytest tests/test_exact_socp_dual_certificate.py -q
+python -m pytest tests/test_exact_socp_dual_certificate.py \
+  tests/test_source15818_semantic_audits.py -q
 ```
 
 Those tests deliberately do not reconstruct the 274-dimensional stationarity
@@ -286,11 +340,10 @@ compare such certificates semantically rather than requiring identical JSON.
 
 ## Next theorem gate
 
-The next meaningful proof obligation is not a tighter solver tolerance. It is
-an explicit semantic bridge from the physical feasible set to the union of
-covered source-cell programs: cap containment, state/Choi/PPT validity where
-used, common-instrument consistency, exhaustive branch accounting, and outward
-rounding of every approximation. Once that bridge and all required source-cell
-certificates are established, conic weak duality can contribute to a physical
-frontier theorem. Until then, source cell 15818 is an exact local computational
-lemma.
+The next meaningful proof obligation is no longer another generic local lemma
+or a tighter solver tolerance. It is an exact certificate format for the 128
+projective leaves at weight `0.55` and the corresponding cover at weight
+`0.60`, followed by a kernel-checked union of all required source cells. The
+present result is an exact local computational theorem plus a transparent
+conditional physical bridge; closing those external support covers is the
+remaining gate to an unconditional frontier statement.

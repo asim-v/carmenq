@@ -27,8 +27,8 @@ membership, all 274 stationarity equations, and the strict exact bound
 
 $$
 \operatorname{certifiedUpper}=
-\frac{580812808889032592765723436703891690776891320554313167}
-     {766247770432944429179173513575154591809369561091801088}
+\frac{1161625617776817804636132569745984328794723998120992987}
+     {1532495540865888858358347027150309183618739122183602176}
 <\frac{379}{500}.
 $$
 
@@ -52,7 +52,7 @@ the single object checked by Lean. The Python exporter rebuilds that graph from
 the pinned source and checks it before emission; Lean then checks the emitted
 object independently.
 
-## First source-to-canonical bridge
+## Local semantic bridge
 
 `CarmenQExact/Horwitz.lean` proves the exact monotonicities of all three
 Horwitz weights and the theorem `source15818_horwitz_outer_enclosure`. For
@@ -62,11 +62,24 @@ by the corrected canonical program. The Python builder obtains those binary64
 endpoints by directed outward rounding; exact tests compare their rational
 values without tolerances.
 
-This closes the terminal-parameter interval link, but not the whole semantic
-bridge. The spectral-cap containment, terminal reconstruction inequalities,
-branch coverage, source constraint encoding, and CVXPY canonicalizer still
-need proofs connecting the physical feasible set to the literal
-`CertificateData`. The current result is not a proof of the full frontier.
+`TerminalReconstruction.lean` proves the stored coefficient intervals and
+three-column error budget. `SpectralCaps.lean` proves all five source-15818 cap
+containments, while `SpectralBranches.lean` proves the branch split is
+exhaustive and packages the source branch into SOC premises.
+`SourceConstraints.lean` proves the ordered-simplex, exact and concave
+McCormick, Hellinger-SOC, Horwitz, inellipse tangent-remainder, and generic
+outer-relaxation identities. `PhysicalBridge.lean` then states
+`source15818_conditional_physical_frontier`: an explicit
+`Source15818Embedding` into the decoded SOCP inherits the kernel-checked strict
+target.
+
+The physical theorem remains deliberately conditional. Its structure carries
+the projective support bounds at weights `0.55` and `0.60` as named premises,
+because their current SCIP covers are numerical rather than exact. The Python
+canonicalization audit maps all 1,142 explicit and 164 implicit source
+constraints to all 1,306 canonical constraints and recompiles the 274 affine
+columns, but that executable audit is not a Lean formalization of CVXPY. No
+solver claim is imported as an axiom.
 
 ## Verification
 

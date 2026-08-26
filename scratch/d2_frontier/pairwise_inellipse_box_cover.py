@@ -379,7 +379,19 @@ def quadratic_soc_data(
     radius_squared = float(linear @ shift - constant)
     if radius_squared < -1e-10:
         raise ValueError("invalid inellipse completion radius")
-    return square_root, shift, math.sqrt(max(0.0, radius_squared))
+    radius = math.sqrt(max(0.0, radius_squared))
+    # ``square_root`` and ``shift`` are computed in binary64. Treating their
+    # entries as exact dyadic coefficients can otherwise make the completed
+    # SOC microscopically smaller than the intended quadratic (source cell
+    # 15818 exposed deficits up to 7.60e-16). Inflating only the scalar radius
+    # is monotone: it weakens the SOC without changing its centre or axes.
+    # The exact-rational enclosure audit checks the combined coefficient,
+    # anchor-error, and completion error for every proof-producing source
+    # anchor; 32 ULPs leave a visible exact margin while remaining negligible
+    # on the optimization scale.
+    for _ in range(32):
+        radius = math.nextafter(radius, math.inf)
+    return square_root, shift, radius
 
 
 def center_inellipse_coefficients(

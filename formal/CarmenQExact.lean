@@ -2,4 +2,9 @@ import CarmenQExact.Checker
 import CarmenQExact.WeakDuality
 import CarmenQExact.EncodedWeakDuality
 import CarmenQExact.Horwitz
+import CarmenQExact.TerminalReconstruction
+import CarmenQExact.SourceConstraints
+import CarmenQExact.SpectralCaps
+import CarmenQExact.SpectralBranches
 import CarmenQExact.Source15818
+import CarmenQExact.PhysicalBridge
