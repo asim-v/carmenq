@@ -145,6 +145,22 @@ the previously closed source cells, the resulting upper bound is
 reproduction commands are in
 [`notes/state_choi_ppt_cluster_completion.md`](notes/state_choi_ppt_cluster_completion.md).
 
+### Kernel-checked local conic certificate
+
+Source cell 15818 now has a solver-independent arithmetic certificate for its
+literal rational canonical SOCP. Lean checks the complete sparse program, the
+product-cone dual witness, all 274 stationarity identities, and the exact bound
+
+$$
+  U=0.7579960833843471\ldots < 379/500.
+$$
+
+This closes the conic arithmetic and weak-duality step for that encoded cell;
+it does not yet formalize the upstream physical enclosure or canonicalizer.
+See [`notes/exact_socp_certificate_source_15818.md`](notes/exact_socp_certificate_source_15818.md)
+and [`formal/README.md`](formal/README.md). Reproduce it with
+`python scripts/verify_lean_exact.py --workers 3 --heavy-workers 1`.
+
 That input-basis route now has an exact determinant-sign implementation.
 Cramer's rule converts positivity of a recovered effect into inherited linear
 cuts valid on a complete input box, while exhaustive multi-affine vertex

@@ -1,0 +1,284 @@
+# Exact SOCP certificate for source cell 15818
+
+## Status in one sentence
+
+`source15818Exact : CertificateProof source15818Data` is a kernel-checked Lean
+theorem for the rational conic program assembled as `source15818Data`. Its
+generated module graph interprets every binary64 coefficient of the
+reconstructed canonical source-cell 15818 program as its exact rational value
+and proves a strict objective bound below (379/500=0.758).
+`source15818DecodedWeakDuality` gives the exact upper bound for every feasible
+point of the decoded program, and `source15818DecodedStrictTarget` gives the
+strict target inequality.
+This is not a proof of the full physical frontier theorem.
+
+This distinction is part of the result, not a disclaimer to be removed later.
+The formal certificate closes the floating-point arithmetic and conic
+weak-duality gap for one literal `CertificateData` program. It does not by
+itself establish that every upstream reduction, cap, enclosure, source-cell
+construction, or canonicalizer transformation faithfully contains every
+physical strategy that the proposed theorem is meant to cover.
+
+## Exact statement certified
+
+The stored source record is identified by all of the following data:
+
+| field | value |
+|---|---|
+| frontier artifact | `scratch/d2_frontier/ternary_reconstructed_depth4_g2_top_leaf_bbb_p1_s92_l055.json` |
+| SHA-256 | `8d314683c074d0aa59f5cac2677941f908d4d22350ed8187165f1f643a005884` |
+| source index | `15818` |
+| source cell | `608` |
+| branch pattern | `bloch, bloch, scalar-negative, bloch` |
+| cap indices | `8, 53, null, 8` |
+
+With the repository's source-to-oracle code and canonicalization environment,
+that record produces a cone program with 274 variables, 3,173 rows, and 20,962
+nonzero matrix coefficients. Its cone is a product of a six-dimensional zero
+cone, a 793-dimensional nonnegative cone, and 788 Lorentz cones. There are no
+positive-semidefinite, exponential, or power-cone blocks in this particular
+canonical program.
+
+The exporter converts each binary64 entry of this canonical (A,b,c) to the
+exact rational returned by `float.as_integer_ratio()` and writes the complete
+sparse program into a generated Source15818 module graph.
+`formal/CarmenQExact/Source15818Data.lean` assembles those named atoms into one
+`CertificateData` value. The Lean theorem quantifies over the program decoded
+from that value; it does not rerun or assume the correctness of the Python
+reconstruction or CVXPY canonicalizer.
+
+Write the Clarabel-form primal as
+
+$$
+  \min_x c^\mathsf{T}x
+  \quad\text{subject to}\quad
+  Ax+s=b,\qquad s\in K.
+$$
+
+The project score for this program is $-c^\mathsf{T}x$. The archived dual
+vector is represented as an exact rational conic combination of sparse rays,
+
+$$
+  z=\sum_j \alpha_j r_j.
+$$
+
+Coefficients of zero-cone dual rays are unrestricted. Coefficients of
+nonnegative and Lorentz-cone rays are nonnegative, and every Lorentz ray is
+checked by the exact inequality $t^2\geq\lVert u\rVert_2^2$, with $t\geq0$.
+The exact audit verifies
+
+$$
+  c+A^\mathsf{T}z=0.
+$$
+
+Therefore, for every feasible (x,s), self-duality of the nonnegative and
+Lorentz cones gives
+
+$$
+  -c^\mathsf{T}x
+  =z^\mathsf{T}Ax
+  =z^\mathsf{T}(b-s)
+  \leq b^\mathsf{T}z.
+$$
+
+The exact archived value is
+
+$$
+  U=b^\mathsf{T}z
+  =\frac{
+    2323251235560640692765186324170448172025567705991486731
+  }{
+    3064991081731777716716694054300618367237478244367204352
+  }
+  \approx 0.7579960833843471.
+$$
+
+Consequently,
+
+$$
+  U < \frac{379}{500},
+  \qquad
+  \frac{379}{500}-U
+  =\frac{
+    1500549005852063258471123677568792555100404856770977
+  }{
+    383123885216472214589586756787577295904684780545900544000
+  }
+  \approx 3.916615652934885\times10^{-6}.
+$$
+
+All coefficients used in these equalities are exact rationals. A canonical
+binary64 coefficient is interpreted by `float.as_integer_ratio()`, so neither
+the exporter nor Lean silently treats a decimal printout as exact.
+
+The concrete Lean proof checks the dimension sum; the objective and column
+array sizes; membership of the witness in the product dual cone; all 274 exact
+stationarity equations; and the displayed strict rational bound. The decoded
+weak-duality layer then proves, for every point and slack satisfying the
+literal sparse equation (Ax+s=b) and the encoded product-cone condition, that
+its score is at most (U) and therefore strictly below (379/500).
+
+## Trust chain
+
+The result has two deliberately separate trust chains. For the theorem about
+the literal encoded program, the generated Source15818 module graph contains
+complete sparse rational (A,b,c), cone dimensions, target, and dual data;
+`Source15818Data.lean` assembles them into the checked object. The generated
+`source15818Exact` proof is checked by Lean's kernel and establishes dimensions,
+indices, product-cone membership, 274 stationarity identities, and the strict
+upper bound. `EncodedWeakDuality.lean` decodes the sparse arrays, proves that
+the checked fold expressions equal the corresponding finite sums, and derives
+weak duality and the strict target for every feasible point of that decoded
+program.
+
+Clarabel, HiGHS, FLINT, CVXPY, and the Python exporter are not premises of this
+literal-data theorem. They discover and emit a candidate. If their proposed
+rational witness fails any encoded equality or cone inequality, the kernel
+proof cannot be completed. The formal proof uses `by decide +kernel`; it does
+not use `native_decide`, `sorry`, `admit`, a solver oracle, or a custom axiom.
+
+A different chain supplies provenance for why this particular literal program
+is scientifically relevant. The certificate binds the stored source artifact
+by SHA-256 and record identifiers. The exporter reruns
+`build_localisation_oracle`, `set_cell_caps`, and CVXPY canonicalization,
+interprets every resulting binary64 coefficient exactly, verifies the source
+metadata and canonical digest, and emits the formal object only after its own
+independent rational audit succeeds. Those checks are valuable reproducibility
+evidence, but Lean does not yet prove that the Python reconstruction and
+canonicalizer output are semantically equivalent to the intended physical
+feasible set. Cap containment, enclosure soundness, branch coverage, outward
+rounding, and the physical-to-canonical map remain separate open obligations.
+
+### Important serialization boundary
+
+The JSON certificate is not self-contained: it stores source identity,
+canonical dimensions, selected rays, rational ray coefficients, the objective
+upper and margin, and audit flags, but it omits the full canonical (A,b,c).
+Consequently, the JSON alone cannot support a fresh 274-coordinate
+stationarity check without regenerating the canonical program.
+
+The formal object has a different boundary. The generated Source15818 module
+graph transitively encodes all 20,962 sparse matrix coefficients, all nonzero
+right-hand-side entries, the complete objective, cone layout, exact functional
+dual witness, and target. `Source15818Data.lean` is the small assembler for that
+graph. Together with the checker and weak-duality modules, it is a self-contained
+formal artifact: a third party can check the theorem without trusting a
+numerical solver or regenerating (A,b,c) from the JSON.
+
+Self-contained arithmetic is not self-contained semantics. Lean currently
+proves the theorem for the data written in `CertificateData`; it does not prove
+that those data are the canonical image of source record 15818, that the
+canonicalizer preserves the optimization problem, or that the source cell is
+a sound enclosure of the intended physical strategies. Those are the open
+semantic, canonicalizer, and enclosure bridges.
+
+## What the certificate does not prove
+
+The exact result should not be cited as any of the following:
+
+- a proof that the source box, spectral caps, branch split, or terminal
+  reconstruction encloses all physically admissible common instruments;
+- a proof for the full selected base cell, all of its source cells, an entire
+  terminal leaf or strip, the whole interior frontier, or the global benchmark;
+- an exact symbolic theorem for ideal physical constants—the certified
+  coefficients are the exact rational values of binary64 canonical data;
+- a proof that (U) is the exact optimum—the certificate supplies a rigorous
+  feasible-dual upper bound, not dual attainment or a matching primal value;
+- a state--Choi/PPT or semidefinite certificate. Such constraints may motivate
+  upstream localizers and caps, but this selected canonical cell contains only
+  zero, nonnegative, and second-order cones;
+- a proof that a common quantum instrument is the only physical explanation of
+  an experimental observation, or any claim about quantum interpretations,
+  branches, observers, or consciousness.
+
+The correct citation is: **a kernel-checked exact strict upper bound, with
+decoded weak duality for every feasible point, for the rational canonical SOCP
+literally encoded in `source15818Data`; its identification with the intended
+source-cell and physical problem remains conditional on the unformalized
+source-to-canonical and enclosure bridge.**
+
+## Archived evidence and verification
+
+The proof-related files are:
+
+- `scratch/d2_frontier/source_15818_exact_socp_certificate.json`: source
+  identity, sparse exact ray decomposition, rational upper, and audit metadata;
+- `scratch/d2_frontier/export_exact_socp_certificate_lean.py`: deterministic
+  reconstruction, independent exact audit, and Lean-data/proof generator;
+- `formal/CarmenQExact/Source15818DualData.lean` and the numbered stationarity
+  modules: the shared exact dual, sparse column, and objective atoms;
+- `formal/CarmenQExact/Source15818Data.lean`: the assembler for the complete
+  literal rational canonical program and dual witness;
+- `formal/CarmenQExact/Checker.lean`, `WeakDuality.lean`, and
+  `EncodedWeakDuality.lean`: exact checking, cone weak duality, and decoding of
+  the sparse formal data;
+- `formal/CarmenQExact/Source15818Exact.lean`: the assembled concrete
+  `CertificateProof`;
+- `formal/CarmenQExact/Source15818.lean`: the public decoded weak-duality and
+  strict-target corollaries for this concrete program;
+- `scripts/verify_lean_exact.py`: memory-bounded kernel verification and trust
+  scan;
+- `scratch/d2_frontier/exact_socp_dual_certificate.py` and
+  `exact_socp_dual_certificate_flint_positive.py`: exact auditing and the
+  rational recovery route used to discover the archived witness;
+- `tests/test_exact_socp_dual_certificate.py`: toy audit/rejection tests,
+  archive invariants, stored-ray cone checks, and source-hash verification.
+
+To verify the formal result from the repository root, run:
+
+```console
+python scripts/verify_lean_exact.py --workers 3 --heavy-workers 1
+```
+
+The driver first rejects explicit trust escapes throughout the production Lean
+sources. It then builds the checker and decoded weak-duality theory, the shared
+dual and 274 stationarity/column atoms, the data assembler, the bounded data
+bridges and cone shards, and finally `Source15818Exact`, its public decoded
+corollaries, and the top-level package. Pass `--lake PATH` if `lake` is not
+available on `PATH`; lower either worker count on a memory-constrained machine.
+
+The focused Python tests remain useful:
+
+```console
+python -m pytest tests/test_exact_socp_dual_certificate.py -q
+```
+
+Those tests deliberately do not reconstruct the 274-dimensional stationarity
+identity from the JSON alone, because the JSON omits (A,b,c). That limitation
+belongs to the JSON test path, not to the Lean artifact: the generated
+Source15818 module graph contains the full arrays, and the kernel checks all
+274 identities.
+
+To reconstruct the canonical source program, repeat every exact exporter audit,
+and deterministically regenerate the Lean modules, run:
+
+```console
+python scratch/d2_frontier/export_exact_socp_certificate_lean.py
+```
+
+To rediscover a rational ray decomposition rather than consume the archived
+one, install the pinned `reproducibility` and `exact` dependencies and write to
+a new JSON file:
+
+```console
+python scratch/d2_frontier/exact_socp_dual_certificate_flint_positive.py \
+  --frontier-json scratch/d2_frontier/ternary_reconstructed_depth4_g2_top_leaf_bbb_p1_s92_l055.json \
+  --source-index 15818 \
+  --output scratch/d2_frontier/source_15818_exact_socp_certificate.regenerated.json
+```
+
+Discovery uses floating-point solvers, but emission occurs only after the
+independent rational audit succeeds. A rediscovered certificate can use a
+different redundant ray decomposition and still prove the same strict target;
+compare such certificates semantically rather than requiring identical JSON.
+
+## Next theorem gate
+
+The next meaningful proof obligation is not a tighter solver tolerance. It is
+an explicit semantic bridge from the physical feasible set to the union of
+covered source-cell programs: cap containment, state/Choi/PPT validity where
+used, common-instrument consistency, exhaustive branch accounting, and outward
+rounding of every approximation. Once that bridge and all required source-cell
+certificates are established, conic weak duality can contribute to a physical
+frontier theorem. Until then, source cell 15818 is an exact local computational
+lemma.
