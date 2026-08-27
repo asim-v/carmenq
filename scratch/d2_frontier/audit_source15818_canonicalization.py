@@ -147,6 +147,12 @@ def audit(basis_columns: int | None = None) -> dict[str, object]:
     right = np.asarray(data[cp.settings.B], dtype=float).reshape(-1)
     objective = np.asarray(data[cp.settings.C], dtype=float).reshape(-1)
     dimensions = data["dims"]
+    # Pin the stuffed program before assigning basis values to CVXPY's
+    # canonical expression graph.  Those assignments are an independent
+    # semantic audit and must not participate in the identity digest.
+    canonical_digest = canonical_data_sha256(
+        matrix, right, objective, dimensions
+    )
 
     source_constraints = list(oracle.problem.constraints)
     inverse_dcp = inverse[1]
@@ -249,9 +255,7 @@ def audit(basis_columns: int | None = None) -> dict[str, object]:
         "canonical_rows": int(matrix.shape[0]),
         "canonical_variables": int(matrix.shape[1]),
         "canonical_nonzeros": int(matrix.nnz),
-        "canonical_data_sha256": canonical_data_sha256(
-            matrix, right, objective, dimensions
-        ),
+        "canonical_data_sha256": canonical_digest,
         "origin_counts": origin_counts,
         "all_source_constraints_mapped": True,
         "row_spans_complete": True,
