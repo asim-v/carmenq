@@ -18,7 +18,8 @@ def validate() -> dict[str, Any]:
     source_raw = SOURCE.read_bytes()
     if summary["schema"] != "carmenq.spectral-cap-cluster-cover-summary.v1":
         raise ValueError("unexpected compact summary schema")
-    if summary["source"]["sha256"] != hashlib.sha256(source_raw).hexdigest():
+    canonical_source = source_raw.replace(b"\r\n", b"\n")
+    if summary["source"]["sha256"] != hashlib.sha256(canonical_source).hexdigest():
         raise ValueError("compact summary source hash mismatch")
     target = float(summary["target"])
     bound = float(summary["aggregate_upper_bound"])

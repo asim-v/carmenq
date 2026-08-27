@@ -27,7 +27,6 @@ from typing import Any
 import clarabel
 import cvxpy as cp
 import numpy as np
-import scipy.linalg
 import scipy.sparse as sp
 import sympy as sy
 from cvxpy.reductions.solvers.conic_solvers.clarabel_conif import (
@@ -426,7 +425,10 @@ def main() -> None:
         "scope": "canonical SOCP for stored source spectral cell",
         "source": {
             "path": str(args.frontier_json),
-            "sha256": hashlib.sha256(source_raw).hexdigest(),
+            "sha256": hashlib.sha256(
+                source_raw.replace(b"\r\n", b"\n")
+            ).hexdigest(),
+            "sha256_semantics": "raw UTF-8 bytes with CRLF normalized to LF",
             "source_index": int(args.source_index),
             "source_cell": int(stored["source_cell"]),
             "branches": list(pattern),

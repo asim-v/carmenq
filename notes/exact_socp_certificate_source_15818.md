@@ -30,11 +30,14 @@ The stored source record is identified by all of the following data:
 | field | value |
 |---|---|
 | frontier artifact | `scratch/d2_frontier/ternary_reconstructed_depth4_g2_top_leaf_bbb_p1_s92_l055.json` |
-| SHA-256 | `8d314683c074d0aa59f5cac2677941f908d4d22350ed8187165f1f643a005884` |
+| canonical-text SHA-256 | `b35fe5cd40dd7b6b1bf6a43720d14aede073d2e00fe14897b8ecad16b2be116c` |
 | source index | `15818` |
 | source cell | `608` |
 | branch pattern | `bloch, bloch, scalar-negative, bloch` |
 | cap indices | `8, 53, null, 8` |
+
+The source digest is computed from the raw UTF-8 bytes after replacing CRLF
+line endings by LF, so it is invariant under Git's checkout conversion.
 
 With the repository's source-to-oracle code and canonicalization environment,
 that record produces a cone program with 274 variables, 3,173 rows, and 20,962

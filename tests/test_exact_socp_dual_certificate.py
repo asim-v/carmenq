@@ -32,12 +32,10 @@ def _fraction(encoded: list[int]) -> Fraction:
     return Fraction(int(encoded[0]), int(encoded[1]))
 
 
-def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+def _canonical_text_sha256(path: Path) -> str:
+    """Hash repository text independently of checkout newline conversion."""
+
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def test_binary64_conversion_and_fraction_encoding_are_exact() -> None:
@@ -187,7 +185,8 @@ def test_archived_source_15818_certificate_has_pinned_scope_and_integrity() -> N
     assert payload["scope"] == "canonical SOCP for stored source spectral cell"
     assert payload["source"] == {
         "path": "scratch\\d2_frontier\\ternary_reconstructed_depth4_g2_top_leaf_bbb_p1_s92_l055.json",
-        "sha256": "8d314683c074d0aa59f5cac2677941f908d4d22350ed8187165f1f643a005884",
+        "sha256": "b35fe5cd40dd7b6b1bf6a43720d14aede073d2e00fe14897b8ecad16b2be116c",
+        "sha256_semantics": "raw UTF-8 bytes with CRLF normalized to LF",
         "source_index": 15818,
         "source_cell": 608,
         "branches": ["bloch", "bloch", "scalar-negative", "bloch"],
@@ -268,7 +267,7 @@ def test_archived_source_15818_certificate_has_pinned_scope_and_integrity() -> N
 
     source_path = ROOT / Path(payload["source"]["path"].replace("\\", "/"))
     assert source_path.is_file()
-    assert _sha256(source_path) == payload["source"]["sha256"]
+    assert _canonical_text_sha256(source_path) == payload["source"]["sha256"]
     assert payload["epistemic_status"] == (
         "solver-independent exact dual certificate for the serialized canonical "
         "SOCP; upstream physical enclosure semantics not yet formalized"
