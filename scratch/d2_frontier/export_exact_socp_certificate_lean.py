@@ -118,6 +118,12 @@ def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def canonical_text_sha256(data: bytes) -> str:
+    """Hash tracked text independently of Git's CRLF checkout conversion."""
+
+    return sha256_bytes(data.replace(b"\r\n", b"\n"))
+
+
 def reconstruct_canonical_socp(
     source: dict[str, Any], stored: dict[str, Any]
 ) -> tuple[sp.csc_matrix, np.ndarray, np.ndarray, Any]:
@@ -180,7 +186,11 @@ def validate_source_and_metadata(
     source_path = resolve_inside_root(root, source_meta.get("path"))
     source_raw = source_path.read_bytes()
     claimed_hash = source_meta.get("sha256")
-    if not isinstance(claimed_hash, str) or sha256_bytes(source_raw) != claimed_hash:
+    if source_meta.get("sha256_semantics") != (
+        "raw UTF-8 bytes with CRLF normalized to LF"
+    ):
+        raise ValueError("unsupported frontier source SHA-256 semantics")
+    if not isinstance(claimed_hash, str) or canonical_text_sha256(source_raw) != claimed_hash:
         raise ValueError("frontier source SHA-256 does not match the certificate")
     source = require_mapping(json.loads(source_raw), "frontier source")
     cells = require_list(source.get("cells"), "frontier cells")
@@ -1328,7 +1338,7 @@ def main() -> None:
     right_entries = sparse_right_entries(right)
     upper, margin = audit_bound(right, right_entries, dual, target, exact)
     data_hash = canonical_data_sha256(matrix, right, objective, dimensions)
-    source_hash = sha256_bytes(verified_source_raw)
+    source_hash = canonical_text_sha256(verified_source_raw)
 
     dual_output = root / DUAL_DATA_OUTPUT
     if not args.proof_only:

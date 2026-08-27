@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import importlib
+import json
+import subprocess
 import sys
 from fractions import Fraction
 from pathlib import Path
@@ -33,8 +35,22 @@ def test_source15818_completed_ellipse_socs_are_exact_outer_relaxations() -> Non
 
 
 def test_source15818_every_source_constraint_has_canonical_provenance() -> None:
-    canonical = importlib.import_module("audit_source15818_canonicalization")
-    report = canonical.audit(basis_columns=8)
+    # CVXPY allocates process-global expression identifiers.  Run this
+    # bitwise-reproducibility audit in a fresh interpreter so earlier tests
+    # cannot perturb the canonical column order.
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(FRONTIER / "audit_source15818_canonicalization.py"),
+            "--basis-columns",
+            "8",
+        ],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    report = json.loads(completed.stdout)
 
     assert report["source_constraints"] == 1142
     assert report["canonical_constraints"] == 1306
