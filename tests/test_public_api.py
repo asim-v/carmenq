@@ -35,7 +35,7 @@ def test_concise_aliases_match_scientific_api() -> None:
     assert collective_bound(0.5) == collective_classical_record_bound(0.5)
     assert certify is certify_classical_memory
     assert plan is plan_experiment
-    assert __version__ == "2.3.0"
+    assert __version__ == "2.3.1"
     assert callable(reconstruct_common_instrument_from_basis)
 
 

@@ -220,7 +220,8 @@ def main() -> None:
     parser.add_argument(
         "--output",
         type=Path,
-        default=ROOT / "output/releases/carmenq-global-frontier-v2.3.0.zip",
+        default=ROOT
+        / f"output/releases/carmenq-global-frontier-v{project_version()}.zip",
     )
     parser.add_argument("--verify", type=Path)
     args = parser.parse_args()

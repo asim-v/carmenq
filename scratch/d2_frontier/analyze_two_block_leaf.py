@@ -7,9 +7,7 @@ import json
 from pathlib import Path
 
 import numpy as np
-import torch
 
-from general_two_block_leaf import GeneralTwoBlockLeaf
 from qubit_discrimination_geometry import PAULIS, discrimination_geometry
 
 
@@ -27,6 +25,13 @@ def matrix_data(matrix: np.ndarray) -> dict[str, object]:
 
 
 def main() -> None:
+    # Checkpoint inspection is the only path that requires the optional PyTorch
+    # search stack.  Keep it lazy so the NumPy discrimination helpers remain
+    # importable in the reproducibility environment.
+    import torch
+
+    from general_two_block_leaf import GeneralTwoBlockLeaf
+
     parser = argparse.ArgumentParser()
     parser.add_argument("checkpoint", type=Path)
     parser.add_argument("--lambda", dest="weight", type=float, default=0.6)

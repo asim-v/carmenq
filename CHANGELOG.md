@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.1 - 2026-08-27
+
+- Made the frontier diagnostics importable without the optional PyTorch search
+  stack by loading checkpoint-only dependencies lazily.
+- Added the omitted rank/rank checkpoint merger used by the projective-cover
+  regression tests, restoring a self-contained clean-clone test run on Linux.
+
 ## 2.3.0 - 2026-08-27
 
 - Reduced the arbitrary adaptive four-slot interleaved support problem exactly
