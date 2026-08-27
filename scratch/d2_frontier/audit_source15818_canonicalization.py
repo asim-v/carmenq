@@ -17,7 +17,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -29,6 +28,7 @@ from export_exact_socp_certificate_lean import (
     DEFAULT_CERTIFICATE,
     SOURCE_INDEX,
     canonical_data_sha256,
+    require_deterministic_hash_seed,
 )
 from spectral_product_localizer_batch import (
     build_localisation_oracle,
@@ -278,6 +278,7 @@ def audit(basis_columns: int | None = None) -> dict[str, object]:
 
 
 def main() -> None:
+    require_deterministic_hash_seed()
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--basis-columns",

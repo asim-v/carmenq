@@ -22,6 +22,9 @@ import argparse
 import hashlib
 import json
 import math
+import os
+import subprocess
+import sys
 from fractions import Fraction
 from pathlib import Path
 from typing import Any, Iterable
@@ -122,6 +125,17 @@ def canonical_text_sha256(data: bytes) -> str:
     """Hash tracked text independently of Git's CRLF checkout conversion."""
 
     return sha256_bytes(data.replace(b"\r\n", b"\n"))
+
+
+def require_deterministic_hash_seed() -> None:
+    """Re-execute a CLI entry point with deterministic Python hash ordering."""
+
+    if os.environ.get("PYTHONHASHSEED") == "0":
+        return
+    environment = os.environ.copy()
+    environment["PYTHONHASHSEED"] = "0"
+    completed = subprocess.run([sys.executable, *sys.argv], env=environment)
+    raise SystemExit(completed.returncode)
 
 
 def reconstruct_canonical_socp(
@@ -1281,6 +1295,7 @@ def file_record(path: Path, root: Path) -> dict[str, Any]:
     }
 
 def main() -> None:
+    require_deterministic_hash_seed()
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--proof-only",
