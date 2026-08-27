@@ -1,9 +1,10 @@
 # Complete sector exhaustion at the interior direction \(\lambda=0.6\)
 
-**Date:** 23 August 2026
-**Status:** complete solver-conditional numerical enclosure for the two-block
-rank-two relaxation at one support direction; an exact closed form and
-solver-independent interval certification remain open.
+**Date:** 27 August 2026
+**Status:** complete finite computer-assisted enclosure for the two-block
+rank-two relaxation at one support direction. Verification of the conic
+sectors calls no optimizer; an exact maximizer and the full support curve
+remain open.
 
 ## 1. Result and precise scope
 
@@ -16,29 +17,29 @@ terminal-readout sectors give the stronger chain
 
 \[
 \boxed{
-0.7658988152646944
+0.7658988152
 \;\leq\;
 \beta_{4\mathrm s}(0.6)
 \;\leq\;
 \beta_{2\mathrm b}(0.6)
 \;\leq\;
-0.76662 .}
+0.76670 .}
 \tag{1}
 \]
 
-The reported width is \(7.2118473530558\times10^{-4}\), or approximately
-\(0.0942\%\) of the physical lower bound.  The unrounded assembly of the
-sector bounds is \(0.76661\); equation (1) reports one additional decimal
-safety step.
+The exact rational width is \(0.0008011848\), approximately \(0.10461\%\) of
+the lower endpoint. The lower bound uses a fixed physical four-effect Choi-MPS
+whose amplitudes are rational unit-circle parametrizations; four radicals in
+its RETURN score are rounded downward at 192 dyadic bits. The computed
+rational score is \(0.7658988152646940319\ldots\), so the displayed lower
+endpoint is a strict outward truncation.
 
-The lower endpoint is an exact physical construction evaluated in double
-precision and independently checked as a complete four-slot instrument.  The
-upper endpoint is a finite *solver-conditional numerical enclosure*: its
-logical reductions are analytic, while its terminal boxes use CLARABEL values
-with an explicit safety margin and its nonconvex spatial bounds use SCIP dual
-bounds at recorded tolerances.  It is not an outward-rounded interval proof.
-Nor does (1) prove that the explicit four-effect construction is the exact
-optimum.
+The upper endpoint combines directed interval arithmetic for the projective
+sector with exact-rational residual dual replay for the conic sectors. Solvers
+are used only to propose dual vectors during certificate generation. The
+result is not a closed form or an end-to-end kernel-formalized proof: Python
+matrix canonicalization, the interval implementation, and the documented
+analytic reductions remain in the trust boundary.
 
 ## 2. Fully active Helstrom reconstruction
 
@@ -152,13 +153,14 @@ The enclosure uses the certified lines
 \[
 \beta_{\rm proj}(0.55)\leq0.75730,
 \qquad
-\beta_{\rm proj}(0.60)\leq0.76591.
+\beta_{\rm proj}(0.60)\leq0.76600.
 \tag{11}
 \]
 
-The first is a 128-leaf rescaled secular cover.  Its worst rescaled dual is
-\(0.9999892110586747\).  The second is the independent 312-leaf projective
-cover already used for the physical support direction.
+For each weight, the outward interval replay covers all 1,448 cells obtained
+from the rank/rank, rank/endpoint, endpoint/rank, and endpoint/endpoint
+topologies. Archived SCIP trees supply only the geometric partition; no
+archived primal or dual value enters a cell inequality.
 
 ## 4. RETURN cap and finite readout arity
 
@@ -208,57 +210,57 @@ The complete partition and recorded upper bounds are
 
 | terminal sector | method | support upper bound |
 |---|---|---:|
-| at most two active effects | four-topology spatial projective cover | \(0.76591\) |
-| three/four active, \(w_{\max}\leq0.88325\) | analytic prior-reserve cap | \(0.7658931806287275\) |
-| three active, \(w_{\max}>0.88325\) | complete terminal-weight SOCP cover | \(0.76643\) |
-| four active, \(w_{\max}>0.88325\), \(w_{\min}\geq0.0003\) | projected Helstrom spatial SCIP relaxation | \(0.7663946336432972\) |
-| four active, \(w_{\min}<0.0003\) | deletion into the ternary sector | \(0.76643+0.6(0.0003)=0.76661\) |
+| at most two active effects | outward interval replay of four projective topologies | \(0.76600\) |
+| three/four active, \(w_{\max}\leq0.88325\) | 576-cell exact dual replay | \(0.765893817258146\) |
+| three active, \(w_{\max}>0.88325\) | 12,008-cell transferred exact dual replay | \(0.76652\) |
+| four active, \(w_{\max}>0.88325\), \(w_{\min}\geq0.0003\) | 90-leaf McCormick--SOCP exact dual replay, six orders per leaf | \(0.76670\) |
+| four active, \(w_{\min}<0.0003\) | deletion into the ternary sector | \(0.76652+0.6(0.0003)=0.76670\) |
 
-The ternary cover contains 12,008 terminal boxes and 24,002 solved nodes.  Its
-largest stored leaf bound is \(0.7664281458427126\), below its declared target
-\(0.76643\), with no open boxes.  The fully active spatial run explored 15,361
-nodes in 60 seconds and returned primal/dual values
-\(0.7660017525973855/0.7663946336432972\).  The deletion row is therefore the
-largest assembled upper bound and produces equation (1).
+The exact maximum reconstructed over all ternary cells is
+\(0.7665158446239910257\ldots\). The compact four-active tree has 88 closed
+and two domain-empty leaves; its independently replayed maximum is
+\(0.7666751671519558614\ldots\). Both values are below their displayed
+outward targets. The deletion row equals the largest reported sector bound
+and therefore fixes equation (1).
 
 ## 6. Reproduction and audit chain
-
-The combined validator reconstructs the deterministic dyadic split tree of
-the ternary cover, rejects missing, overlapping, or extra leaves, checks both
-projective manifests, checks the active-sector artifacts, and recomputes the
-final arithmetic:
 
 The recorded environment used NumPy 2.2.6, SciPy 1.15.3, CVXPY 1.7.5,
 CLARABEL 0.11.1, PySCIPOpt 6.2.1, and SCIP 10.0.2. It can be recreated with
 `python -m pip install -e ".[dev,reproducibility]"`.
 
 ```bash
-python scratch/d2_frontier/validate_projective_line_l055.py
-python scratch/d2_frontier/validate_projective_cover.py
-python scratch/d2_frontier/validate_interior_frontier.py
-python -m pytest \
-  tests/test_active_readout_geometry.py \
-  tests/test_projective_secular_rescaling.py \
-  tests/test_ternary_probability_cone.py \
-  tests/test_inellipse_geometry.py -q
+python scripts/verify_four_effect_rational_lower.py
+python scratch/d2_frontier/verify_low_weight_socp_exact_dual.py
+python scratch/d2_frontier/verify_four_active_mccormick_exact_cover.py \
+  scratch/d2_frontier/four_active_common_bias_fallback_exact_cover_l060.compact.json.gz \
+  --target 0.76670
+python scratch/d2_frontier/verify_global_frontier_l060.py
+python -m pytest -q \
+  tests/test_four_effect_rational_lower.py \
+  tests/test_projective_tangent_interval_certificate.py \
+  tests/test_ternary_projective_line_sensitivity.py \
+  tests/test_four_active_compact_certificate.py \
+  tests/test_global_frontier_assembly.py
 ```
 
-The decisive machine-readable manifest is
-`scratch/d2_frontier/interior_frontier_l060_certificate.json`.  It references
-the physical lower-bound artifact, the two projective covers, the complete
-ternary cover, the prior-reserve cap, and the fully active SCIP run.
+The full ternary replay accepts the eight source shards as positional
+arguments; it reconstructs all 12,008 selected cones under the new projective
+premises. The public release bundle contains those shards, the compact
+four-active tree, both projective covers, and SHA-256 checksums. The decisive
+small manifest is `data/global_frontier_l060_exact_assembly.json`.
 
 ## 7. What is closed, and what is not
 
-The logical gap left by the earlier “terminal projectivity” conjecture is
-closed numerically at \(\lambda=0.6\): genuine ternary and four-active
-readouts have now been bounded directly, so no projectivity assumption enters
-equation (1).  This is the complete *interior direction* requested here.
+The earlier terminal-projectivity gap is closed at \(\lambda=0.6\): genuine
+ternary and four-active readouts are bounded directly, and no projectivity
+assumption enters equation (1). The result is solver independent in the
+specific sense that replaying every stored dual and assembling the endpoint
+requires no optimizer.
 
-Three stronger claims remain unwarranted.  The calculation does not yet give
-the complete support curve for every \(\lambda\); it does not identify the
-exact maximiser at \(\lambda=0.6\); and it is not a solver-independent formal
-proof.  The next mathematically meaningful frontier is therefore either an
-outward interval reconstruction of the recorded conic and spatial duals, or
-an analytic inequality that collapses the upper endpoint of equation (1) to
-the explicit four-effect value.
+Three stronger claims remain unwarranted. The certificate does not give the
+complete support curve, identify the exact maximizer at \(\lambda=0.6\), or
+formalize every numerical kernel in Lean. The next mathematical frontier is
+an analytic inequality or a sharper certified cover that collapses the
+remaining width to the rational four-effect witness. A proof of equality
+would be stronger than merely adding more digits to the present enclosure.

@@ -1,0 +1,52 @@
+{
+  "schema": "carmenq.projective-tangent-global-summary.v1",
+  "weight": "11/20",
+  "level": "7573/10000",
+  "certified_projective_upper": 0.7573,
+  "all_four_topologies_complete": true,
+  "topology_cell_count": 1448,
+  "source_artifacts": {
+    "rank_rank": {
+      "path": "scratch/d2_frontier/rank_rank_tangent_full_l055_L07573.json",
+      "sha256": "557e538b028a8a5c54deb289cba4b02d0640db011e050b43bfbb01c12d9bfa37"
+    },
+    "remaining_topologies": {
+      "path": "scratch/d2_frontier/remaining_projective_tangent_full_l055_L07573.json",
+      "sha256": "311bd5851d60fdbe15583405917314a65a0147ecee044965e71e0a0d1ece01c8"
+    }
+  },
+  "rank_rank": {
+    "cell_count": 944,
+    "boxes_split": 168226,
+    "closed_methods": {
+      "mean-value": 16655,
+      "second-order": 28333,
+      "zero-face-lipschitz": 24014,
+      "trial": 62305,
+      "natural": 13,
+      "diagonal-dominance": 22,
+      "domain-empty": 0,
+      "sqrt-y-mean-value": 37827,
+      "center-matrix-lipschitz": 1
+    },
+    "certified_level": "7573/10000"
+  },
+  "remaining_topologies": {
+    "cell_count": 504,
+    "boxes_split": 4455,
+    "closed_methods": {
+      "mean-value": 3991,
+      "second-order": 0,
+      "zero-face-lipschitz": 0,
+      "trial": 943,
+      "natural": 13,
+      "diagonal-dominance": 12,
+      "domain-empty": 0
+    },
+    "certified_level": "7573/10000"
+  },
+  "proof_kernel": "outward-expanded IEEE-754 binary64 intervals",
+  "solver_independence": "SCIP and archived dual values are not used in any cell inequality",
+  "trust_boundary": "Python IEEE-754 arithmetic and math.nextafter; compact summaries are deterministically regenerated rather than storing split trees",
+  "scope": "binary-projective terminal sector of the two-block rank-two relaxation at lambda=11/20"
+}

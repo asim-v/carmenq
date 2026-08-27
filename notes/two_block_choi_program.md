@@ -1,9 +1,9 @@
 # Complete finite Choi programme for the interior two-block frontier
 
-**Date:** 22 August 2026
-**Status:** exact finite outer formulation and block-convex solver; all
-terminal-readout arities are now enclosed numerically at \(\lambda=0.6\),
-while exact equality and the complete support curve remain open
+**Date:** 27 August 2026
+**Status:** exact finite outer formulation plus a solver-independent finite
+replay enclosure at \(\lambda=0.6\); exact equality, a fully kernel-formalised
+physical reduction, and the complete support curve remain open
 
 ## 1. The common-instrument constraint
 
@@ -152,49 +152,56 @@ interior problem.  General extremal-instrument criteria are given by
 D'Ariano, Perinotti, and Sedlak,
 [arXiv:1101.4889](https://arxiv.org/abs/1101.4889).
 
-## 4. Exact arity split
+## 4. Exhaustive arity and weight split
 
-The weighted-ball KKT conditions partition equation (8) without ambiguity:
-
-* two active constraints give a binary projective terminal measurement;
-* three active constraints give a genuine three-effect measurement;
-* four active constraints give a genuine four-effect measurement.
-
-The first sector has already been globally covered at \(\lambda=0.6\):
+The weighted-ball KKT conditions split every extremal terminal readout into
+two-, three-, or four-active sectors. The projective sector is covered in all
+four rank/topology classes by outward-expanded interval arithmetic:
 
 \[
-0.765898815264694\ldots
-\leq\beta_{\rm projective}(0.6)
-\leq0.76591.
+\beta_{\rm projective}(0.6)\leq0.76600.
 \tag{12}
 \]
 
-Before the direct active-sector calculation, a complete unrestricted
-certificate reduced to this condition:
+For the remaining sectors, the weight of the largest effect gives the first
+exact partition. If \(w_{\max}\leq0.88325\), an exact-residual replay of 576
+capped-weight SOCP cells yields \(0.765893818\). Above that threshold, the
+three-active sector is covered by 12,008 transferred ternary cells at
+\(0.76652\). The four-active sector is split once more at
+\(w_{\min}=0.0003\): 90 spatial leaves, replayed in all six affine orders,
+give \(0.76670\) when the smallest effect is retained. When it is smaller,
+deleting it reduces AUDIT by at most \(0.0003\), hence
 
 \[
-\sup_{\substack{(\rho,J)\text{ satisfying (1)--(3)}\\
-\text{weighted centre has 3 or 4 active constraints}}}
-\left[0.6A+0.4R_{\rm pin}\right]
-\leq0.76591.
+0.76652+\frac35(0.0003)=0.76670.
 \tag{13}
 \]
 
-The condition in equation (13) has now been bounded directly, without assuming
-that it is empty.  A complete ternary probability-cone cover, a projected
-four-active Helstrom bound, and a small-effect deletion inequality give
+A rational four-effect physical strategy supplies the other side. Five
+rational half-angle coordinates make every state, effect, and prior exact;
+192-bit dyadic square-root floors bound the RETURN radicals from below.
+Consequently,
 
 \[
-0.7658988152646944
-\leq\beta_{2\rm b}(0.6)
-\leq0.76662.
+\boxed{
+\frac{957373519}{1250000000}
+\leq\beta^{\rm stream}_{H_{\rm I},2}(0.6)
+\leq\overline\beta_{2\rm b}(0.6)
+\leq\frac{7667}{10000}}
 \tag{14}
 \]
 
-This is a complete finite solver-conditional numerical enclosure, not a
-solver-independent interval proof and not an equality theorem for the
-four-effect construction.  The sector split and audit chain are in
-`notes/interleaved_interior_frontier_l060.md`.
+or, in outward decimals,
+\([0.7658988152,0.76670]\). The width is \(0.0008011848\).
+
+The upper replay calls no optimiser and does not trust the optimisers used to
+propose dual vectors. Its finite proof boundary consists of directed
+binary64 interval kernels for the projective cells, exact rational residual
+repair for the conic cells, and exact final assembly. Python matrix
+canonicalisation and the analytic reductions from the physical problem to
+these finite cells remain trusted; the result is therefore solver independent
+in verification, but not an end-to-end kernel-formalised theorem. The full
+sector ledger is in `notes/interleaved_interior_frontier_l060.md`.
 
 ## 5. Reproducible block-convex evidence
 
@@ -211,12 +218,11 @@ two-active and converged to 3E or 4E; the largest value was
 \(0.765898815264695\ldots\).  No three-active basin appeared.  This is useful
 falsification evidence, but it is not equation (13).
 
-For other support directions, and for a solver-independent closure at
-\(\lambda=0.6\), a natural rigorous continuation is a dimension-constrained
-moment/SOS relaxation of equations (1)--(11), split by the three- and
-four-active KKT systems. Finite-dimensional moment hierarchies are established
-tools rather than a new claim of this project; see Navascues and Vertesi,
-[arXiv:1412.0924](https://arxiv.org/abs/1412.0924), and Navascues *et al.*,
-[arXiv:1507.07521](https://arxiv.org/abs/1507.07521).  A solver value is not a
-certificate until its dual witness, residuals, and numerical precision are
-archived.
+For other support directions, a natural rigorous continuation is a
+dimension-constrained moment/SOS relaxation of equations (1)--(11), split by
+the three- and four-active KKT systems. Finite-dimensional moment hierarchies
+are established tools rather than a new claim of this project; see Navascues
+and Vertesi, [arXiv:1412.0924](https://arxiv.org/abs/1412.0924), and Navascues
+*et al.*, [arXiv:1507.07521](https://arxiv.org/abs/1507.07521). A solver value
+is not a certificate until its dual witness, residuals, numerical precision,
+and a solver-independent replay are archived.

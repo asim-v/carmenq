@@ -17,17 +17,24 @@ CARMEN-Q stands for **Causal Audit-Return Memory Evaluation and Numerics for Qua
 
 The library implements the exact classical-memory frontier derived in the accompanying manuscript, a collective-access comparator, fixed-sample certification with systematic allowances, power planning, and an explicit density-matrix reference protocol. At balanced branch weight, the streaming classical ceiling is `0.75` for every stream length `n >= 2`; one persistent coherent qubit attains `1.0` in the ideal circuit.
 
+The order-sensitive four-slot benchmark now also has a narrow certified
+interior direction. At `audit_weight = 0.6`, a rational physical witness and
+an exhaustive terminal-readout certificate give
+`0.7658988152 <= support <= 0.76670`. Exact equality and the complete support
+curve remain open.
+
 ## Install
 
 The package is installable directly from the public release:
 
 ```bash
-python -m pip install "carmenq @ git+https://github.com/asim-v/carmenq.git@lit/bounded-coherent-memory-review"
+python -m pip install "carmenq @ git+https://github.com/asim-v/carmenq.git@v2.3.0"
 ```
 
 PyPI packaging is ready, but this repository does not claim that the `carmenq` name has already been uploaded to PyPI.
-The recorded interior-frontier certificates additionally require the research
-solver stack: `python -m pip install -e ".[frontier]"`.
+Replaying the archived exact certificates does not call an optimiser.
+Regenerating proposal vectors and conducting new frontier searches requires
+the optional stack: `python -m pip install -e ".[frontier]"`.
 
 ## Use it in Python
 
@@ -165,11 +172,12 @@ source constraints and 164 implicit variable-domain constraints to all 1,306
 canonical constraints and independently recompiles the canonical data on the
 274-coordinate basis.
 
-The end-to-end Lean interface is intentionally conditional: the two external
-projective support lines at weights `0.55` and `0.60` remain numerical SCIP
-certificates, and the CVXPY lowering is audited rather than kernel-formalized.
-Accordingly, this is an exact theorem for the literal local SOCP and a
-conditional local physical bridge, not yet an unconditional global frontier.
+The end-to-end Lean interface is intentionally conditional. The two external
+projective support lines at weights `0.55` and `0.60` now have directed-
+interval covers independent of the archived SCIP values, while the CVXPY
+lowering remains audited rather than kernel-formalized. Accordingly, this is
+an exact theorem for the literal local SOCP and a conditional local physical
+bridge; the separate global certificate has its own documented trust boundary.
 See [`notes/exact_socp_certificate_source_15818.md`](notes/exact_socp_certificate_source_15818.md)
 and [`formal/README.md`](formal/README.md). Reproduce it with
 `python scripts/verify_lean_exact.py --workers 3 --heavy-workers 1`.
@@ -187,12 +195,13 @@ reproduction command, and matrix-valued next step are in
 
 ## Explore the order-sensitive theorem
 
-Version 2.2 adds a robust bounded-memory result that depends on temporal order rather than only on terminal memory dimension. Two rank-two check matrices represent the same code up to a coordinate permutation. The grouped order reaches return fidelity `0.5` at perfect syndrome audit; the interleaved order has the exact and attained ceiling `0.25` under the declared one-qubit streaming interface. A causal list-decoding theorem now certifies that their support functions remain strictly separated throughout the interior interval `3/7 < audit_weight < 1`.
+Version 2.3 adds a robust bounded-memory result that depends on temporal order rather than only on terminal memory dimension. Two rank-two check matrices represent the same code up to a coordinate permutation. The grouped order reaches return fidelity `0.5` at perfect syndrome audit; the interleaved order has the exact and attained ceiling `0.25` under the declared one-qubit streaming interface. A causal list-decoding theorem certifies that their support functions remain strictly separated throughout the interior interval `3/7 < audit_weight < 1`.
 
 ```python
 from carmenq import (
     GROUPED_CHECK_MATRIX,
     INTERLEAVED_BALANCED_COUNTEREXAMPLE,
+    INTERLEAVED_L060_CERTIFIED_INTERVAL,
     INTERLEAVED_ORDER_GAP_WEIGHT_THRESHOLD,
     INTERLEAVED_PERFECT_AUDIT_ENDPOINT,
     full_crossing_perfect_audit_return_bound,
@@ -222,6 +231,9 @@ print(interleaved_return_upper_bound(0.99))  # rigorous approximate-AUDIT bound
 print(interleaved_support_upper_bound(0.5))  # 0.8415063509... upper certificate
 print(rank_two_static_qubit_support(0.5))     # 0.8535533905... grouped value
 print(INTERLEAVED_ORDER_GAP_WEIGHT_THRESHOLD)  # 3/7
+interval = INTERLEAVED_L060_CERTIFIED_INTERVAL
+print(interval.lower_bound, interval.upper_bound)  # 0.7658988152 0.7667
+print(interval.lower_fraction, interval.upper_fraction)  # exact rationals
 print(interleaved_candidate_lower_bound(0.5).support_value)  # restricted family
 print(INTERLEAVED_BALANCED_COUNTEREXAMPLE.support_value)  # 0.7594489703...
 print(interleaved_compact_lower_bound(0.5).support_value)  # 0.7598027839...
@@ -236,23 +248,33 @@ earlier frontier conjecture. A later three-effect bond-two Choi-MPS
 construction reaches `0.7598027839`. Its local Pauli completion is a legal
 four-outcome instrument at every slot, and the independent NumPy verifier
 checks the complete tensor construction. A distinct symmetric four-effect
-phase becomes stronger at larger AUDIT weights; at weight `0.6` it reaches
-`0.7658988153`, exceeding the three-effect value by `0.0101928807`. This is
-an exact physical lower bound. A complete exhaustion of projective, ternary,
-and four-active terminal readouts now places the two-block rank-two relaxation
-at that same support direction in
-`[0.7658988152646944, 0.76662]`. The upper endpoint is a finite
-solver-conditional numerical enclosure, not yet a solver-independent interval
-proof or a claim that the four-effect construction is exactly optimal.
+phase becomes stronger at larger AUDIT weights. At weight `0.6`, the optimized
+point is `0.765898815264694...`; a nearby rational construction certifies the
+outward lower endpoint `0.7658988152` without floating-point arithmetic. An
+exhaustive projective, ternary, and four-active analysis places the streamed
+support and its two-block outer relaxation in `[0.7658988152, 0.76670]`.
+Verification of every stored conic dual calls no optimizer. The result does
+not claim that the four-effect construction is exactly optimal.
 
 The arbitrary adaptive support problem now has an exact compact variational
 form: maximise one normalised bond-two Choi-MPS leaf. A local Weyl/Pauli
 completion proves that every feasible leaf is attainable by a complete
 streamed instrument, so unbounded outcome trees are unnecessary. This closes
 the outcome/completeness part of the problem. At `lambda=0.6`, the nonconvex
-two-block maximum has additionally been enclosed to relative width `0.0942%`
-by independent projective covers, a complete 12,008-leaf ternary SOCP cover,
-and a spatial four-active bound. The entire support curve and exact equality
+two-block maximum has additionally been enclosed to relative width `0.10461%`
+by outward projective interval covers, an exact replay of 12,008 ternary
+cells, and an exact replay of a compact 90-leaf four-active tree. The complete
+certificate bundle and checksums are attached to the public `v2.3.0` release.
+After downloading that asset into the tagged checkout, verify the archive itself
+with
+
+```bash
+python scripts/build_global_frontier_bundle.py \
+  --verify output/releases/carmenq-global-frontier-v2.3.0.zip
+```
+
+The bundled `README.txt` gives the solver-free replay commands for every sector.
+The entire support curve and exact equality
 at that point remain open. See
 [`notes/mps_leaf_completion.md`](notes/mps_leaf_completion.md) and
 [`notes/interleaved_interior_frontier_l060.md`](notes/interleaved_interior_frontier_l060.md).
@@ -323,13 +345,11 @@ The pipeline regenerates the numerical tables and publication figures under `dat
 The focused temporal-order result has its own visually verified
 [PDF](output/pdf/CARMEN-Q-order-paper.pdf) and two-column LaTeX source in
 `manuscript-order/`. It proves the linear rank-tail theorem, the certified
-interior order gap, and the exact homogeneous Choi-MPS reduction. The compact
-three-effect curve in that manuscript is a verified physical lower bound. The
-accompanying research notes and machine-readable certificates additionally
-verify the stronger four-effect lower bound and enclose, at `lambda=0.6`, the
-streamed support and its two-block relaxation between
-`0.7658988152646944` and `0.76662`. This newer enclosure is not yet part of
-the PDF; exact equality and the complete support curve remain explicitly open.
+interior order gap, the exact homogeneous Choi-MPS reduction, and the
+computer-assisted interval `[0.7658988152, 0.76670]` at `lambda=0.6`. The PDF
+includes the rational lower witness, exhaustive five-sector proof map, exact
+dual-replay boundary, and explanatory certificate graphic. Exact equality and
+the complete support curve remain explicitly open.
 
 ## Scientific boundary
 
@@ -337,7 +357,7 @@ CARMEN-Q is a trusted-interface resource witness. A positive score rejects the d
 
 The project began as an investigation of reversible quantum histories. Its originality audit showed that compute-phase-uncompute circuits alone are established quantum computing. CARMEN-Q retains the part that survived that audit: an exact same-task separation between streamed classical memory, collective classical recording, and coherent temporal memory.
 
-The [focused literature review](notes/literature_review_bounded_coherent_memory.md) records the originality gate. Its conclusion is deliberately narrow: bounded coherent memory, late choice, syndrome accumulation, entanglement recovery, and trellis order dependence are prior art. What survives is the exact operational consequence of permuting one code under a fixed coherent-memory constraint, the perfect-AUDIT temporal product law for consecutive full-rank blocks, and its linear-tail approximate-AUDIT extension. A broad interval of interior order dependence is proved, and one interior support direction is now completely enclosed numerically; the exact support curve and the optimal robustness coefficient remain open.
+The [focused literature review](notes/literature_review_bounded_coherent_memory.md) records the originality gate. Its conclusion is deliberately narrow: bounded coherent memory, late choice, syndrome accumulation, entanglement recovery, and trellis order dependence are prior art. What survives is the exact operational consequence of permuting one code under a fixed coherent-memory constraint, the perfect-AUDIT temporal product law for consecutive full-rank blocks, and its linear-tail approximate-AUDIT extension. A broad interval of interior order dependence is proved, and one interior support direction now has a finite solver-independent replay certificate; the exact support curve and the optimal robustness coefficient remain open.
 
 ## Citation and authorship
 

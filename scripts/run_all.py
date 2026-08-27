@@ -48,7 +48,16 @@ def main() -> int:
             "data/interleaved_compact_candidate.json",
         ]
     )
+    run(
+        [
+            sys.executable,
+            "scripts/verify_four_effect_rational_lower.py",
+            "--output",
+            "data/four_effect_rational_lower_l060.json",
+        ]
+    )
     run([sys.executable, "scripts/generate_order_gap_figure.py"])
+    run([sys.executable, "scripts/generate_global_frontier_figure.py"])
     print("Reproducibility pipeline completed successfully.")
     return 0
 

@@ -47,6 +47,7 @@ jobs:
               "depth_scaling",
               "audit_return_benchmark",
               "audit_return_frontier",
+              "global_frontier_certificate",
           )
           for stem in expected:
               pdf = Path("figures", stem + ".pdf")

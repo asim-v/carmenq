@@ -8,3 +8,9 @@ import CarmenQExact.SpectralCaps
 import CarmenQExact.SpectralBranches
 import CarmenQExact.Source15818
 import CarmenQExact.PhysicalBridge
+import CarmenQExact.ProjectiveTangent
+import CarmenQExact.CappedSimplex
+import CarmenQExact.DominantPair
+import CarmenQExact.GlobalFrontier
+import CarmenQExact.CommonBias
+import CarmenQExact.SupportInterpolation

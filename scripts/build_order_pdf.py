@@ -42,6 +42,11 @@ def main() -> int:
         cwd=ROOT,
         check=True,
     )
+    subprocess.run(
+        ["python", "scripts/generate_global_frontier_figure.py"],
+        cwd=ROOT,
+        check=True,
+    )
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     command = [
         find_tectonic(args.tectonic),

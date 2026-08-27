@@ -10,6 +10,7 @@ from carmenq.order_sensitive import (
     GROUPED_CHECK_MATRIX,
     INTERLEAVED_CHECK_MATRIX,
     INTERLEAVED_ORDER_GAP_WEIGHT_THRESHOLD,
+    INTERLEAVED_L060_CERTIFIED_INTERVAL,
     INTERLEAVED_PERFECT_AUDIT_ENDPOINT,
     full_crossing_cuts,
     full_crossing_perfect_audit_return_bound,
@@ -436,6 +437,19 @@ def test_four_effect_phase_improves_the_compact_branch() -> None:
     assert isclose(point.support_value, 0.765898815264694, abs_tol=3e-12)
     assert point.support_value > compact.support_value + 0.01
     assert point.support_is_globally_optimal is False
+
+def test_public_l060_interval_is_outward_and_does_not_claim_equality() -> None:
+    interval = INTERLEAVED_L060_CERTIFIED_INTERVAL
+    assert interval.audit_weight == 0.6
+    assert interval.lower_bound == 0.7658988152
+    assert interval.upper_bound == 0.76670
+    assert interval.upper_bound - interval.lower_bound == pytest.approx(
+        0.0008011848, abs=1e-16
+    )
+    assert interval.exact_optimum_known is False
+    assert interval.lower_fraction == (957_373_519, 1_250_000_000)
+    assert interval.upper_fraction == (7_667, 10_000)
+    assert float(interval.width_fraction) == pytest.approx(0.0008011848)
 
 
 def test_best_known_envelope_switches_physical_families() -> None:

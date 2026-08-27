@@ -71,7 +71,7 @@
 \author[1]{Javier Emilio Baz\'an S\'anchez}
 \affil[1]{Facultad de Ciencias, Universidad Nacional Aut\'onoma de M\'exico, Mexico City, Mexico\\
 \texttt{bazan@ciencias.unam.mx}}
-\date{22 August 2026}
+\date{27 August 2026}
 
 \begin{document}
 \maketitle
@@ -96,10 +96,11 @@ and flagged polar recovery then give an explicit approximate-audit bound. For
 the interleaved instance this certifies a strict order-dependent support gap
 for every $3/7<\lambda<1$, including balanced weight. A local
 Pauli-completion theorem also reduces the arbitrary adaptive optimum exactly
-to one normalised bond-two Choi MPS. A compact three-effect MPS reaches
-$0.759802783851\ldots$ at balanced weight and agrees with unrestricted
-variational searches, but the global maximum of the nonconvex MPS quotient
-remains uncertified.
+to one normalised bond-two Choi MPS. At $\lambda=3/5$, a rational
+four-effect construction and a finite computer-assisted certificate enclose
+the exact streamed support between $0.7658988152$ and $0.76670$. Replaying
+the conic certificates calls no optimiser; the full support curve and exact
+equality at this direction remain open.
 \end{abstract}
 
 \noindent\textbf{Keywords:} bounded coherent memory; temporal order; quantum
@@ -133,7 +134,10 @@ adaptive tree. Every normalised bond-two Choi leaf admits a local
 four-outcome Pauli completion whose transcripts are covariance-related copies
 of that leaf. Consequently the exact support is a compact Choi-MPS maximum.
 This reduction turns local completeness from an obstruction into a theorem;
-it does not make the resulting nonconvex maximum analytic automatically.
+it does not make the resulting nonconvex maximum analytic automatically. A
+finite arity split nevertheless closes one nontrivial support direction to
+width $0.0008011848$, while keeping the numerical and formal trust boundaries
+explicit.
 
 \begin{figure*}[t]
 \centering
@@ -151,6 +155,8 @@ $\beta_{H_{\rm I},2}(\lambda)\leq\UI(\lambda)$, and
 $\UI(\lambda)<\BG(\lambda)$ whenever $3/7<\lambda<1$. Thus temporal order
 changes the achievable information--recovery region in the interior, not only
 at perfect AUDIT.
+At $\lambda=3/5$, exact replay further gives
+$0.7658988152\leq\beta^{\rm stream}_{H_{\rm I},2}(3/5)\leq0.76670$.
 \end{resultbox}
 
 The broad ingredients are established. Quantum combs and process tensors
@@ -166,8 +172,8 @@ Classical trellis complexity is famously order dependent
 \cite{forney1994trellis,mceliece1996bcjr,kashyap2008pathwidth}. The claim here
 is narrower: an exact same-code temporal-order separation in a common-prefix
 syndrome-AUDIT/all-carrier-RETURN game, together with a causal-list rank-tail
-bound. A focused search through 21 August 2026 located no direct antecedent of
-that conjunction; this is a dated collision assessment through 22 August 2026,
+bound. A focused search through 27 August 2026 located no direct antecedent of
+that conjunction; this is a dated collision assessment through 27 August 2026,
 not proof of priority.
 
 \section{Late-choice streaming model}
@@ -473,8 +479,8 @@ product of Paulis and scaled by $1/4$. RETURN is invariant, while the known
 Pauli bit flips merely relabel the linear syndrome in AUDIT. Thus all 256
 leaves have the same homogeneous score, proving \eqref{eq:mpsreduction}.
 
-The strongest compact construction found inside \eqref{eq:mpsreduction} has
-three nonzero rank-one effects. It admits a two-variable support formula. Put
+A closed-form construction inside \eqref{eq:mpsreduction} has three nonzero
+rank-one effects and admits a two-variable support formula. Put
 \begin{align}
 g&=1-t/2,& z&=-t/(2-t),\notag\\
 e&=t(1+r)/2,\notag\\[-1mm]
@@ -526,8 +532,162 @@ agree with \eqref{eq:compactlower} on the tested grid. This is substantially
 stronger evidence than the earlier ternary tree value
 $0.759448970317\ldots$, and Pauli completion proves that the compact leaf is
 itself physical. It is still not a global upper certificate for
-the nonconvex maximum in \eqref{eq:mpsreduction}; equality between
-$L_{\rm I}$ and the exact support remains a conjecture.
+the full nonconvex maximum in \eqref{eq:mpsreduction}. The next section closes
+one support direction, not the whole curve.
+
+\section{A certified interior support direction}
+\label{sec:globalcertificate}
+
+The homogeneous reduction leaves a finite but nonconvex leaf problem. For a
+global certificate, combine slots one--two and three--four into two blocks.
+Let $\rho_z\succeq0$ be four subnormalised prefix states and let $J_y\succeq0$
+be the input-major Choi matrices of one common four-outcome qubit instrument:
+\begin{equation}
+\sum_z\Tr\rho_z=1,
+\qquad
+\sum_y\Tr_{\rm out}J_y=\id_2.
+\label{eq:two-block-normalisation}
+\end{equation}
+They generate
+\begin{equation}
+\begin{aligned}
+\sigma_{zy}
+  &=\Tr_{\rm in}[(\rho_z^{\mathsf T}\otimes\id_2)J_y],\\
+p_{zy}&=\Tr\sigma_{zy},\\
+\tau_s&=\sum_{z\oplus y=s}\sigma_{zy}.
+\end{aligned}
+\label{eq:two-block-states}
+\end{equation}
+The common $J_y$ is essential: replacing it by unrelated conditioned states
+would erase the causal-instrument constraint. Terminal discrimination and
+computational pinching then give the outer programme
+\begin{equation}
+\begin{split}
+\beta^{\rm stream}_{H_{\rm I},2}(\lambda)
+&\leq\overline\beta_{2\rm b}(\lambda),\\
+\overline\beta_{2\rm b}(\lambda)
+&=\max_{\rho,J}\Biggl\{
+ \lambda\min_{Y\succeq\tau_s}\Tr Y\\
+&\hspace{1.8cm}
++\frac{1-\lambda}{16}
+  \left(\sum_{z,y}\sqrt{p_{zy}}\right)^2
+\Biggr\}.
+\end{split}
+\label{eq:two-block-outer}
+\end{equation}
+The pinching inequality is the only relaxation in this passage and is tight
+for the four-effect lower construction.
+
+A linear terminal objective admits an extreme qubit POVM, hence at most four
+rank-one active effects \cite{darianolo2005extremal}. The Helstrom conditions
+make this arity split quantitative. Write
+$E_i=w_i\Pi_i$, $p_i=\Tr\tau_i$, and
+$Y=A(\id+t\hat z\cdot\sigma)/2$. For an active label,
+\begin{equation}
+Y-\tau_i=(A-p_i)\Pi_i^\perp,
+\qquad
+p_i\geq A\frac{1+2tx_i+t^2}{2(1+tx_i)},
+\label{eq:helstrom-reconstruction}
+\end{equation}
+where $x_i=\hat z\cdot n_i$ and the removable value at $(t,x_i)=(1,-1)$
+is zero. POVM completeness gives
+$\sum_iw_i=2$ and $\sum_iw_i n_i=0$. In particular, averaging the binary
+projective comparison that retains $\Pi_i$ yields
+\begin{equation}
+\overline A_{2,j}
+=A-\frac{1-w_j}{2-w_j}(A-p_j).
+\label{eq:projective-comparison}
+\end{equation}
+Thus independently certified projective support lines become simultaneous
+linear restrictions on every fully active readout.
+
+\begin{theorem}[Certified support at $\lambda=3/5$]
+For the four-slot interleaved game with one persistent qubit,
+\begin{equation}
+\boxed{
+\frac{957373519}{1250000000}
+\leq \beta^{\rm stream}_{H_{\rm I},2}(3/5)
+\leq \overline\beta_{2\rm b}(3/5)
+\leq \frac{7667}{10000}.}
+\label{eq:globalinterval}
+\end{equation}
+Equivalently, the certified decimal interval is
+$[0.7658988152,0.76670]$, of width $0.0008011848$.
+\end{theorem}
+
+\begin{table*}[t]
+\centering
+\small
+\caption{Exhaustive terminal-readout certificate at $\lambda=3/5$.
+A conic ``exact replay'' reconstructs the stated cone, repairs dual cone
+membership, and evaluates the residual correction and objective with rational
+arithmetic. CLARABEL proposes dual vectors during generation but is not
+called or trusted during replay.}
+\label{tab:global-sectors}
+\begin{tabularx}{\textwidth}{@{}Y Y r r@{}}
+\toprule
+Sector & proof kernel & units replayed & certified upper \\
+\midrule
+at most two active effects
+  & outward interval cover of four projective topologies
+  & 1,448 cells & $0.76600$ \\
+three or four active, $w_{\max}\leq0.88325$
+  & capped-weight SOCP exact dual replay
+  & 576 cells & $0.765893818$ \\
+three active, $w_{\max}>0.88325$
+  & transferred ternary SOCP exact dual replay
+  & 12,008 cells & $0.76652$ \\
+four active, $w_{\max}>0.88325$, $w_{\min}\geq0.0003$
+  & McCormick--SOCP exact dual replay
+  & $90\times6$ orders & $0.76670$ \\
+four active, $w_{\min}<0.0003$
+  & delete the smallest effect into the ternary sector
+  & exact inequality & $0.76652+0.00018$ \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\begin{proof}
+The projective interval kernels certify
+$\beta_{\rm proj}(0.55)\leq0.7573$ and
+$\beta_{\rm proj}(0.60)\leq0.7660$. Equations
+\eqref{eq:helstrom-reconstruction}--\eqref{eq:projective-comparison}, the
+polygon closure of the transverse Bloch components, and McCormick envelopes
+on exact rational weight boxes reduce the remaining cases to the five rows
+of \cref{tab:global-sectors}. Their replayed maxima are respectively below
+the displayed outward endpoints. If a four-outcome effect has trace below
+$\delta=0.0003$, merging that outcome into a retained answer leaves RETURN
+unchanged and reduces AUDIT by at most $\delta$. The last row is therefore
+bounded by $0.76652+(3/5)\delta=0.76670$, which is the largest sector bound.
+
+For the lower endpoint, five rational half-angle coordinates specify the
+symmetric four-effect Choi MPS, including its priors. They normalise every
+state and effect identically, while the four effects sum exactly to $\id_2$.
+AUDIT is rational. Flooring the four square roots in polar RETURN to 192
+dyadic bits gives a rational support lower bound
+$0.7658988152646940319\ldots>0.7658988152$. Local Pauli completion makes the
+leaf a complete causal instrument, proving the first inequality.
+\end{proof}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.98\textwidth]{global_frontier_certificate.pdf}
+\caption{How the global direction is closed. Panel (a) shows the exhaustive
+arity and weight partition; the deletion branch is the dominant outward
+endpoint. Panel (b) separates the independently certified sector caps from
+the rational physical witness. The shaded strip is a theorem interval, not a
+statistical error bar.}
+\label{fig:globalcertificate}
+\end{figure*}
+
+The projective proof kernel uses directed IEEE-754 operations expanded with
+\texttt{nextafter}; its deterministic generators must be rerun to reproduce
+the compact cell summaries. The three conic replays use exact fractions and
+call no optimiser, but still trust the Python reconstruction of the cone
+matrices. Lean checks the analytic support-cut bridges, sector partition, and
+final rational arithmetic; it does not replay the interval trees or the CVXPY
+canonicalisation. Thus \eqref{eq:globalinterval} is solver independent in
+verification, not a claim of end-to-end kernel formalisation.
 
 \section{Relation to neighbouring disciplines}
 
@@ -570,11 +730,13 @@ verified lower strategy and rigorous upper certificate are
 &\leq0.841506350946\ldots.
 \end{align}
 The Choi-MPS reduction proves that local completeness and unbounded adaptive
-outcome trees are no longer the obstruction. Closing the gap now requires
-either a better bond-two MPS leaf or a global upper certificate for the
-nonconvex quotient in \eqref{eq:mpsreduction}. The optimal coefficient in the
-near-endpoint square-root law and extensions to partially ranked block
-sequences are also open.
+outcome trees are no longer the obstruction. At balanced weight, closing the
+large remaining gap still requires either a better bond-two MPS leaf or a
+sharper global certificate. At $\lambda=3/5$, \cref{eq:globalinterval}
+instead leaves a relative width of approximately $0.10461\%$ but does not
+identify the exact maximiser. The complete support curve, the optimal
+coefficient in the near-endpoint square-root law, and extensions to partially
+ranked block sequences remain open.
 
 Nothing in the observed statistics selects an interpretation of quantum
 mechanics. The result is a standard operational statement about coherent
@@ -594,8 +756,10 @@ spectral tail, and that tail limits coherent recovery. This narrow theorem,
 rather than a many-worlds narrative, is the contribution that survives the
 originality audit. Local Pauli completion further removes the arbitrary
 adaptive tree exactly and leaves one finite bond-two Choi-MPS maximum. The
-three-effect construction gives the strongest verified lower curve, but the
-remaining global maximum is deliberately left open.
+three-effect construction supplies the strongest known balanced lower point;
+a distinct rational four-effect phase and an independently replayable sector
+certificate close the direction $\lambda=3/5$ to width $0.0008011848$. Exact
+equality there and the rest of the support curve are deliberately left open.
 
 \appendix
 \section{Dimension-to-list lemma}
@@ -705,6 +869,7 @@ $0\leq\theta'\leq\min\{m(1-\PA),1-\alpha\}$. The recovery expression is
 increasing throughout that interval, proving \eqref{eq:returnbound}.
 
 \section{Homogeneous Choi-MPS completion}
+\balance
 \label{app:paulicompletion}
 
 This appendix proves \eqref{eq:mpsreduction}. Refine every classical
@@ -778,16 +943,21 @@ The code, stored instrument, tests, literature ledger, and both manuscript
 sources are public at \url{https://github.com/asim-v/carmenq}. The commands
 \begin{quote}\ttfamily\scriptsize
 python -m pytest -q\\
-python scripts/verify\_interleaved\_counterexample.py\\
-python scripts/verify\_compact\_interleaved\_candidate.py\\
-python scripts/generate\_order\_gap\_figure.py\\
-python scripts/build\_order\_pdf.py
+python \path{scripts/verify_interleaved_counterexample.py}\\
+python \path{scripts/verify_compact_interleaved_candidate.py}\\
+python \path{scripts/verify_four_effect_rational_lower.py}\\
+python \path{scratch/d2_frontier/verify_global_frontier_l060.py}\\
+python \path{scripts/generate_order_gap_figure.py}\\
+python \path{scripts/generate_global_frontier_figure.py}\\
+python \path{scripts/build_order_pdf.py}
 \end{quote}
-reproduce the software checks, both balanced constructions, plotted bounds,
-and this PDF. Numerical searches are explicitly lower-bound generators. The
+reproduce the software checks, physical constructions, certificate assembly,
+plotted bounds, and this PDF. Numerical searches are explicitly lower-bound
+generators. The
 proved claims are \eqref{eq:productlaw}, \eqref{eq:lineartail},
 \eqref{eq:returnbound}, \eqref{eq:mpsreduction}, the attainability of
-\eqref{eq:compactlower}, and the interval \eqref{eq:strictgap}. Equality
+\eqref{eq:compactlower}, and the intervals \eqref{eq:strictgap} and
+\eqref{eq:globalinterval}. Equality
 between \eqref{eq:compactlower} and the exact interleaved interior curve is
 not claimed.
 

@@ -590,6 +590,14 @@ Nothing here tests a quantum interpretation, macroscopic branching,
 consciousness, objective collapse, or non-unitarity. The result is an
 operational theorem about temporal coherent-memory constraints.
 
+After this consolidation, the arbitrary adaptive optimisation was reduced
+exactly to one normalised bond-two Choi-MPS leaf. A three-effect leaf gives
+the best known balanced point, while a distinct four-effect phase is stronger
+for larger AUDIT weights; at \(\lambda=0.6\) it reaches
+\(0.765898815264694\ldots\). These are verified physical lower bounds and do
+not change the open-converse statement above. The construction and corrected
+phase map are in **notes/interleaved_four_effect_frontier.md**.
+
 ## 10. Reproducibility and source map
 
 The detailed rank-two proof is in **notes/order_gap_analytic.md**; the original

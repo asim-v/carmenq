@@ -20,6 +20,7 @@ CARMEN-Q exposes a compact top-level API for the common audit-return workflow. T
 | Compact MPS lower bound | `interleaved_compact_lower_bound(audit_weight)` | same |
 | Interleaved RETURN certificate | `interleaved_return_upper_bound(P_A)` | same |
 | Interleaved support certificate | `interleaved_support_upper_bound(audit_weight)` | same |
+| Certified interior interval at weight 0.6 | `INTERLEAVED_L060_CERTIFIED_INTERVAL` | same |
 | Verified balanced counterexample | `INTERLEAVED_BALANCED_COUNTEREXAMPLE` | same |
 | Flagged common-instrument cuts | `scan_flagged_trace_norm_cuts(states, outputs, scales=None)` | same |
 | Exact fixed-input instrument projection | `project_to_common_instrument(states, outputs)` | same |
@@ -72,3 +73,12 @@ measurement and instrument.
 The `carmenq.order_sensitive` module contains the separate syndrome-order result. `GROUPED_CHECK_MATRIX` and `INTERLEAVED_CHECK_MATRIX` define the canonical coordinate orders. `grouped_frontier` evaluates the exact attainable grouped boundary, while `INTERLEAVED_PERFECT_AUDIT_ENDPOINT` records the proved and attained interleaved endpoint. `full_rank_block_perfect_audit_return_bound` evaluates the finite-field theorem `F_R <= min(1,(d/q**r)**m)` for `m` consecutive full-rank blocks; `full_crossing_perfect_audit_return_bound` is its two-block specialization, and `q` must be a prime power. The robust function `full_rank_block_approximate_audit_return_bound` applies the causal-list/Ky-Fan theorem when `P_A < 1`. For the canonical interleaved matrix, `interleaved_return_upper_bound` and `interleaved_support_upper_bound` give its RETURN and support certificates; the latter is strictly below the grouped/static support for `3/7 < audit_weight < 1`. For a supplied binary matrix, `full_rank_block_packing_number` computes the maximum valid exponent `mu(H)` and `ordered_check_perfect_audit_return_bound` evaluates the resulting matrix-level endpoint bound. These are upper bounds and do not assert attainability for every matrix.
 
 `interleaved_candidate_scores(q, v)` evaluates the original two-parameter streamed construction, and `interleaved_candidate_lower_bound` optimizes it deterministically. `interleaved_compact_lower_bound` evaluates the stronger three-effect bond-two Choi-MPS construction; at balanced weight it reaches `0.759802783851444`. Both return objects keep `support_is_globally_optimal=False`. The compact construction is physically complete after local Pauli completion and matches unrestricted variational searches, but the exact global MPS maximum remains open. Run `python scripts/verify_interleaved_counterexample.py` for the historical ternary counterexample and `python scripts/verify_compact_interleaved_candidate.py` for the current MPS construction.
+
+`INTERLEAVED_L060_CERTIFIED_INTERVAL` exposes the published, outward-rounded
+support enclosure at audit weight `0.6`. Its lower endpoint is backed by a
+rational physical four-effect witness, and its upper endpoint is the maximum
+of an exhaustive five-sector certificate. `lower_fraction`,
+`upper_fraction`, and `width_fraction` preserve the exact declared
+rationals. The object deliberately records `exact_optimum_known=False`: the
+interval is rigorous within the documented proof trust boundary, but neither
+endpoint is claimed to equal the unknown optimum.

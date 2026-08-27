@@ -186,21 +186,39 @@ python summarize_product_localizer_cover.py \
   --output product_localizer_cover_l055_summary.json
 ```
 
-The committed JSON files record representative double-precision runs. Binary
-PyTorch checkpoints are deliberately omitted from the curated release because
-they are framework-version-specific and can be regenerated. The four-effect
-branch strictly falsifies the earlier three-effect full-frontier conjecture at
-`lambda=0.6`. The projective terminal sector is globally enclosed in
-`[0.765898815264694, 0.76591]` by the recorded SCIP cover. Equal values across
-the unrestricted MPS and two-block searches initially left the genuine
-three-/four-active terminal-POVM sectors open. Those sectors are now exhausted
-directly at `lambda=0.6`, producing the complete solver-conditional enclosure
-`[0.7658988152646944, 0.76662]`. The qualifier is essential: the logical
-sector reduction is exact, but the upper endpoint uses CLARABEL values with a
-safety margin and SCIP spatial duals at recorded tolerances rather than
-solver-independent interval arithmetic. See
-`../../notes/interleaved_interior_frontier_l060.md` and
-`interior_frontier_l060_certificate.json`.
+The committed JSON files record representative double-precision searches.
+Binary PyTorch checkpoints are omitted because they are
+framework-version-specific and can be regenerated. The four-effect branch
+strictly falsifies the earlier three-effect full-frontier conjecture at
+`lambda=0.6`.
+
+The final certificate no longer trusts the archived optimum values. Directed
+projective interval covers establish `beta_projective(0.60) <= 0.76600` and
+the auxiliary line `beta_projective(0.55) <= 0.7573`. Exact-residual conic
+replay then bounds the capped-weight sector by `0.765893818`, all 12,008
+ternary cells by `0.76652`, and the 90-leaf four-active tree by `0.76670` in
+all six affine orders. Deleting an effect below `0.0003` gives the remaining
+bound `0.76652 + 0.6(0.0003) = 0.76670`. A separate rational physical witness
+certifies `0.7658988152` from below, so
+
+```text
+0.7658988152 <= beta_stream(0.6) <= beta_2b(0.6) <= 0.76670.
+```
+
+The conic replays call no optimiser and evaluate repaired residuals with exact
+rational arithmetic. The projective kernels use outward-expanded binary64
+intervals. Python matrix canonicalisation and the analytic physical reduction
+remain in the documented trust boundary; this is solver independent in
+verification, not end-to-end kernel formalisation. Assemble the final manifest
+after the component files are present:
+
+```bash
+python verify_global_frontier_l060.py \
+  --output ../../data/global_frontier_l060_exact_assembly.json
+```
+
+See `../../notes/interleaved_interior_frontier_l060.md` and the checksummed
+global manifest in `../../data/global_frontier_l060_exact_assembly.json`.
 
 The determinant-witness pilot at `lambda=0.55` is a strengthening experiment,
 not another completed sector certificate.  Its 1,000-node run leaves 935

@@ -6,8 +6,9 @@ grouped four-slot frontier, the exact perfect-AUDIT endpoint of its interleaved
 column permutation, and a rigorous approximate-AUDIT upper certificate based
 on causal list decoding.  Exact achievable three- and four-effect Choi-MPS
 families are exposed as lower bounds.  The four-effect phase strictly improves
-the earlier compact candidate in part of the interior, but the still-unknown
-global interleaved converse is never presented as solved.
+the earlier compact candidate in part of the interior. One interior support
+direction has a certified narrow interval, but exact global optimality and the
+complete interleaved curve are never presented as solved.
 
 All ranks and cut profiles are over :math:`GF(2)`.  A cut index ``i`` means
 that columns ``[:i]`` have arrived and columns ``[i:]`` remain.
@@ -16,6 +17,7 @@ that columns ``[:i]`` have arrived and columns ``[i:]`` remain.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from fractions import Fraction
 from math import sqrt
 from operator import index
 from typing import Final
@@ -434,6 +436,28 @@ class PerfectAuditEndpoint:
     full_crossing_cuts: tuple[int, ...]
     interior_frontier_known: bool
 
+@dataclass(frozen=True)
+class CertifiedSupportInterval:
+    """A rigorous support interval at one declared audit weight.
+
+    The float fields are convenient views. `lower_fraction` and
+    `upper_fraction` are the canonical outward rational endpoints.
+    """
+
+    audit_weight: float
+    lower_bound: float
+    upper_bound: float
+    lower_fraction: tuple[int, int]
+    upper_fraction: tuple[int, int]
+    exact_optimum_known: bool
+    certificate: str
+
+    @property
+    def width_fraction(self) -> Fraction:
+        """Return the exact width between the declared rational endpoints."""
+
+        return Fraction(*self.upper_fraction) - Fraction(*self.lower_fraction)
+
 
 @dataclass(frozen=True)
 class InterleavedCandidatePoint:
@@ -529,6 +553,24 @@ The statement is ``P_A = 1 => F_R <= 1/4``, with equality attained.  It
 covers adaptive non-QND finite-outcome instruments, a genuinely classical
 transcript, sequestered earlier outputs, and arbitrary transcript-conditioned
 RETURN decoding.  It does not supply the unknown interior frontier.
+"""
+
+INTERLEAVED_L060_CERTIFIED_INTERVAL: Final[CertifiedSupportInterval] = (
+    CertifiedSupportInterval(
+        audit_weight=0.6,
+        lower_bound=0.7658988152,
+        upper_bound=0.76670,
+        exact_optimum_known=False,
+        lower_fraction=(957_373_519, 1_250_000_000),
+        upper_fraction=(7_667, 10_000),
+        certificate="carmenq.global-frontier-l060-exact-assembly.v1",
+    )
+)
+"""Certified support interval for the interleaved game at lambda=0.6.
+
+The lower endpoint is an outward truncation of a rational physical witness.
+The upper endpoint is the maximum of five exhaustive terminal-readout sector
+certificates. Exact equality with either endpoint is not claimed.
 """
 
 
@@ -978,7 +1020,9 @@ __all__ = [
     "INTERLEAVED_ORDER_GAP_WEIGHT_THRESHOLD",
     "INTERLEAVED_BALANCED_COUNTEREXAMPLE",
     "INTERLEAVED_PERFECT_AUDIT_ENDPOINT",
+    "INTERLEAVED_L060_CERTIFIED_INTERVAL",
     "GroupedFrontierPoint",
+    "CertifiedSupportInterval",
     "InterleavedCandidatePoint",
     "InterleavedCompactCandidatePoint",
     "InterleavedFourEffectCandidatePoint",

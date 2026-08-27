@@ -1,6 +1,6 @@
 # Focused Literature Review: Causal Audit--Return Frontiers with Bounded Coherent Memory
 
-**Cutoff:** 21 August 2026<br>
+**Cutoff:** 27 August 2026<br>
 **Document type:** focused scoping review and adversarial novelty audit; not a PRISMA systematic review<br>
 **Language:** English<br>
 **Evidence base:** primary papers, publisher records, and first-party preprint archives<br>
@@ -90,7 +90,7 @@ This is a trusted-interface resource test. It does not identify a unique interna
 
 ## 3. Search method and evidentiary standard
 
-The search covered combinations of *bounded coherent memory*, *quantum comb memory cost*, *process-tensor bond dimension*, *classically adaptive tester*, *post-measurement information*, *random access code*, *syndrome*, *linear sketch*, *nondestructive discrimination*, *information gain and recovery*, *entanglement fidelity*, *stabilizer*, *trellis complexity*, and *quantum branching program*. Searches were run against arXiv, APS journals, Quantum, IEEE publication records, IOP, Nature-family journals, and the reference lists of the closest papers. The cutoff is 21 August 2026.
+The search covered combinations of *bounded coherent memory*, *quantum comb memory cost*, *process-tensor bond dimension*, *classically adaptive tester*, *post-measurement information*, *random access code*, *syndrome*, *linear sketch*, *nondestructive discrimination*, *information gain and recovery*, *entanglement fidelity*, *stabilizer*, *trellis complexity*, and *quantum branching program*. Searches were run against arXiv, APS journals, Quantum, IEEE publication records, IOP, Nature-family journals, and the reference lists of the closest papers. The cutoff is 27 August 2026.
 
 Peer-reviewed results and preprints are distinguished below. The search is a focused novelty audit, not a database-complete systematic review. It did not include a formal Scopus or Web of Science export, citation-count screening, dual independent reviewers, or author contact. “No exact collision located” therefore means only that no collision appeared in the searched primary corpus. It must never be rewritten as “the first” without a further professional priority search.
 
@@ -410,24 +410,28 @@ interior.  A symmetric four-effect physical leaf reaches
 \(0.765898815264694\ldots\) at \(\lambda=0.6\), exceeding the three-effect
 value by \(0.010192880679\ldots\).  Its explicit tensor has diagonal Choi Gram
 matrix and exact local Pauli completion.  The revised three-/four-effect
-envelope is the strongest known lower bound. A later exhaustive terminal-
-readout calculation at \(\lambda=0.6\) gives the complete solver-conditional
-enclosure
+envelope remains the strongest known lower construction. Rationalising its
+five half-angle coordinates and flooring the RETURN radicals gives
 
 \[
-0.7658988152646944
-\leq\beta_{4\mathrm s}(0.6)
+\frac{957373519}{1250000000}
+\leq\beta^{\rm stream}_{H_{\rm I},2}(0.6)
 \leq\beta_{2\mathrm b}(0.6)
-\leq0.76662.
+\leq\frac{7667}{10000}.
 \]
 
-The reduction covers projective, ternary, and four-active readouts rather than
-assuming terminal projectivity. Its logical sector exhaustion is exact, but
-the upper endpoint still depends on recorded CLARABEL and SCIP tolerances; it
-is not an outward interval proof, a closed form, or an equality result for the
-explicit four-effect leaf. This distinction is important for the originality
-claim: compact variational reduction is proved and one interior direction is
-tightly enclosed; the complete support curve is not.
+The upper certificate exhausts projective, capped-weight, ternary,
+four-active, and small-effect-deletion sectors. It replays 1,448 projective
+topology cells, 576 capped-weight conic cells, 12,008 ternary cells, and 90
+four-active spatial leaves in all six affine orders.
+
+None of the replays calls or trusts an optimiser. The projective kernel uses
+directed outward binary64 intervals; the conic replays repair and evaluate
+dual residuals with exact rational arithmetic. The result still trusts Python
+matrix canonicalisation and the analytic reduction from physical instruments
+to the finite sectors. It is therefore solver independent in verification,
+not an end-to-end kernel-formalised theorem. Exact equality with the explicit
+four-effect strategy and the complete support curve remain open.
 
 The structural condition is the standard trellis-connectivity quantity
 
@@ -517,19 +521,20 @@ bound does not match the best complete lower strategy. A general
 \(2^{-\tau}\) law and a theorem for arbitrary partial-rank block sequences
 have not been established.
 
-The next mathematical target is the optimal coefficient in the sharp
-\(\sqrt{1-P_{\mathrm A}}\) law, a solver-independent closure of the
-\(\lambda=0.6\) enclosure, or the exact interleaved support curve. A
-legal weak-measurement family proves that a smaller asymptotic order is
-impossible. A useful experimental result must also charge every coherent side
-channel, verify carrier sequestration, include all RETURN failures, and
-conclude only incompatibility with the declared one-qubit streaming model.
+The next mathematical targets are the optimal coefficient in the sharp
+\(\sqrt{1-P_{\mathrm A}}\) law, the exact interleaved support curve, and an
+extension of the finite replay to a nontrivial interval of support weights.
+Kernel-level formalisation of the interval trees and conic matrix
+canonicalisation would narrow the remaining trust boundary. A useful
+experimental result must also charge every coherent side channel, verify
+carrier sequestration, include all RETURN failures, and conclude only
+incompatibility with the declared one-qubit streaming model.
 
 ## 11. Safe novelty language
 
 The following sentence is supportable at this cutoff:
 
-> Within the primary literature located through 21 August 2026, this appears to be the first exact late-choice syndrome-AUDIT/all-carrier-RETURN separation produced solely by permuting the temporal coordinates of one rank-two linear code under a one-qubit coherent-memory constraint: the noncrossing order attains $F_{\mathrm R}=1/2$ at perfect audit, whereas a full-crossing order is bounded by, and attains, $F_{\mathrm R}=1/4$.
+> Within the primary literature located through 27 August 2026, this appears to be the first exact late-choice syndrome-AUDIT/all-carrier-RETURN separation produced solely by permuting the temporal coordinates of one rank-two linear code under a one-qubit coherent-memory constraint: the noncrossing order attains $F_{\mathrm R}=1/2$ at perfect audit, whereas a full-crossing order is bounded by, and attains, $F_{\mathrm R}=1/4$.
 
 For the higher-rank endpoint, the safe statement is: in the same declared
 interface, \(m\) consecutive full-rank syndrome blocks impose
@@ -539,9 +544,11 @@ For approximate AUDIT, the safe statement is that the summed spectral mass
 below the perfect-AUDIT rank is at most \(mD(1-P_{\mathrm A})\), which implies
 the explicit recovery bound stated above. Neither coefficient optimality nor
 the exact interior support curve is claimed. Separately, at
-\(\lambda=0.6\) the two-block rank-two support is enclosed in
-\([0.7658988152646944,0.76662]\) by a complete finite sector exhaustion
-conditional on the recorded conic and spatial-solver tolerances.
+\(\lambda=0.6\) the two-block rank-two support has the certified outward
+enclosure \([0.7658988152,0.76670]\). Its finite sector replay calls no
+optimiser and verifies conic residuals exactly, within the documented trust
+boundary for interval arithmetic, matrix canonicalisation, and analytic
+physical reductions.
 Equivalently, a uniform bound \(d\) gives
 \(F_{\mathrm R}\leq(d/q^r)^{\mu(H)}\), capped at one.
 
@@ -557,4 +564,9 @@ The paper should be built around this result, with the triangle solution present
 
 ### Search update policy
 
-Because four of the closest items appeared in 2026, repeat the title/abstract and citation-neighbourhood search immediately before any preprint submission. In particular monitor bounded coherent-memory process discrimination, interactive-instrument resource theories, limited-memory stabilizer learning, nondestructive discrimination with restricted entanglement, and dimension-reduced adaptive agents.
+Title/abstract searches were repeated on 27 August 2026 across arXiv and
+web-indexed primary records. The update recovered the already-audited
+limited-memory discrimination and recurrent-process-tester literature, but no
+exact syndrome-AUDIT/all-carrier-RETURN collision. This is not a
+database-complete priority search. Repeat the title/abstract and
+citation-neighbourhood search immediately before preprint submission.

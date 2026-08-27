@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.3.0 - 2026-08-27
 
 - Reduced the arbitrary adaptive four-slot interleaved support problem exactly
   to a Hilbert--Schmidt-normalised bond-two Choi-MPS maximum. A local
@@ -13,8 +13,17 @@
   support-gap figure reproduce the construction and its sub-`1e-15`
   completeness residuals.
 - Expanded the focused two-column manuscript with the exact completion proof,
-  the compact lower curve, and an explicit statement of the remaining global
-  MPS-certification problem.
+  the compact lower curve, and the certified interior support interval
+  `[0.7658988152, 0.76670]` at audit weight `0.6`.
+- Added a rational four-effect physical witness whose exact integer/Fraction
+  replay uses 192-bit dyadic square-root floors and calls no optimiser.
+- Exhausted the global two-block terminal-readout boundary into projective,
+  capped-weight, ternary, four-active, and small-effect-deletion sectors.
+  Directed interval covers and exact residual dual replays establish the
+  upper endpoint without trusting the archived SCIP or CLARABEL values.
+- Added the exact global assembly manifest, Lean-checked rational arithmetic,
+  public interval API, explanatory certificate figure, and release-oriented
+  reproducibility metadata with an explicit non-kernel trust boundary.
 
 ## 2.2.0 - 2026-08-21
 

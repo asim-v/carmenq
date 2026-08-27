@@ -1,0 +1,124 @@
+{
+  "schema": "carmenq.global-frontier-l060-exact-assembly.v1",
+  "support_weight": [
+    3,
+    5
+  ],
+  "named_projective_premises": {
+    "11/20": "7573/10000",
+    "3/5": "383/500"
+  },
+  "explicit_physical_lower_fraction": [
+    957373519,
+    1250000000
+  ],
+  "explicit_physical_lower_decimal": "0.7658988152",
+  "witness_support_lower_fraction": [
+    489591604823684853359598972061383534445655566826289008367429086788231675215870999843977533912719536202416249012675803224456103601402142083668331654552314551643335067436036595604597633743134331681354026623058456548521761750103667196502235502572613773955991129038162147780866144842529733481038596393584759202842795221208852624520367962005124573412288738840107983413467594117970384478490448551581179097290293,
+    639237971212270876024529473590961077783336968159866652869432779564750356631847657315020467974392427397319615567214326773825029097575131511894225748557813453887708849685568739673346819749944592584233361246268160995742363166247369544133704550871599724111067317996202526642186722437175018441711811497783303997429713171141987744585301287414083057774709238274149048069261805410237000839742871233402963887128576
+  ],
+  "witness_support_lower_decimal": "0.7658988152646940319150927022644140760278",
+  "assembled_upper_fraction": [
+    7667,
+    10000
+  ],
+  "assembled_upper_decimal": "0.7667",
+  "reported_outward_upper_fraction": [
+    7667,
+    10000
+  ],
+  "reported_outward_upper_decimal": "0.7667",
+  "reported_interval_width_decimal": "0.0008011848",
+  "sector_bounds": {
+    "binary_projective": {
+      "fraction": [
+        383,
+        500
+      ],
+      "decimal": "0.766"
+    },
+    "maximum_effect_at_most_0p88325": {
+      "fraction": [
+        57869300672911290505627,
+        75557863725914323419136
+      ],
+      "decimal": "0.7658938172581455663956625393723877219532"
+    },
+    "ternary": {
+      "fraction": [
+        19163,
+        25000
+      ],
+      "decimal": "0.76652"
+    },
+    "four_active_minimum_effect_at_least_0p0003": {
+      "fraction": [
+        7666751671519558613557657767271869131313,
+        10000000000000000000000000000000000000000
+      ],
+      "decimal": "0.7666751671519558613557657767271869131313"
+    },
+    "four_active_minimum_effect_below_0p0003_by_deletion": {
+      "fraction": [
+        7667,
+        10000
+      ],
+      "decimal": "0.7667"
+    }
+  },
+  "auxiliary_projective_line": {
+    "weight": "11/20",
+    "upper": "7573/10000",
+    "topology_cells": 1448,
+    "boxes_split": 172681
+  },
+  "projective_support_line": {
+    "weight": "3/5",
+    "upper": "383/500",
+    "topology_cells": 1448,
+    "boxes_split": 340971
+  },
+  "coverage": [
+    "binary-projective extreme terminal POVMs",
+    "three- and four-active POVMs with maximum effect at most 0.88325",
+    "three-active POVMs above the maximum-effect threshold",
+    "four-active POVMs above the threshold with minimum effect at least 0.0003",
+    "four-active POVMs with a smaller effect, deleted into the ternary sector"
+  ],
+  "component_replays": {
+    "low_weight_cells": 576,
+    "ternary_cells": 12008,
+    "four_active_leaves": 90,
+    "four_active_maximum": "7666751671519558613557657767271869131313/10000000000000000000000000000000000000000",
+    "optimizers_called_by_replays": false
+  },
+  "artifacts": {
+    "physical_lower": {
+      "path": "data/four_effect_rational_lower_l060.json",
+      "sha256": "f09d2ed8c7e634f5fffc6551f98c0e5b11b1a053ea0059bd7e11472709be750a"
+    },
+    "projective_060": {
+      "path": "scratch/d2_frontier/projective_tangent_global_l060_L0766_summary.json",
+      "sha256": "552c5ec34a95b67366e090b07a9a2665087e8121930cb25000dbbad0e2031904"
+    },
+    "projective_055": {
+      "path": "scratch/d2_frontier/projective_tangent_global_l055_L07573_summary.json",
+      "sha256": "ebd69c3eee3d498ace51d68d69d6c65af2369818dee4140e084b915fcffa8fe5"
+    },
+    "low_weight_verification": {
+      "path": "scratch/d2_frontier/low_weight_socp_exact_dual_l060_verified.json",
+      "sha256": "83501133f46ccf35843297b655b06e7939c3f42e31b78f9a9d863b3dff1dc5a2"
+    },
+    "ternary_verification": {
+      "path": "scratch/d2_frontier/ternary_transferred_exact_dual_full_l060_verified.json",
+      "sha256": "1f52e20313ac3753fb5a7355c4cd55aeaf4790f7eaf57263f4198efaf65b266d"
+    },
+    "four_active_verification": {
+      "path": "scratch/d2_frontier/four_active_common_bias_fallback_exact_cover_l060_verified.json",
+      "sha256": "f361eb0f3edc5cb0b39c6cd4fa91a9603d51312afc3d52ccb1231bec0c62f76d"
+    }
+  },
+  "certificate_class": "solver-independent finite enclosure: outward interval projective kernels, exact-dyadic residual dual replay, and the full-closure dominant-pair projective inequality; component matrix canonicalisation and the analytic sector reductions remain in the documented Python/Lean trust boundary",
+  "not_claimed": "exact equality with the explicit four-effect lower strategy, a closed form for the support curve, or a fully kernel-formalised end-to-end physical theorem",
+  "complete": true
+}

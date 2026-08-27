@@ -4,6 +4,12 @@
 
 **Status:** theorem proved and construction verified numerically
 
+> **Numerical update (22 August 2026).** The homogeneous-leaf reduction below
+> is unchanged. The balanced three-effect benchmark remains valid, but a new
+> four-effect leaf is stronger at larger AUDIT weights. At \(\lambda=0.6\) it
+> reaches \(0.765898815264694\ldots\), disproving the former three-effect
+> full-frontier conjecture. See `notes/interleaved_four_effect_frontier.md`.
+
 ## 1. Result
 
 Consider the late-choice AUDIT--RETURN game with $n$ streamed
@@ -212,7 +218,7 @@ $1.05\times10^{-15}$, and reproduces (14)--(15) within
 $7\times10^{-15}$. Thus (15) is a physical lower bound, improving the
 earlier complete ternary strategy $0.759448970317260\ldots$.
 
-Continuation of the same complete MPS branch gives a coexistence crossing
+Continuation of the same complete three-effect MPS branch gives a coexistence crossing
 with the no-record point near
 
 \[
@@ -224,4 +230,5 @@ and approaches the exact perfect-AUDIT endpoint
 $(P_{\rm A},F_{\rm R})=(1,1/4)$. The digits in (15)--(16) are variational
 results, not globally certified upper bounds. What is now exact is the
 reduction (3): closing the frontier means certifying the compact MPS maximum,
-not searching over unbounded adaptive instruments.
+not searching over unbounded adaptive instruments. The later four-effect
+construction changes the candidate maximiser, not this reduction theorem.

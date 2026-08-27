@@ -160,7 +160,6 @@ def test_basis_reconstruction_recovers_unique_physical_instrument() -> None:
 
 def test_basis_reconstruction_detects_positive_but_incompatible_outputs() -> None:
     states = basis_prefix_states()
-    probabilities = np.full(4, 0.25)
     choi = np.asarray(
         [choi_from_kraus((0.5 * IDENTITY,)) for _ in range(4)]
     )

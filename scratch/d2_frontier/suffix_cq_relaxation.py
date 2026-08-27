@@ -110,7 +110,9 @@ class SuffixRelaxation(torch.nn.Module):
         return weight * audit + (1 - weight) * returned, audit, returned
 
 
-def optimise(args: argparse.Namespace, seed: int) -> dict[str, float | int]:
+def optimise(
+    args: argparse.Namespace, seed: int
+) -> tuple[dict[str, float | int], dict[str, torch.Tensor]]:
     model = SuffixRelaxation(seed)
     if args.checkpoint is not None and seed == 0:
         model.load_leaf(args.checkpoint)
@@ -119,6 +121,7 @@ def optimise(args: argparse.Namespace, seed: int) -> dict[str, float | int]:
         optimiser, args.steps, eta_min=args.lr * 0.001
     )
     best = (-math.inf, 0.0, 0.0)
+    best_state: dict[str, torch.Tensor] = {}
     for iteration in range(args.steps):
         optimiser.zero_grad(set_to_none=True)
         values = model.scores(args.weight)
@@ -129,9 +132,21 @@ def optimise(args: argparse.Namespace, seed: int) -> dict[str, float | int]:
         point = tuple(float(value.detach()) for value in values)
         if point[0] > best[0]:
             best = point
+            best_state = {
+                name: value.detach().cpu().clone()
+                for name, value in model.state_dict().items()
+            }
         if iteration % 400 == 0 or iteration + 1 == args.steps:
             print(seed, iteration, *point, flush=True)
-    return {"seed": seed, "score": best[0], "audit": best[1], "return_upper": best[2]}
+    return (
+        {
+            "seed": seed,
+            "score": best[0],
+            "audit": best[1],
+            "return_upper": best[2],
+        },
+        best_state,
+    )
 
 
 def main() -> None:
@@ -141,10 +156,16 @@ def main() -> None:
     parser.add_argument("--restarts", type=int, default=6)
     parser.add_argument("--lr", type=float, default=0.008)
     parser.add_argument("--checkpoint", type=Path)
+    parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     results = [optimise(args, seed) for seed in range(args.restarts)]
-    results.sort(key=lambda item: item["score"], reverse=True)
-    print(json.dumps(results, indent=2))
+    results.sort(key=lambda item: item[0]["score"], reverse=True)
+    payload = [item[0] for item in results]
+    print(json.dumps(payload, indent=2))
+    if args.output is not None:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+        torch.save(results[0][1], args.output.with_suffix(".pt"))
 
 
 if __name__ == "__main__":

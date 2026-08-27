@@ -2,7 +2,16 @@
 
 **Date:** 22 August 2026
 **Status:** exact physical construction and exact homogeneous-leaf reduction;
-global maximisation of the compact MPS quotient remains uncertified
+superseded as a full-frontier candidate by a stronger four-effect branch
+
+> **Correction (22 August 2026).** The three-effect family remains a valid
+> physical lower bound and is exposed near balanced weight, but it is not the
+> full attainable curve. A symmetric four-effect bond-two MPS reaches
+> \(0.765898815264694\ldots\) at \(\lambda=0.6\), compared with
+> \(0.755705934586018\ldots\) here. See
+> `notes/interleaved_four_effect_frontier.md`. Statements below describing 3E
+> as the frontier candidate should be read as historical unless explicitly
+> restricted to the three-effect family.
 
 ## 1. What changed
 
@@ -57,8 +66,9 @@ The candidate saturates (4): its Gram matrix is diagonal to numerical
 precision below $10^{-15}$.  Eight multistarts of the enlarged cq-instrument
 problem at $\lambda=1/2$ found (3) three times, a secondary stationary point
 at $0.757115893155365\ldots$ three times, and the no-record point twice.  No
-larger cq value was found.  This is strong diagnostic evidence, not a global
-certificate.
+larger cq value was found at balanced weight.  This is local diagnostic
+evidence, not a global certificate; at larger support weight the same
+relaxation finds the stronger four-effect phase.
 
 Relaxing the first two slots still leaves (3) unchanged.  Consequently the
 active geometry is already visible at the middle cut: an arbitrary
@@ -257,20 +267,18 @@ The following statements are proved:
 4. the numerical values in (2)--(3) are rigorous lower bounds once the stored
    parameters are rounded with an explicit residual allowance.
 
-The following statement is not yet proved:
+The following historical conjecture is false:
 
 \[
 \beta^{\rm stream}_{H_{\rm I},2}(\lambda)=L_{\rm I}(\lambda)
 \quad\text{for every }\lambda.
 \tag{23}
 
-Unrestricted Choi-MPS continuation, the larger pinched cq-instrument
-relaxation, and the prefix-relaxed suffix problem all agree with (15) to
-double precision on the tested grid.  That agreement identifies a very strong
-frontier conjecture and removes arbitrary outcome alphabets and adaptive
-trees, but it is not a replacement for a global upper certificate.  A valid
-paper must call (1) an exact variational characterisation and (15) a compact
-attainable frontier candidate until (23) is certified analytically or by a
-convergent SDP/SOS hierarchy. The curated exploratory optimisers, example
-commands, and representative outputs are documented in
+At balanced weight, unrestricted Choi-MPS and pinched cq-instrument searches
+agree with (15) to double precision.  They do not agree with it throughout
+the interior: the physical four-effect phase is stronger beyond the observed
+first-order crossing near $\lambda=0.515250589$.  Equation (1) remains an
+exact variational characterisation and (15) remains an exact attainable
+three-effect curve, but equation (23) is disproved.  The curated exploratory
+optimisers, example commands, and representative outputs are documented in
 `scratch/d2_frontier/README.md`.
