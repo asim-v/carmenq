@@ -54,7 +54,13 @@ def _compare_json_value(left: Any, right: Any, location: str) -> None:
     if isinstance(left, bool) or isinstance(right, bool):
         if left != right:
             raise AssertionError(f"{location} changed")
-    elif isinstance(left, (int, float)) and isinstance(right, (int, float)):
+    elif isinstance(left, int) or isinstance(right, int):
+        # Integer counts and exact rational numerators/denominators are
+        # discrete data.  Comparing them exactly also avoids overflowing
+        # ``math.isclose`` when a certificate contains very large integers.
+        if left != right:
+            raise AssertionError(f"{location} changed from {left} to {right}")
+    elif isinstance(left, float) and isinstance(right, float):
         if not math.isclose(left, right, rel_tol=REL_TOL, abs_tol=ABS_TOL):
             raise AssertionError(f"{location} changed from {left} to {right}")
     elif isinstance(left, dict) and isinstance(right, dict):
