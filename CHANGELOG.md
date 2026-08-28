@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.2 - 2026-08-28
+
+- Removed the project wordmark and explanatory subtitle from the
+  order-sensitive manuscript title page. This is a presentation-only revision;
+  the theorems, certificates, numerical enclosure, and public API are unchanged
+  from 2.3.1.
+
 ## 2.3.1 - 2026-08-27
 
 - Made the frontier diagnostics importable without the optional PyTorch search

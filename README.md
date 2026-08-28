@@ -28,7 +28,7 @@ curve remain open.
 The package is installable directly from the public release:
 
 ```bash
-python -m pip install "carmenq @ git+https://github.com/asim-v/carmenq.git@v2.3.1"
+python -m pip install "carmenq @ git+https://github.com/asim-v/carmenq.git@v2.3.2"
 ```
 
 PyPI packaging is ready, but this repository does not claim that the `carmenq` name has already been uploaded to PyPI.
@@ -264,13 +264,13 @@ the outcome/completeness part of the problem. At `lambda=0.6`, the nonconvex
 two-block maximum has additionally been enclosed to relative width `0.10461%`
 by outward projective interval covers, an exact replay of 12,008 ternary
 cells, and an exact replay of a compact 90-leaf four-active tree. The complete
-certificate bundle and checksums are attached to the public `v2.3.1` release.
+certificate bundle and checksums are attached to the public `v2.3.2` release.
 After downloading that asset into the tagged checkout, verify the archive itself
 with
 
 ```bash
 python scripts/build_global_frontier_bundle.py \
-  --verify output/releases/carmenq-global-frontier-v2.3.1.zip
+  --verify output/releases/carmenq-global-frontier-v2.3.2.zip
 ```
 
 The bundled `README.txt` gives the solver-free replay commands for every sector.
